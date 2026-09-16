@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | 상태 | 리뷰 중 |
-| 브랜치 | `chore/T-001-project-setup` |
-| PR | #1 |
+| 브랜치 | `chore/T-001-project-setup` (처음 이름 `chore/project-setup`) |
+| PR | #1 뼈대 커밋만 — merge commit으로 머지됨 · #2 나머지 |
 | 기간 | 2026-09-16 |
 | 근거 | ULTSPOT Brand & Design Guide v1.0 (2026.09) · 스택 결정: React · TS · Tailwind CSS · Next.js · Supabase, OpenAI 연동 예정 |
 
@@ -17,7 +17,7 @@
 
 | # | 커밋 | 내용 |
 |---|------|------|
-| 1 | `4c5c315` | create-next-app 16.3.5 템플릿 원본 커밋 (이후 diff를 깨끗하게 보기 위해) |
+| 1 | `4c5c315` | create-next-app 16.3.5 템플릿 원본 커밋 (이후 diff를 깨끗하게 보기 위해). 첫 push 직후 #1로 `main`에 먼저 머지됨 |
 | 2 | `0f0a0a8` | 브랜드 가이드 → `theme.css` 토큰, UI·브랜드 컴포넌트 11개, `/design-system` 화면, 임시 랜딩 |
 | 3 | `0982351` | Playwright 캡처 파이프라인(`pnpm capture`), 반응형 smoke·토큰 일치 검사, 첫 캡처 6장 |
 | 4 | `9a47fa5` | Supabase SSR 클라이언트 3종 + `proxy.ts` 세션 갱신, `.env.example` (OpenAI 키 자리 포함) |
