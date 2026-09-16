@@ -44,6 +44,16 @@ pnpm exec playwright install chromium
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm test:e2e` | 반응형 smoke + 토큰 일치 검사 (mobile·tablet·desktop) |
 | `pnpm capture T-NNN [화면,...]` | 3개 뷰포트 스크린샷 → `docs/tasks/T-NNN/screenshots/` |
+| `pnpm check:prod <URL>` | 배포 주소를 시크릿 창 조건으로 검사 (로그인·비밀번호 화면 없이 열리는지 + smoke + 토큰) |
+
+## 배포
+
+`main`에 머지되면 Vercel이 프로덕션에 자동 배포합니다. PR 브랜치는 미리보기로 배포됩니다.
+
+- **공개·제출용 주소는 프로덕션 도메인만** 씁니다. 배포별(`ultspot-<hash>-tlstkdgus.vercel.app`)·브랜치별(`ultspot-git-<branch>-…`) 주소는 Vercel 로그인이 먼저 뜹니다.
+- 배포 후 `pnpm check:prod <프로덕션 URL>`로 확인합니다.
+- 환경 변수는 Vercel 프로젝트 설정 → Environment Variables에 넣습니다 (`.env.local`은 로컬 전용).
+- 대회 제출 요건과 마감 전 체크리스트: [docs/specs/submission-requirements.md](docs/specs/submission-requirements.md)
 
 ## 환경 변수
 
@@ -73,12 +83,14 @@ src/
     supabase/           client · server · proxy(세션 갱신)
   proxy.ts              요청 앞단 Supabase 세션 갱신 (Next 16의 middleware)
 e2e/
-  routes.ts             캡처·smoke 대상 화면 목록
+  routes.ts             캡처·smoke·공개 접근 검사 대상 화면 목록
 docs/
+  specs/                기획서·제출 요건
   design-system.md      디자인 시스템 사용 규칙
   tasks/                태스크별 기록과 스크린샷
 scripts/
   capture.mjs           pnpm capture 진입점
+  check-prod.mjs        pnpm check:prod 진입점
 ```
 
 ## 문서
@@ -86,5 +98,6 @@ scripts/
 | 문서 | 내용 |
 |------|------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | **브랜치 · 커밋 · PR · 캡처 · 태스크 기록 규칙** — 작업 전에 먼저 읽어주세요 |
+| [docs/specs/submission-requirements.md](docs/specs/submission-requirements.md) | **원티드 AI 챔피언십 제출 요건** (마감 9/20) — 비로그인 체험·서버 전용 키·접속 가능 상태 |
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |

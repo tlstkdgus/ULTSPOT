@@ -16,7 +16,8 @@ ULTSPOT은 **보여지는 것이 곧 제품**인 서비스다. 그래서 이 규
   → UI를 바꿨으면 pnpm capture T-00N → 스크린샷 커밋
   → docs/tasks/T-00N/README.md 기록
   → PR 생성 (템플릿 채우기)
-  → 셀프 리뷰 (gh pr diff) → Rebase merge
+  → 셀프 리뷰 (gh pr diff) → Merge commit (squash 금지)
+  → main 머지 = Vercel 프로덕션 자동 배포 → pnpm check:prod <프로덕션 URL>
 ```
 
 ---
@@ -169,16 +170,25 @@ pnpm capture T-002 home,design-system   # 일부 화면만
   - **머지 후 일어나는 일** — 자동 배포, 마이그레이션, 환경 변수 추가 등 사람이 해야 하는 것.
 - **머지 전 셀프 리뷰**: `gh pr diff`를 처음부터 끝까지 한 번 읽는다. 디버그 로그, 주석 처리된 코드, 딸려 온 파일이 여기서 걸린다.
 
-### 병합 — Rebase merge
+### 병합 — Merge commit (squash 금지)
 
 ```bash
-gh pr merge --rebase --delete-branch
+gh pr merge --merge --delete-branch
 ```
 
-animal-league는 Squash merge를 썼지만 ULTSPOT은 **Rebase merge**를 쓴다.
+animal-league는 Squash merge를 썼지만 ULTSPOT은 **squash하지 않는다.**
 하루짜리 운영 도구였던 그쪽은 "PR 하나 = 되돌릴 커밋 하나"가 중요했고,
 여기서는 작업 단위 커밋마다 판단 근거를 본문에 쓰기 때문에 squash하면 그 본문이 `main` 히스토리에서 사라진다.
-대신 **PR 안의 모든 커밋이 각각 빌드 가능**해야 한다 (3장 규칙).
+
+처음에는 Rebase merge로 정했지만, #1·#2가 실제로 Merge commit으로 머지됐다. 커밋 본문을 보존한다는 목적은 둘 다 같아서
+실제 습관에 맞춰 Merge commit을 기본으로 바꿨다. 되돌릴 때는 `git revert -m 1 <머지 커밋>`으로 PR 단위로 되돌릴 수 있다.
+PR 안의 모든 커밋은 각각 빌드 가능해야 한다 (3장 규칙).
+
+### 머지 후 — 프로덕션 확인
+
+`main` 머지는 곧 Vercel 프로덕션 배포다 (제출 링크가 바로 바뀐다).
+배포가 끝나면 `pnpm check:prod <프로덕션 URL>`을 돌리고, 결과를 태스크 문서 검증 칸에 적는다.
+제출 요건과 마감 전 체크리스트는 [`docs/specs/submission-requirements.md`](docs/specs/submission-requirements.md).
 
 ---
 
@@ -190,7 +200,7 @@ animal-league는 Squash merge를 썼지만 ULTSPOT은 **Rebase merge**를 쓴다
 | `CONTRIBUTING.md` | 이 문서 — 브랜치·커밋·PR·캡처·기록 규칙 | 기능 설명 |
 | `docs/design-system.md` | 토큰·컴포넌트 사용 규칙, 브랜드 가이드와의 대응 | 컴포넌트 props 전체 나열 (코드가 원천) |
 | `docs/tasks/` | 태스크별 목표·진행·결정·스크린샷 | |
-| `docs/specs/` (예정) | 기획서 | |
+| `docs/specs/` | 기획서(예정), 대회 제출 요건 | 구현 상세 |
 
 **README를 고쳐야 하는 PR**: 스크립트 추가/변경, 환경 변수 추가, 폴더 구조 변경, 필요한 설치 단계 변경.
 PR 템플릿 체크리스트에 항목이 있다. README가 실제와 어긋나면 새로 온 사람이 첫 10분에 막힌다.
