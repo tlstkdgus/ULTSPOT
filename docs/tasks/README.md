@@ -1,0 +1,7 @@
+# 태스크 목록
+
+작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
+
+| ID | 제목 | 상태 | 브랜치 | PR |
+|----|------|------|--------|----|
+| [T-001](T-001/README.md) | 프로젝트 기본 셋팅 — Next.js · 디자인 시스템 · Supabase · 캡처 파이프라인 · 작업 규칙 | 리뷰 중 | `chore/T-001-project-setup` | #1 |
