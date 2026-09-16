@@ -1,0 +1,130 @@
+/*
+ * ULTSPOT 디자인 토큰 — Brand & Design Guide v1.0 (2026.09, Candidate 4: Neon Lime × Sunset Orange)
+ *
+ * 이 파일이 색·타이포·라운드·모션의 단일 원천이다.
+ * JS에서 같은 값이 필요하면(canvas, OG 이미지, meta theme-color) src/design-system/tokens.ts를 쓰고,
+ * 두 파일의 값이 어긋나면 e2e/tokens.spec.ts가 실패한다.
+ */
+
+@theme {
+  /* Tailwind 기본 팔레트를 비운다. 경쟁사와 겹치는 핑크·레드·블루를
+     브랜드 강조색으로 다시 끌어오지 않는 것이 가이드의 Don't 규칙이라,
+     팔레트에 없는 색은 클래스로도 쓸 수 없게 막는다. */
+  --color-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Brand */
+  --color-lime: #d6ff3f;
+  --color-lime-dim: #9fcc1e;
+  --color-lime-ink: #1d2400;
+  --color-orange: #ff7a33;
+  --color-orange-dim: #cc5a1e;
+  --color-orange-ink: #2b1200;
+
+  /* Ink neutral scale (warm dark) */
+  --color-ink-900: #100e0c;
+  --color-ink-800: #17130f;
+  --color-ink-700: #1e1913;
+  --color-ink-600: #282119;
+  --color-ink-500: #4a4034;
+  --color-ink-400: #7c7266;
+  --color-ink-300: #b9afa0;
+  --color-ink-100: #fbf4e7;
+
+  /* Semantic surfaces & text */
+  --color-bg: var(--color-ink-900);
+  --color-bg-soft: var(--color-ink-800);
+  --color-surface: var(--color-ink-700);
+  --color-surface-2: var(--color-ink-600);
+  --color-line: #38302640;
+  --color-line-strong: var(--color-ink-500);
+  --color-text: var(--color-ink-100);
+  --color-text-muted: var(--color-ink-300);
+  --color-text-faint: var(--color-ink-400);
+
+  /* Status — 브랜드 색과 분리된 의미 색. 상태 뱃지에는 반드시 이것만 쓴다. */
+  --color-success: #39d98a;
+  --color-warning: #ffc53d;
+  --color-danger: #ff5d6c;
+  --color-positive-surface: #1b2410;
+  --color-positive-line: #3a4a1e;
+  --color-negative-surface: #261513;
+  --color-negative-line: #4a2620;
+
+  /* Type scale — 모바일 우선. 큰 제목은 clamp로 뷰포트에 따라 커진다. */
+  --text-hero: clamp(3.25rem, 11vw, 8.25rem);
+  --text-hero--line-height: 0.92;
+  --text-hero--letter-spacing: -0.01em;
+  --text-hero--font-weight: 900;
+
+  --text-display: clamp(2.5rem, 6vw, 3.5rem);
+  --text-display--line-height: 1;
+  --text-display--font-weight: 900;
+
+  --text-title: clamp(1.625rem, 3.4vw, 2.25rem);
+  --text-title--line-height: 1.15;
+  --text-title--font-weight: 800;
+
+  --text-heading: clamp(1.375rem, 2.6vw, 2.125rem);
+  --text-heading--line-height: 1.2;
+  --text-heading--font-weight: 800;
+
+  --text-subhead: 1.25rem;
+  --text-subhead--line-height: 1.4;
+  --text-subhead--font-weight: 700;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.6;
+
+  --text-label: 0.84375rem;
+  --text-label--line-height: 1.4;
+  --text-label--font-weight: 700;
+
+  --text-caption: 0.78125rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.04em;
+  --text-caption--font-weight: 500;
+
+  --text-eyebrow: 0.78125rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.14em;
+  --text-eyebrow--font-weight: 700;
+
+  /* Radius — 가이드의 실측값(7 / 12 / 14 / 18 / 20 / 36px) */
+  --radius-xs: 7px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 20px;
+  --radius-device: 36px;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-dot-pulse: dot-pulse 1.2s var(--ease-out-soft) infinite;
+
+  @keyframes dot-pulse {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(0.7);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* next/font가 <html>에 심는 변수를 참조하므로 inline으로 풀어야 한다. */
+@theme inline {
+  --font-display: var(--font-unbounded), "Pretendard Variable", Pretendard, sans-serif;
+  --font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
