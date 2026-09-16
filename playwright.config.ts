@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
-const baseURL = `http://127.0.0.1:${PORT}`;
+// E2E_BASE_URL이 있으면 로컬 서버를 띄우지 않고 배포된 주소를 검사한다 (pnpm check:prod).
+const remoteURL = process.env.E2E_BASE_URL;
+const baseURL = remoteURL ?? `http://127.0.0.1:${PORT}`;
 
 /**
  * 뷰포트 3종 — 반응형 웹앱이라 모든 캡처·테스트를 세 폭에서 돈다.
@@ -33,12 +35,14 @@ export default defineConfig({
   })),
   // 캡처는 dev 서버가 아니라 프로덕션 빌드로 찍는다.
   // dev 모드는 좌하단 개발 인디케이터가 화면에 찍히고, 실제 배포 화면과 폰트 로딩 타이밍도 다르다.
-  webServer: {
-    command: `pnpm build && pnpm start --port ${PORT}`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 240_000,
-    stdout: "ignore",
-    stderr: "pipe",
-  },
+  webServer: remoteURL
+    ? undefined
+    : {
+        command: `pnpm build && pnpm start --port ${PORT}`,
+        url: baseURL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 240_000,
+        stdout: "ignore",
+        stderr: "pipe",
+      },
 });
