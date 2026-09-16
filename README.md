@@ -1,1 +1,90 @@
 # ULTSPOT
+
+> **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
+
+<img src="docs/tasks/T-001/screenshots/home-desktop.png" alt="ULTSPOT 임시 랜딩 (desktop)" width="720">
+
+모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
+
+| | |
+|---|---|
+| 프레임워크 | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript |
+| 스타일 | Tailwind CSS 4 + 브랜드 토큰 (`src/styles/theme.css`) |
+| 백엔드 | Supabase (`@supabase/ssr`) |
+| AI | OpenAI API (예정) |
+| 테스트·캡처 | Playwright (Chromium) |
+| 패키지 매니저 | pnpm 10 · Node 24 |
+
+---
+
+## 빠른 시작
+
+```bash
+pnpm install
+cp .env.example .env.local        # Supabase 키가 없어도 화면은 뜹니다
+pnpm dev                          # http://localhost:3000
+```
+
+- `/` — 임시 랜딩
+- `/design-system` — 디자인 토큰·컴포넌트 확인 화면
+
+화면 캡처·E2E를 돌리려면 최초 1회 브라우저를 설치합니다.
+
+```bash
+pnpm exec playwright install chromium
+```
+
+## 스크립트
+
+| 명령 | 하는 일 |
+|------|---------|
+| `pnpm dev` | 개발 서버 |
+| `pnpm build` / `pnpm start` | 프로덕션 빌드 / 실행 |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm test:e2e` | 반응형 smoke + 토큰 일치 검사 (mobile·tablet·desktop) |
+| `pnpm capture T-NNN [화면,...]` | 3개 뷰포트 스크린샷 → `docs/tasks/T-NNN/screenshots/` |
+
+## 환경 변수
+
+`.env.example`을 `.env.local`로 복사해 채웁니다.
+
+| 변수 | 노출 | 설명 |
+|------|------|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | 브라우저 | Supabase 프로젝트 URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 브라우저 | `sb_publishable_…` 키. 실제 보호는 RLS가 합니다 |
+| `OPENAI_API_KEY` | **서버 전용** | 예정. `NEXT_PUBLIC_`을 절대 붙이지 않습니다 |
+
+## 폴더 구조
+
+```
+src/
+  app/                  라우트 (App Router)
+    design-system/      토큰·컴포넌트 확인 화면
+  components/
+    ui/                 Button · Badge · Chip · DateChip · Card · AvatarStack · Eyebrow
+    brand/              Wordmark · SpotPin · DotField · DotLoader
+  design-system/
+    tokens.ts           CSS 토큰의 JS 사본 (canvas·meta 전용)
+  styles/
+    theme.css           디자인 토큰 단일 원천 (Tailwind @theme)
+  lib/
+    cn.ts               className 병합 (커스텀 스케일 등록된 tailwind-merge)
+    supabase/           client · server · proxy(세션 갱신)
+  proxy.ts              요청 앞단 Supabase 세션 갱신 (Next 16의 middleware)
+e2e/
+  routes.ts             캡처·smoke 대상 화면 목록
+docs/
+  design-system.md      디자인 시스템 사용 규칙
+  tasks/                태스크별 기록과 스크린샷
+scripts/
+  capture.mjs           pnpm capture 진입점
+```
+
+## 문서
+
+| 문서 | 내용 |
+|------|------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | **브랜치 · 커밋 · PR · 캡처 · 태스크 기록 규칙** — 작업 전에 먼저 읽어주세요 |
+| [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
+| [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |

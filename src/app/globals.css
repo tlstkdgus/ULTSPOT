@@ -1,26 +1,59 @@
 @import "tailwindcss";
+@import "../styles/theme.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* 페이지 공통 가로 여백 + 최대 폭 (가이드 .wrap: 1080px, 좌우 20px) */
+@utility shell {
+  width: 100%;
+  max-width: 67.5rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @variant md {
+    padding-inline: 2rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    /* 다크 전용 브랜드 — 가이드 Don't: "밝은 화이트 배경 위에 라임을 그대로 쓰지 않기" */
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg font-sans text-text antialiased;
+    min-height: 100dvh;
+    /* 한글이 음절 단위로 끊기지 않게 어절 단위 줄바꿈. 긴 URL 등은 anywhere로 넘친다. */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    @apply bg-lime text-lime-ink;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-lime;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
