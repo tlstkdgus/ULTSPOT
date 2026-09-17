@@ -6,3 +6,4 @@
 |----|------|------|--------|----|
 | [T-001](T-001/README.md) | 프로젝트 기본 셋팅 — Next.js · 디자인 시스템 · Supabase · 캡처 파이프라인 · 작업 규칙 | 완료 | `chore/T-001-project-setup` | #1 (뼈대) · #2 |
 | [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 리뷰 중 — https://ultspot.vercel.app | `chore/T-002-vercel-deploy` | #3 |
+| [T-003](T-003/README.md) | 기획 보강 — 테마 테스트 초안, 장소 데이터 확보 방안, 기획안 v0.5 | 진행 중 — 기획 검토·X 토큰 대기 | `docs/T-003-theme-test-and-places` | #4 (Draft) |
