@@ -5,4 +5,4 @@
 | ID | 제목 | 상태 | 브랜치 | PR |
 |----|------|------|--------|----|
 | [T-001](T-001/README.md) | 프로젝트 기본 셋팅 — Next.js · 디자인 시스템 · Supabase · 캡처 파이프라인 · 작업 규칙 | 완료 | `chore/T-001-project-setup` | #1 (뼈대) · #2 |
-| [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 진행 중 — Vercel 프로젝트 생성 대기 | `chore/T-002-vercel-deploy` | #3 (Draft) |
+| [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 리뷰 중 — https://ultspot.vercel.app | `chore/T-002-vercel-deploy` | #3 |
