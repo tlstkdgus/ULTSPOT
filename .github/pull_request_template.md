@@ -34,7 +34,7 @@ T-NNN · [기록](docs/tasks/T-NNN/README.md)
 - [ ] `pnpm typecheck` — 
 - [ ] `pnpm test:e2e` — N건 통과
 - [ ] `pnpm capture T-NNN` — N장
-- [ ] 로그인 없이 핵심 기능이 동작한다 / API 키가 브라우저로 나가지 않는다 ([제출 요건](docs/specs/submission-requirements.md))
+- [ ] API 키가 브라우저로 나가지 않는다 / 가입 없이(또는 데모 경로로) 핵심 흐름을 볼 수 있다 ([제출 요건](docs/specs/submission-requirements.md))
 
 ## 체크리스트
 

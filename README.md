@@ -4,7 +4,7 @@
 
 <img src="docs/tasks/T-001/screenshots/home-desktop.png" alt="ULTSPOT 임시 랜딩 (desktop)" width="720">
 
-모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
+**데모: https://ultspot.vercel.app** · 모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
 
 | | |
 |---|---|
@@ -98,6 +98,6 @@ scripts/
 | 문서 | 내용 |
 |------|------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | **브랜치 · 커밋 · PR · 캡처 · 태스크 기록 규칙** — 작업 전에 먼저 읽어주세요 |
-| [docs/specs/submission-requirements.md](docs/specs/submission-requirements.md) | **원티드 AI 챔피언십 제출 요건** (마감 9/20) — 비로그인 체험·서버 전용 키·접속 가능 상태 |
+| [docs/specs/submission-requirements.md](docs/specs/submission-requirements.md) | **원티드 AI 챔피언십 제출 요건** (마감 9/20) — 설치·키 발급 없이 체험, 서버 전용 키, 접속 가능 상태 |
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |

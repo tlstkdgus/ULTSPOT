@@ -17,4 +17,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 3. UI를 바꿨으면 `pnpm capture T-NNN`으로 3개 뷰포트를 캡처해 커밋하고, 캡처를 직접 열어 확인한다.
 4. 작업이 끝나면 `docs/tasks/T-NNN/README.md`를 쓰고 목록을 갱신한 뒤, `.github/pull_request_template.md` 양식으로 PR을 연다. 스크린샷은 커밋 SHA 고정 blob 링크로 건다.
 5. 색·크기는 `src/styles/theme.css` 토큰만 쓴다 (기본 팔레트는 꺼져 있음). 규칙은 `docs/design-system.md`.
-6. 대회 제출 요건(`docs/specs/submission-requirements.md`)을 어기는 설계를 하지 않는다: 핵심 기능은 로그인 없이, API 키는 서버에만, 제출 주소는 Vercel 프로덕션 도메인. `main` 머지 후 `pnpm check:prod <URL>`.
+6. 대회 제출 요건(`docs/specs/submission-requirements.md`)을 어기는 설계를 하지 않는다: API 키는 서버에만, 설치·키 발급 없이 체험 가능, 제출 주소는 Vercel 프로덕션 도메인 `ultspot.vercel.app`. `main` 머지 후 `pnpm check:prod https://ultspot.vercel.app`. (앱 로그인 금지는 공지 요건이 아니라 팀 판단 — 문서의 구분을 지킨다)
