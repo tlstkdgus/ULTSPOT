@@ -34,6 +34,7 @@ T-NNN · [기록](docs/tasks/T-NNN/README.md)
 - [ ] `pnpm typecheck` — 
 - [ ] `pnpm test:e2e` — N건 통과
 - [ ] `pnpm capture T-NNN` — N장
+- [ ] API 키가 브라우저로 나가지 않는다 / 가입 없이(또는 데모 경로로) 핵심 흐름을 볼 수 있다 ([제출 요건](docs/specs/submission-requirements.md))
 
 ## 체크리스트
 
@@ -45,4 +46,7 @@ T-NNN · [기록](docs/tasks/T-NNN/README.md)
 
 ## 머지 후 일어나는 일
 
-<!-- 자동 배포, DB 마이그레이션, 추가해야 할 환경 변수, 수동 조치. 없으면 "없음" -->
+<!-- main 머지 = Vercel 프로덕션(제출 링크) 자동 배포. 배포 후 pnpm check:prod <프로덕션 URL> 결과를 적는다.
+     DB 마이그레이션, Vercel에 추가해야 할 환경 변수, 수동 조치도 여기에 -->
+
+- Vercel 프로덕션 자동 배포 → `pnpm check:prod` 결과: 
