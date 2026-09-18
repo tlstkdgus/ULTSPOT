@@ -4,6 +4,8 @@ import { updateSession } from "@/lib/supabase/proxy";
 
 // Next.js 16부터 middleware.ts → proxy.ts
 export async function proxy(request: NextRequest) {
+  // Public planning never depends on auth availability; optional cloud save authenticates separately.
+  if (["/", "/plan"].includes(request.nextUrl.pathname)) return NextResponse.next();
   if (!isSupabaseConfigured) return NextResponse.next();
   return updateSession(request);
 }
