@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 리뷰 준비 |
 | 브랜치 | `docs/T-004-evidence-and-execution` |
-| PR | 생성 후 GitHub에서 확인 |
+| PR | [#5](https://github.com/tlstkdgus/ULTSPOT/pull/5) |
 | 기간 | 2026-09-19 |
 | 근거 | 사용자 요청: 추가 인터뷰를 선행 조건으로 두지 않고 인터넷 자료를 찾아 진행. 법·정책 준수 및 실제 제품 목표 유지 |
 
