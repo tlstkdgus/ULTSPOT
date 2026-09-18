@@ -18,6 +18,7 @@
 | — | **데모 여행 바로가기** 경로 추가 [제안] | 심사자가 입력 없이 핵심 가치에 도달 |
 | 체크인·커뮤니티·가계부 | 슬라이드형 **목업 시나리오** 한 화면(S-14) | P2, 위치 기반 재현 불가 |
 | 발자취 = 일정 종료 후 | 일정 화면에서 바로 **미리보기** | 데모에서는 여행이 끝나지 않는다 |
+| 일정을 서버에 저장하고 공유 링크 제공 | **브라우저에만 저장, 공유 링크 없음** [결정 2026-09-19] | 기능명세서 §9.1-3. 저장 API·공유 주소를 만들지 않아 마감까지 만들 양이 준다 |
 
 ---
 
@@ -141,7 +142,7 @@ flowchart TD
 | S-04 | 답 5개 | S-03 첫 미답 문항 | S-03 Q5 | 유지 |
 | S-05 | S-02 값 + 테스트 결과 | 빠진 단계로 이동 | S-04 | 선택 유지 |
 | S-06 | 생성 요청 중 | S-05 | **막음** (확인 `Stop generating?`) | S-05로 이동 |
-| S-08 | `tripId` 유효 | 404 화면 + `Plan a new trip` | S-05 (선택 유지) | 서버에서 다시 읽음 |
+| S-08 | 같은 브라우저에 저장된 일정 | `No trip on this device.` + `Plan a new trip` | S-05 (선택 유지) | `localStorage`에서 다시 읽음 |
 
 sessionStorage를 못 쓰는 환경(C-11): 흐름은 메모리 상태로 계속 진행, 새로고침 시 S-02부터.
 
@@ -158,11 +159,11 @@ sequenceDiagram
     participant W as 웹 (S-05/S-06)
     participant API as Route Handler
     participant R as 규칙 엔진<br/>src/lib/planner
-    participant DB as Supabase
+    participant DB as Supabase (장소 데이터)
     participant AI as OpenAI
 
     U->>W: Generate my trip
-    W->>API: POST /api/trips/check {input, quiz, best3}
+    W->>API: POST /api/conflicts {input, quiz, best3}
     API->>DB: 후보·Best 3 장소 조회
     API->>R: 충돌 판정 §4.6
     R-->>API: conflicts[]
@@ -171,11 +172,11 @@ sequenceDiagram
     alt 강한 충돌 있음
         W->>U: S-07 충돌 시트 (이유 + 선택지)
         U->>W: Keep A
-        W->>API: POST /api/trips/check {…, decisions}
+        W->>API: POST /api/conflicts {…, decisions}
         API-->>W: conflicts = []
     end
 
-    W->>API: POST /api/trips {input, quiz, best3, decisions}
+    W->>API: POST /api/itinerary {input, quiz, best3, decisions}
     API->>R: 기본 일정 §4.5
     R-->>API: baseline
     API->>AI: 후보 풀 + baseline (타임아웃 15초)
@@ -192,13 +193,12 @@ sequenceDiagram
         API->>API: baseline (fallback_reason = timeout / api_error / rate_limited)
     end
 
-    API->>DB: trips 저장
-    alt 저장 성공
-        API-->>W: 201 {tripId, itinerary, warnings}
+    API-->>W: 200 {itinerary, warnings}
+    alt localStorage 저장 성공
+        W->>W: ultspot.trip 저장 (C-12)
         W->>U: S-08 /trip/[tripId]
-    else 저장 실패
-        API-->>W: 200 {tripId: null, itinerary, warnings}
-        W->>U: S-08 (문서·공유·조정 비활성)
+    else 저장 실패 (용량·권한)
+        W->>U: S-08 (문서·카드 비활성, 일정은 표시)
     end
 ```
 
@@ -267,7 +267,8 @@ flowchart TD
     T -->|What happens on-site?| OS[S-14 현장 시나리오]
     T -->|Want a local guide?| PR[S-15 Premium 견적]
 
-    T -.->|tripId 없음| DIS[Adjust · Document · Footprint 비활성<br/>Couldn't save this trip. Try generating again.]
+    T -.->|저장 실패| DIS[Document · Footprint 비활성<br/>Couldn't save this trip on this device.]
+    T -.->|다른 기기·브라우저| NEW[저장된 일정 없음<br/>Plan a new trip]
 ```
 
 ---
@@ -294,10 +295,8 @@ flowchart TD
     V -- 약한 경고 --> VW[warning 배지, Save 가능] --> SV
     V -- 없음 --> SV[Save]
 
-    SV --> API[PATCH /api/trips/tripId]
-    API --> SR{서버 검증}
-    SR -- 통과 --> DONE[S-08 갱신]
-    SR -- 422 violations --> VX
+    SV --> API[localStorage 덮어쓰기<br/>서버 호출 없음]
+    API --> DONE[S-08 갱신]
 ```
 
 ---
@@ -308,7 +307,7 @@ flowchart TD
 flowchart TD
     A[S-12 진입] --> B[Preview based on your plan 배지]
     B --> C[일정 순서대로 거리 합산<br/>= S-08 요약 거리]
-    C --> D[카드 이미지 생성<br/>GET /api/trips/tripId/card]
+    C --> D[카드 이미지 생성<br/>브라우저 canvas]
     D --> E{공유 방식}
     E -- Web Share 지원 --> F[Share → OS 공유 시트]
     E -- 미지원 --> G[Download image]
@@ -397,10 +396,10 @@ flowchart TD
 | S-04 | 없음 (즉시 계산) | — | — | — |
 | S-05 | 카드 스켈레톤 3장 | `Nothing open on these dates.` + Change dates / demo | `Retry`, 3회 실패 시 demo 링크 | 필터 결과 0 → `No {type} on your dates.` |
 | S-06 | DotLoader + 단계 문구 | — | 네트워크: `Couldn't reach ULTSPOT` | AI 실패 → 사용자에게 보이지 않음 |
-| S-08 | 서버 렌더 (로더 없음) | 빈 날 → `Free day — explore nearby` | tripId 없음·만료 → 404 | 저장 실패 → 일부 액션 비활성 |
+| S-08 | 로더 없음 (브라우저 저장에서 읽음) | 빈 날 → `Free day — explore nearby` · 후보 0곳 → 빈 일정 안내 | 저장된 일정 없음 → `Plan a new trip` | 저장 실패 → 문서·카드 비활성 |
 | S-09 | 시트 스켈레톤 | — | 원문 삭제된 장소 → 404 | X 임베드 실패 → 링크만 표시 |
 | S-10 | — | — | 422 → 위반 배지 | — |
-| S-11 | — | — | tripId 없음 → 진입 불가 | — |
+| S-11 | — | — | 저장된 일정 없음 → 진입 불가 | — |
 | S-12 | 카드 자리 도트 로더 | — | `Couldn't draw your card` | Web Share 미지원 → 다운로드만 |
 | S-13 | 리스트 스켈레톤 | `No places found within 1 km.` | `Nearby suggestions are unavailable right now.` | — |
 
@@ -408,8 +407,8 @@ flowchart TD
 
 ## 13. 오픈 이슈
 
-- [ ] 데모 여행 경로(2절)를 넣을지, 넣는다면 랜딩에서 얼마나 강조할지
-- [ ] 샘플 데이터에 의도된 충돌을 넣을지 (2절 주석)
-- [ ] S-09를 페이지(`/spots/[id]`)로도 열지, 시트만 둘지 — 공유 링크가 필요하면 페이지
+**[결정 2026-09-19]** 데모 여행 경로는 랜딩의 보조 버튼으로 넣고, 샘플 데이터에 강한 충돌 1건을 만든다 (기능명세서 D-06). 일정은 브라우저에만 저장한다.
+
+- [ ] S-09를 페이지(`/spots/[id]`)로도 열지, 시트만 둘지 — 장소 링크를 공유할 일이 있으면 페이지
 - [ ] S-16 진입 위치
-- [ ] 기능명세서 §9 오픈 이슈 전체
+- [ ] 기능명세서 §9.2 남은 오픈 이슈
