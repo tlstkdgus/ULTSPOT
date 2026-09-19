@@ -2,7 +2,7 @@
 
 > **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
 
-<img src="docs/tasks/T-001/screenshots/home-desktop.png" alt="ULTSPOT 임시 랜딩 (desktop)" width="720">
+<img src="docs/tasks/T-005/screenshots/home-desktop.png" alt="ULTSPOT 비회원 플래너 진입 (desktop)" width="720">
 
 **데모: https://ultspot.vercel.app** · 모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
 
@@ -25,7 +25,8 @@ cp .env.example .env.local        # Supabase 키가 없어도 화면은 뜹니�
 pnpm dev                          # http://localhost:3000
 ```
 
-- `/` — 임시 랜딩
+- `/` — 비회원 플래너 진입
+- `/plan` — 실제 장소·개인 행사 입력·일정 생성/수정·기기 저장/복원·다운로드. 클라우드 저장 연결은 [설정 안내](docs/setup-cloud-trips.md) 참조.
 - `/design-system` — 디자인 토큰·컴포넌트 확인 화면
 
 화면 캡처·E2E를 돌리려면 최초 1회 브라우저를 설치합니다.
@@ -64,6 +65,7 @@ pnpm exec playwright install chromium
 | `NEXT_PUBLIC_SUPABASE_URL` | 브라우저 | Supabase 프로젝트 URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 브라우저 | `sb_publishable_…` 키. 실제 보호는 RLS가 합니다 |
 | `OPENAI_API_KEY` | **서버 전용** | 예정. `NEXT_PUBLIC_`을 절대 붙이지 않습니다 |
+| `NEXT_PUBLIC_ENABLE_CLOUD_TRIPS` | 브라우저 | 기본 false. migration·익명 인증·RLS 검증 후 활성화 ([설정](docs/setup-cloud-trips.md)) |
 
 ## 폴더 구조
 

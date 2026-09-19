@@ -8,3 +8,4 @@
 | [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 완료 — https://ultspot.vercel.app | `chore/T-002-vercel-deploy` | #3 |
 | [T-003](T-003/README.md) | 기획 보강 — 테마 테스트 초안, 장소 데이터 확보 방안, 기획안 v0.5, PRD·기능명세서·유저플로우 | 진행 중 — 기획 검토·X 토큰 대기 | `docs/T-003-theme-test-and-places` | #4 (Draft) |
 | [T-004](T-004/README.md) | 공개 자료 기반 가설 검토·경쟁 전제 정정·개발 착수 기준 | 리뷰 준비 | `docs/T-004-evidence-and-execution` | [#5](https://github.com/tlstkdgus/ULTSPOT/pull/5) |
+| [T-005](T-005/README.md) | 실제 비회원 장소·개인 행사 플래너와 저장 | 구현·검증, 외부 연동 대기 | `feat/T-005-public-trip-planner` | [#6 (Draft)](https://github.com/tlstkdgus/ULTSPOT/pull/6) |

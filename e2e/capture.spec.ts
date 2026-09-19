@@ -25,4 +25,15 @@ test.describe("screenshots", { tag: "@capture" }, () => {
       await page.screenshot({ path: file, fullPage: true, animations: "disabled", caret: "hide" });
     });
   }
+
+  test("plan-itinerary", async ({ page }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
+    await page.goto("/plan", { waitUntil: "networkidle" });
+    await page.getByLabel("Travel date").fill("2026-09-22");
+    for (const name of ["HiKR Ground · K-pop floors", "Music Korea · Myeongdong 2", "K-Star Road"])
+      await page.getByRole("button", { name: `Select ${name}`, exact: true }).click();
+    await page.getByRole("button", { name: "Build my itinerary" }).click();
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-itinerary-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
+  });
 });
