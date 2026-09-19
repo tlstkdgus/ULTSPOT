@@ -11,3 +11,4 @@
 | [T-005](T-005/README.md) | 실제 비회원 장소·개인 행사 플래너와 저장 | 구현·검증, 외부 연동 대기 | `feat/T-005-public-trip-planner` | [#6 (Draft)](https://github.com/tlstkdgus/ULTSPOT/pull/6) |
 | [T-006](T-006/README.md) | 여러 아티스트 데이터 수집 요청·프롬프트·제품 계약 | 문서 완료·리뷰 준비 | `docs/T-006-multi-artist-data` | [#7](https://github.com/tlstkdgus/ULTSPOT/pull/7) |
 | [T-007](T-007/README.md) | 실제 클라우드 저장·복원·삭제 화면 검증 | 로컬 검증 완료 | `test/T-007-cloud-storage-validation` | [#8](https://github.com/tlstkdgus/ULTSPOT/pull/8) |
+| [T-008](T-008/README.md) | K팝 여행 패스·장소 카드·세트리스트 온보딩 | 구현·검증 | `design/T-008-planner-onboarding` | [#9](https://github.com/tlstkdgus/ULTSPOT/pull/9) |
