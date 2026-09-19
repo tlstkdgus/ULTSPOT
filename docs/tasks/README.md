@@ -16,3 +16,4 @@
 | [T-010](T-010/README.md) | 첫 수집 자료 접수·보완 검토 | 검토 완료·공개 보류 | `feat/T-010-first-collection-review` | [#11](https://github.com/tlstkdgus/ULTSPOT/pull/11) |
 | [T-011](T-011/README.md) | 아티스트 검색·선택·저장과 날짜·회차 조건 | 로컬 구현·검증 | `feat/T-011-catalog-conditions` | [#12](https://github.com/tlstkdgus/ULTSPOT/pull/12) |
 | [T-012](T-012/README.md) | 두 번째 수집 자료 비교·보완 검토 | 검토 완료 | `docs/T-012-second-collection-review` | [#13](https://github.com/tlstkdgus/ULTSPOT/pull/13) |
+| [T-013](T-013/README.md) | 원문 행사 조건·부가 CSV 수용 | 구현·검증 | `feat/T-013-intake-conditions` | PR 준비 |

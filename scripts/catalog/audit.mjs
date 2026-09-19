@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
 import { schema, tabs, optionalTabs } from './schema.mjs';
@@ -44,10 +44,21 @@ export async function auditCollection(directory, asOf) {
     });
   }
   const result = validate(candidate);
+  // Preserve collector changelogs and future tabs verbatim, outside the candidate.
+  const supplementalFiles = [];
+  for (const file of (await readdir(directory)).filter((file) => /\.csv$/i.test(file) && !tabs.some((tab) => file === `${tab}.csv`)).sort()) {
+    const path = join(directory, file);
+    if ((await stat(path)).size > 5_000_000) throw new Error('Supplemental CSV exceeds 5 MB');
+    const bytes = await readFile(path);
+    supplementalFiles.push({ file, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
+    // Base64 retains BOM, encoding and line endings without interpreting unknown schemas.
+    sidecar.supplementalFiles ??= [];
+    sidecar.supplementalFiles.push({ file, encoding: 'base64', content: bytes.toString('base64') });
+  }
   const grouped = (rows, field) => rows.reduce((counts, row) => { const key = String(row[field]); counts[key] = (counts[key] || 0) + 1; return counts; }, Object.create(null));
   const unknown = (v) => !v || ['미확인', '해당 없음', 'unknown', 'not_applicable'].includes(v);
   const report = {
-    version: 1, asOf, publication: 'hold', files,
+    version: 1, asOf, publication: 'hold', files, supplementalFiles,
     counts: Object.fromEntries(files.map(({ tab, rows }) => [tab, rows])),
     changes, sidecarRows: Object.fromEntries(Object.keys(sidecar).map((tab) => [tab, sidecar[tab].length])),
     errors: result.errors, errorCounts: grouped(result.errors, 'code'), warningCount: result.warnings.length,

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
 import { schema, tabs, enums, optionalTabs } from './schema.mjs';
@@ -23,6 +23,8 @@ export async function readBundle(path) {
     return (await readFile(file, 'utf8')).replace(/^\uFEFF/, '');
   };
   if (!info.isDirectory()) return JSON.parse(await read(path));
+  // Sidecars belong in audit receipts, never silently disappear from strict intake.
+  if ((await readdir(path)).some((file) => /\.csv$/i.test(file) && !tabs.some((tab) => file === `${tab}.csv`))) throw new Error('Unsupported CSV files; run data:audit to preserve sidecars first');
   const bundle = {};
   for (const name of tabs) {
     let contents;
@@ -90,7 +92,7 @@ export function validate(input) {
       keys[name].add(key);
     });
   }
-  const targetTabs = { artist: 'artists', artist_relation: 'artist_relations', place: 'places', event: 'events', event_artist: 'event_artists', place_artist: 'place_artists', hours: 'hours', benefit: 'benefits', asset: 'assets', event_session: 'event_sessions', booking_window: 'booking_windows' };
+  const targetTabs = { artist: 'artists', artist_relation: 'artist_relations', place: 'places', event: 'events', event_artist: 'event_artists', place_artist: 'place_artists', hours: 'hours', benefit: 'benefits', asset: 'assets', event_session: 'event_sessions', booking_window: 'booking_windows', event_condition: 'event_conditions' };
   for (const name of tabs) (bundle[name] || []).forEach((row, i) => {
     const fail = (field, code) => issue(name, i + 1, field, code);
     const ref = (field, table, required = false) => { if ((required || known(row[field])) && !keys[table]?.has(row[field])) fail(field, 'unresolved_reference'); };

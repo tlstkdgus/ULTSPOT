@@ -12,6 +12,7 @@
 
 | 탭 | 필수 열 | 선택 열 |
 |---|---|---|
+| event_conditions | condition_id, event_id, condition_type, applies_to, value, source_ids | row_note |
 | event_sessions | session_id, event_id, date, starts_at, ends_at, source_ids | row_note |
 | booking_windows | booking_id, event_id, session_id, booking_type, opens_at, closes_at, reservation_status, source_ids | reservation_url, price_amount, currency, per_person_limit, eligibility, row_note |
 
@@ -34,3 +35,5 @@ source target_type에 event_session/booking_window를 추가했다. target_id는
 현재 11개 엔티티를 선택할 수 있다. 수집된 전체 208개에 대한 승인으로 확대하지 않는다. 한글/영문/등록 별칭 검색, 최대 5개 선택, 전체 탐색, 기기 저장·복원을 제공한다. 기존 version 1 저장본에 artistIds가 없으면 전체 탐색으로 복원한다. 새 선택은 같은 cloud snapshot에도 포함된다. 이번 작업의 실제 원격 클라우드 왕복 테스트는 별도로 실행하지 않았다.
 
 그룹 선택은 등록된 멤버를 포함하고, 개인 선택은 해당 그룹을 포함하지만 다른 멤버 단독 행사로 확장하지 않는다. 공통 K팝 장소는 최애 장소로 표시하지 않는다. 현재 아티스트 전용 검수 장소는 없으므로 선택 시 부족 안내와 공통 장소를 표시한다. 공개 DB 게시 UI·전체 관계 그래프·복수 운영 구간 일정 엔진은 후속 구현이다.
+
+T-013: event_conditions의 applies_to/value는 미해석 원문 조건이다. 수용은 검수 승인이 아니며 자동 편성이나 단일 가격으로 변환하지 않는다. artists.agency_label은 출처의 표기이며 계약 관계의 확정을 뜻하지 않는다.
