@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 구현·검증, 리뷰 준비 |
 | 브랜치 | `design/T-008-planner-onboarding` |
-| PR | 생성 예정, T-007 기반 |
+| PR | [#9](https://github.com/tlstkdgus/ULTSPOT/pull/9), T-007 기반 |
 | 근거 | 사용자 요청: 서류 입력 같은 설정 화면을 K팝 팬 대상 온보딩으로 개선 |
 
 ## 목표와 변경
