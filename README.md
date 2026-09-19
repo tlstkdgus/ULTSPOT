@@ -97,6 +97,8 @@ scripts/
 
 ## 문서
 
+수집 원본은 `.local-data/incoming/`에 넣습니다(Git 제외). `pnpm data:check <CSV 폴더 또는 JSON>`으로 검증하고 `pnpm data:prepare <경로> <batch-id>`로 비공개 적재 SQL을 생성합니다. 테스트는 `pnpm test:data`. [적재 안내](docs/data/intake.md)에 DB 적용·검수 절차가 있습니다. 엑셀·문서는 별도 변환이 필요합니다.
+
 데이터 수집 담당자에게는 [수집 요청서](docs/data/collection-brief.md)와 [복사용 프롬프트](docs/data/collection-prompt.md)를 함께 전달하세요. 제품 반영 범위와 미구현 기능은 [여러 아티스트 지원 계획](docs/specs/multi-artist-data.md)에 정리했습니다.
 
 | 문서 | 내용 |

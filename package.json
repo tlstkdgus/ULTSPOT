@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test --grep-invert @capture",
     "capture": "node scripts/capture.mjs",
-    "check:prod": "node scripts/check-prod.mjs"
+    "check:prod": "node scripts/check-prod.mjs",
+    "data:check": "node scripts/catalog/cli.mjs check",
+    "data:prepare": "node scripts/catalog/cli.mjs prepare",
+    "test:data": "node --test scripts/catalog/intake.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -23,11 +26,13 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "csv-parse": "^7.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
