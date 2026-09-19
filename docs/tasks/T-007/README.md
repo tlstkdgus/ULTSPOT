@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 로컬 실연동 검증 완료, 프로덕션 활성화 대기 |
 | 브랜치 | `test/T-007-cloud-storage-validation` |
-| PR | 생성 예정, T-006 기반 |
+| PR | [#8](https://github.com/tlstkdgus/ULTSPOT/pull/8), T-006 기반 |
 | 근거 | 사용자가 Supabase 설정 후 앱 화면 검증 진행을 요청 |
 
 ## 변경과 결정
