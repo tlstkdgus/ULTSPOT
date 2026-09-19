@@ -14,4 +14,4 @@
 | [T-008](T-008/README.md) | K팝 여행 패스·장소 카드·세트리스트 온보딩 | 구현·검증 | `design/T-008-planner-onboarding` | [#9](https://github.com/tlstkdgus/ULTSPOT/pull/9) |
 | [T-009](T-009/README.md) | 수집 파일 검증·비공개 DB 적재 | 로컬 구현·검증 | `feat/T-009-catalog-intake` | [#10](https://github.com/tlstkdgus/ULTSPOT/pull/10) |
 | [T-010](T-010/README.md) | 첫 수집 자료 접수·보완 검토 | 검토 완료·공개 보류 | `feat/T-010-first-collection-review` | [#11](https://github.com/tlstkdgus/ULTSPOT/pull/11) |
-| [T-011](T-011/README.md) | 아티스트 검색·선택·저장과 날짜·회차 조건 | 로컬 구현·검증 | `feat/T-011-catalog-conditions` | 생성 예정 |
+| [T-011](T-011/README.md) | 아티스트 검색·선택·저장과 날짜·회차 조건 | 로컬 구현·검증 | `feat/T-011-catalog-conditions` | [#12](https://github.com/tlstkdgus/ULTSPOT/pull/12) |

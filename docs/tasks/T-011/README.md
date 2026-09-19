@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 로컬 구현·검증 완료 |
 | 브랜치 | `feat/T-011-catalog-conditions` |
-| PR | 생성 후 연결 |
+| PR | [#12](https://github.com/tlstkdgus/ULTSPOT/pull/12) |
 | 기간 | 2026-09-19 ~ 2026-09-20 |
 | 근거 | T-010 수집 결과·사용자 추가 수집 전 개발 요청 |
 
@@ -20,7 +20,7 @@ Your spots 상단에 한글/영문/별칭 검색과 최대 5개 아티스트 선
 
 - `pnpm test:data`: 12건 통과.
 - `pnpm test:e2e`: 39건 통과, 실제 클라우드 opt-in 3건 미실행.
-- `pnpm lint`, `pnpm typecheck`: 통과.
+- `pnpm lint`: 오류 0, 작업 중 별도로 추가된 `.github/skills/impeccable`에 경고 94개. 해당 사용자 파일은 커밋에 포함하지 않았다. `pnpm typecheck`: 통과.
 - 프로덕션 build: 최초 Google Fonts 연결 실패. 네트워크 허용 재실행 성공.
 - `pnpm capture T-011 plan`: 변경 전 9장, 변경 후 12장. 모바일/태블릿/PC 21장 직접 확인. 새 선택·복원 테스트에서 가로 넘침도 확인.
 - 로컬 확인: `http://127.0.0.1:3109/plan`. main 미머지·프로덕션 미배포.
