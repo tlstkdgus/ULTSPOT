@@ -97,6 +97,8 @@ scripts/
 
 ## 문서
 
+데이터 수집 담당자에게는 [수집 요청서](docs/data/collection-brief.md)와 [복사용 프롬프트](docs/data/collection-prompt.md)를 함께 전달하세요. 제품 반영 범위와 미구현 기능은 [여러 아티스트 지원 계획](docs/specs/multi-artist-data.md)에 정리했습니다.
+
 | 문서 | 내용 |
 |------|------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | **브랜치 · 커밋 · PR · 캡처 · 태스크 기록 규칙** — 작업 전에 먼저 읽어주세요 |
