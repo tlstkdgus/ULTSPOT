@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 로컬 구현·검증, 원격 migration 적용 대기 |
 | 브랜치 | `feat/T-009-catalog-intake` |
-| PR | 생성 후 연결 |
+| PR | [#10](https://github.com/tlstkdgus/ULTSPOT/pull/10) |
 | 기간 | 2026-09-19 |
 | 근거 | T-006 다중 아티스트 계약·수집 요청서 |
 

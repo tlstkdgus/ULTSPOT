@@ -25,6 +25,8 @@ test('missing tabs, unexpected fields, duplicate IDs and unresolved refs fail', 
   const codes = validate(b).errors.map((e) => e.code);
   for (const code of ['expected_array_max_10000', 'unexpected_field', 'duplicate_id', 'unresolved_reference']) assert.ok(codes.includes(code));
   assert.ok(!JSON.stringify(validate(b).errors).includes('do not print'));
+  b.sources[0].target_type = 'constructor';
+  assert.ok(validate(b).errors.some((e) => e.code === 'invalid_target'));
 });
 test('invalid dates, timezones, unsafe URLs and enum values fail', () => {
   const b = fixture(); Object.assign(b.artists[0], { debut_date: '2026-02-30', official_url: 'https://user:password@example.com', entity_type: 'fake' });

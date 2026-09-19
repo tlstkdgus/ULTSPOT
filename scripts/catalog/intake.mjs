@@ -95,7 +95,7 @@ export function validate(input) {
     ref('image_asset_id', 'assets'); ref('coordinate_source_id', 'sources');
     if (Array.isArray(row.source_ids)) for (const value of row.source_ids) if (!keys.sources.has(value)) fail('source_ids', 'unresolved_reference');
     if (name === 'hours' || name === 'sources') {
-      const target = targetTabs[row.target_type];
+      const target = Object.hasOwn(targetTabs, row.target_type) ? targetTabs[row.target_type] : undefined;
       if (!target || (name === 'hours' && !['event', 'place'].includes(row.target_type))) fail('target_type', 'invalid_target');
       else if (!keys[target].has(row.target_id)) fail('target_id', 'unresolved_reference');
       if (name === 'sources' && target && Array.isArray(row.supported_fields) && row.supported_fields.some((field) => !schema[target].fields.includes(field))) fail('supported_fields', 'unknown_target_field');
