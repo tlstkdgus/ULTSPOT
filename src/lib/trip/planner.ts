@@ -1,4 +1,5 @@
 export type FanEvent = {
+  artistIds?: string[];
   id: string;
   title: string;
   area: string;

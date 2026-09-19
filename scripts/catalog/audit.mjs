@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
-import { schema, tabs } from './schema.mjs';
+import { schema, tabs, optionalTabs } from './schema.mjs';
 import { validate } from './intake.mjs';
 
 // A receipt/audit accepts extra collector notes; the strict importer still rejects them.
@@ -12,6 +12,7 @@ export async function auditCollection(directory, asOf) {
   const files = [], original = {}, candidate = {}, sidecar = {}, changes = [];
   for (const tab of tabs) {
     const path = join(directory, `${tab}.csv`);
+    try { await stat(path); } catch (error) { if (error.code === 'ENOENT' && optionalTabs.includes(tab)) continue; throw error; }
     if ((await stat(path)).size > 5_000_000) throw new Error(`${tab}: oversized`);
     const bytes = await readFile(path);
     const records = parse(bytes, { bom: true, skip_empty_lines: true });
@@ -48,7 +49,7 @@ export async function auditCollection(directory, asOf) {
   const report = {
     version: 1, asOf, publication: 'hold', files,
     counts: Object.fromEntries(files.map(({ tab, rows }) => [tab, rows])),
-    changes, sidecarRows: Object.fromEntries(tabs.map((tab) => [tab, sidecar[tab].length])),
+    changes, sidecarRows: Object.fromEntries(Object.keys(sidecar).map((tab) => [tab, sidecar[tab].length])),
     errors: result.errors, errorCounts: grouped(result.errors, 'code'), warningCount: result.warnings.length,
     factsFromSubmission: {
       artistTypes: grouped(original.artists, 'entity_type'),

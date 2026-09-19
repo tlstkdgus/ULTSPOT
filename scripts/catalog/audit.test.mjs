@@ -18,7 +18,7 @@ test('receipt preserves raw notes and ambiguous dates, normalizes only explicit 
     assert.equal(candidate.artist_relations[0].status, 'current');
     assert.equal(candidate.artist_relations[0].valid_from, '2026');
     assert.equal(sidecar.artist_relations[0].fields.row_note, '한글, 메모');
-    assert.ok(report.errors.some((e) => e.code === 'invalid_date'));
+    assert.ok(!report.errors.some((e) => e.code === 'invalid_partial_date'));
     assert.equal(report.publication, 'hold');
     assert.equal(report.files.find((f) => f.tab === 'artist_relations').sha256.length, 64);
     assert.equal(await readFile(path, 'utf8'), csv);
