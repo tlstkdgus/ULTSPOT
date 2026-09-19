@@ -2,16 +2,16 @@ import { createHash } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
-import { schema, tabs, enums } from './schema.mjs';
+import { schema, tabs, enums, optionalTabs } from './schema.mjs';
 
 const unknown = (v) => ['미확인', '해당 없음', 'unknown', 'not_applicable'].includes(v);
 const missing = (v) => v === undefined || v === null || v === '';
 const known = (v) => !missing(v) && !unknown(v);
 const id = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$/;
 const lists = new Set(['source_ids', 'aliases', 'supported_fields']);
-const dateFields = new Set(['start_date', 'end_date', 'date', 'debut_date', 'anniversary_date', 'valid_from', 'valid_to', 'content_date', 'applicable_date']);
+const dateFields = new Set(['start_date', 'end_date', 'date', 'debut_date', 'anniversary_date', 'content_date', 'applicable_date']);
 const timeFields = new Set(['opens', 'closes', 'last_entry', 'last_order']);
-const stampFields = new Set(['checked_at', 'published_at', 'booking_start', 'booking_end', 'sold_out_at', 'expires_at']);
+const stampFields = new Set(['checked_at', 'published_at', 'booking_start', 'booking_end', 'sold_out_at', 'expires_at', 'starts_at', 'ends_at', 'opens_at', 'closes_at']);
 const numericFields = new Set(['latitude', 'longitude', 'price_amount', 'visit_minutes_estimate', 'quantity', 'per_person_limit', 'close_day_offset', 'weekday']);
 export const validDate = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(v).toISOString().slice(0, 10) === v;
 const minutes = (v) => Number(v.slice(0, 2)) * 60 + Number(v.slice(3));
@@ -25,7 +25,10 @@ export async function readBundle(path) {
   if (!info.isDirectory()) return JSON.parse(await read(path));
   const bundle = {};
   for (const name of tabs) {
-    const records = parse(await read(join(path, `${name}.csv`)), { bom: true, skip_empty_lines: true });
+    let contents;
+    try { contents = await read(join(path, `${name}.csv`)); }
+    catch (error) { if (error.code === 'ENOENT' && optionalTabs.includes(name)) continue; throw error; }
+    const records = parse(contents, { bom: true, skip_empty_lines: true });
     const headers = records.shift();
     if (!headers || new Set(headers).size !== headers.length) throw new Error(`${name}: missing or duplicate CSV headers`);
     if (schema[name].required.some((key) => !headers.includes(key)) || headers.some((key) => !schema[name].fields.includes(key))) throw new Error(`${name}: invalid CSV headers`);
@@ -40,6 +43,7 @@ export function validate(input) {
   if (!input || Array.isArray(input) || typeof input !== 'object') return { errors: [{ code: 'expected_object' }], warnings, bundle };
   for (const name of Object.keys(input)) if (!tabs.includes(name)) issue(name, 0, '', 'unexpected_tab');
   for (const name of tabs) {
+    if (!(name in input) && optionalTabs.includes(name)) continue;
     if (!Array.isArray(input[name]) || input[name].length > 10000) { issue(name, 0, '', 'expected_array_max_10000'); bundle[name] = []; continue; }
     const spec = schema[name];
     bundle[name] = input[name].map((raw, i) => {
@@ -57,6 +61,7 @@ export function validate(input) {
         if (!known(value) || lists.has(field)) continue;
         if (field.endsWith('_id') && !id.test(String(value)) && field !== 'target_id') issue(name, i + 1, field, 'invalid_id');
         if (dateFields.has(field) && !safeDate(value)) issue(name, i + 1, field, 'invalid_date');
+        if (['valid_from', 'valid_to'].includes(field) && !partialDateBounds(value)) issue(name, i + 1, field, 'invalid_partial_date');
         if (timeFields.has(field) && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) issue(name, i + 1, field, 'invalid_time');
         if (stampFields.has(field) && (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d(\.\d+)?)?(Z|[+-]\d\d:\d\d)$/.test(value) || !safeDate(value.slice(0, 10)) || !Number.isFinite(Date.parse(value)))) issue(name, i + 1, field, 'invalid_timestamp');
         if (field === 'url' || field.endsWith('_url')) {
@@ -79,19 +84,25 @@ export function validate(input) {
   const keys = {};
   for (const name of tabs) {
     keys[name] = new Set();
-    bundle[name].forEach((row, i) => {
+    (bundle[name] || []).forEach((row, i) => {
       const key = schema[name].key.map((field) => row[field]).join('::');
       if (keys[name].has(key)) issue(name, i + 1, '', 'duplicate_id');
       keys[name].add(key);
     });
   }
-  const targetTabs = { artist: 'artists', artist_relation: 'artist_relations', place: 'places', event: 'events', event_artist: 'event_artists', place_artist: 'place_artists', hours: 'hours', benefit: 'benefits', asset: 'assets' };
-  for (const name of tabs) bundle[name].forEach((row, i) => {
+  const targetTabs = { artist: 'artists', artist_relation: 'artist_relations', place: 'places', event: 'events', event_artist: 'event_artists', place_artist: 'place_artists', hours: 'hours', benefit: 'benefits', asset: 'assets', event_session: 'event_sessions', booking_window: 'booking_windows' };
+  for (const name of tabs) (bundle[name] || []).forEach((row, i) => {
     const fail = (field, code) => issue(name, i + 1, field, code);
     const ref = (field, table, required = false) => { if ((required || known(row[field])) && !keys[table]?.has(row[field])) fail(field, 'unresolved_reference'); };
     for (const field of ['artist_id', 'parent_artist_id', 'child_artist_id']) if (name !== 'artists' && field in row) ref(field, 'artists', true);
     if (name !== 'places' && 'place_id' in row) ref('place_id', 'places', true);
     if (name !== 'events' && 'event_id' in row) ref('event_id', 'events', true);
+    if (name === 'booking_windows') {
+      ref('session_id', 'event_sessions', true);
+      const session = bundle.event_sessions?.find((s) => s.session_id === row.session_id);
+      if (session && session.event_id !== row.event_id) fail('session_id', 'session_event_mismatch');
+      if (!['presale', 'general', 'accessible', 'other', 'unknown'].includes(row.booking_type)) fail('booking_type', 'invalid_enum');
+    }
     ref('image_asset_id', 'assets'); ref('coordinate_source_id', 'sources');
     if (Array.isArray(row.source_ids)) for (const value of row.source_ids) if (!keys.sources.has(value)) fail('source_ids', 'unresolved_reference');
     if (name === 'hours' || name === 'sources') {
@@ -100,9 +111,12 @@ export function validate(input) {
       else if (!keys[target].has(row.target_id)) fail('target_id', 'unresolved_reference');
       if (name === 'sources' && target && Array.isArray(row.supported_fields) && row.supported_fields.some((field) => !schema[target].fields.includes(field))) fail('supported_fields', 'unknown_target_field');
     }
-    for (const [start, end] of [['start_date', 'end_date'], ['valid_from', 'valid_to'], ['booking_start', 'booking_end']]) if (known(row[start]) && known(row[end]) && Date.parse(row[start]) > Date.parse(row[end])) fail(end, 'end_before_start');
+    for (const [start, end] of [['start_date', 'end_date'], ['booking_start', 'booking_end'], ['starts_at', 'ends_at'], ['opens_at', 'closes_at']]) if (known(row[start]) && known(row[end]) && Date.parse(row[start]) > Date.parse(row[end])) fail(end, 'end_before_start');
+    if (name === 'event_sessions' && known(row.starts_at) && Number.isFinite(Date.parse(row.starts_at)) && row.date !== new Date(Date.parse(row.starts_at) + 9 * 3600000).toISOString().slice(0, 10)) fail('date', 'session_date_mismatch');
     if (name === 'events' && known(row.status) && !['scheduled', 'ongoing', 'ended', 'cancelled', 'postponed'].includes(row.status)) fail('status', 'invalid_enum');
     if (name === 'artist_relations') {
+      const from = partialDateBounds(row.valid_from), to = partialDateBounds(row.valid_to);
+      if (from && to && from.min > to.max) fail('valid_to', 'end_before_start');
       if (row.parent_artist_id === row.child_artist_id) fail('child_artist_id', 'self_relation');
       if (known(row.status) && !['current', 'past'].includes(row.status)) fail('status', 'invalid_enum');
     }
@@ -132,6 +146,18 @@ export function validate(input) {
   return { errors, warnings, bundle };
 }
 function safeDate(value) { try { return validDate(value); } catch { return false; } }
+
+// Bounds are only for contradiction checks, never published as invented exact dates.
+export function partialDateBounds(value) {
+  if (typeof value !== 'string') return null;
+  if (/^\d{4}$/.test(value) && value !== '0000') return { precision: 'year', min: `${value}-01-01`, max: `${value}-12-31` };
+  if (/^\d{4}-(0[1-9]|1[0-2])$/.test(value) && !value.startsWith('0000')) {
+    const [year, month] = value.split('-').map(Number);
+    const last = new Date(`${value}-01T00:00:00Z`); last.setUTCMonth(month); last.setUTCDate(0);
+    return { precision: 'month', min: `${value}-01`, max: `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${last.getUTCDate()}` };
+  }
+  return safeDate(value) ? { precision: 'day', min: value, max: value } : null;
+}
 
 export function prepare(bundle, batchId) {
   if (!id.test(batchId)) throw new Error('Invalid batch ID');

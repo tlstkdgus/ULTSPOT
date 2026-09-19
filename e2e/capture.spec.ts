@@ -46,4 +46,15 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-spots-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
   });
+  test("plan-artists", async ({ page }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
+    await page.goto("/plan", { waitUntil: "networkidle" });
+    await page.getByLabel("Travel date").fill("2026-09-22");
+    await page.getByRole("button", { name: "Find my spots" }).click();
+    await page.getByRole("button", { name: "Choose artist BLACKPINK", exact: true }).click();
+    await page.getByLabel("Search artists", { exact: true }).fill("필릭스");
+    await page.getByRole("button", { name: "Choose artist Felix", exact: true }).click();
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-artists-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
+  });
 });

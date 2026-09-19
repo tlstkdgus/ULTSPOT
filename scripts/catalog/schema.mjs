@@ -11,8 +11,11 @@ export const schema = {
   benefits: tab('benefit_id', 'benefit_id event_id required_action benefit availability_status source_ids', 'price_amount currency applicable_date quantity per_person_limit first_come sold_out_at'),
   sources: tab('source_id', 'source_id target_type target_id supported_fields url publisher checked_at review_status collection_method reuse_status', 'published_at collector_alias reviewer_alias conflict_note terms_url permission_reference change_note'),
   assets: tab('asset_id', 'asset_id original_url rights_holder permission_status evidence_reference', 'allowed_use attribution expires_at file_reference'),
+  event_sessions: tab('session_id', 'session_id event_id date starts_at ends_at source_ids', 'row_note'),
+  booking_windows: tab('booking_id', 'booking_id event_id session_id booking_type opens_at closes_at reservation_status source_ids', 'reservation_url price_amount currency per_person_limit eligibility row_note'),
 };
 export const tabs = Object.keys(schema);
+export const optionalTabs = ['event_sessions', 'booking_windows'];
 export const enums = {
   entity_type: ['group', 'person', 'unit'], relation_type: ['member_of', 'unit_of'],
   organizer_type: ['official', 'fan', 'store', 'unknown'],

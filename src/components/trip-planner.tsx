@@ -9,6 +9,8 @@ import { catalog } from "@/lib/trip/catalog";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
 import { cloudEnabled, cloudTrip } from "@/lib/trip/cloud";
+import { ArtistPicker } from "@/components/artist-picker";
+import { artists, matchesArtists } from "@/lib/trip/artists";
 
 const inputClass = "mt-2 block w-full min-w-0 rounded-sm border border-line-strong bg-bg px-3 py-3 text-body";
 
@@ -29,19 +31,21 @@ export function TripPlanner({ today }: { today: string }) {
   const [personal, setPersonal] = useState<FanEvent[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [artistIds, setArtistIds] = useState<string[]>([]);
   const [result, setResult] = useState<ReturnType<typeof planTrip> | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const input = { date, start: minutes(start), end: minutes(end), stay, transfer };
   const validation = validateTrip(input);
   const events = [...catalog, ...personal];
-  const candidates = events.filter(e => runsOn(e, date) && `${e.title} ${e.area} ${e.kind}`.toLowerCase().includes(query.toLowerCase()));
+  const candidates = events.filter(e => matchesArtists(e.artistIds, artistIds) && runsOn(e, date) && `${e.title} ${e.area} ${e.kind}`.toLowerCase().includes(query.toLowerCase()));
   function invalidate() { setResult(null); setNotice(""); }
-  function snapshot(): SavedTrip { return { version: 1, input, selected, personal }; }
+  function snapshot(): SavedTrip { return { version: 1, input, selected, personal, artistIds }; }
   function restore(saved: SavedTrip) {
     setDate(saved.input.date); setStart(clock(saved.input.start)); setEnd(clock(saved.input.end));
     setStay(saved.input.stay); setTransfer(saved.input.transfer); setPersonal(saved.personal);
     setSelected(saved.selected); setQuery("");
+    setArtistIds(saved.artistIds ?? []);
     setResult(planTrip([...catalog, ...saved.personal].filter(e => saved.selected.includes(e.id)), saved.input));
     setStep(2);
   }
@@ -135,6 +139,8 @@ export function TripPlanner({ today }: { today: string }) {
     </section>}
 
     {step === 1 && <section aria-label="Pick your spots">
+      <ArtistPicker selected={artistIds} onChange={ids => { setArtistIds(ids); setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids)))); invalidate(); }} />
+      {artistIds.length > 0 && <p className="mb-5 rounded-lg border border-line-strong p-4 text-body-sm text-text-muted">{artists.filter(a => artistIds.includes(a.id)).map(a => a.name).join(' + ')}: {candidates.some(e => e.artistIds?.length) ? 'Artist-related spots are included below.' : 'No verified artist-specific spots for this date yet. Explore the general K-pop places below, or add your own event.'}</p>}
       <div className="flex flex-wrap items-end justify-between gap-4"><label className="block w-full text-label sm:max-w-md">Search places<input className={inputClass} value={query} onChange={e => setQuery(e.target.value)} placeholder="A neighborhood, an album shop, a new memory…" /></label><span className="pb-3 text-caption text-text-muted">{selected.length} / 6 ON YOUR LIST</span></div>
       <p className="mt-4 text-body-sm text-text-muted">Start with these real K-pop places. Birthday-café listings are coming; you can add an organizer’s notice below.</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
