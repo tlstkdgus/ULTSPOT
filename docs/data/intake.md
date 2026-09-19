@@ -17,6 +17,8 @@
 
 ## 실행
 
+추가 열·한글 열 이름이 포함된 첫 납품은 먼저 `pnpm data:audit .local-data/incoming first-20260919 2026-09-19`로 접수 검사한다. 같은 접수-ID는 덮어쓰지 않는다. 결과는 `.local-data/audits/<접수-ID>/`에 원본 JSON·후보 JSON·추가 열 sidecar·SHA256/오류 보고서로 남는다. 후보 파일은 형식이 일부 정리됐을 뿐, 승인·적재 완료가 아니다. [첫 접수 보고서](first-collection-review.md) 참고.
+
 ```sh
 pnpm data:check .local-data/incoming/batch-01
 pnpm data:check .local-data/incoming/batch-01.json
