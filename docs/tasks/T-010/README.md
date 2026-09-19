@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 접수·로컬 검증 완료, 공개 적재 보류 |
 | 브랜치 | `feat/T-010-first-collection-review` |
-| PR | 생성 후 연결 |
+| PR | [#11](https://github.com/tlstkdgus/ULTSPOT/pull/11) |
 | 기간 | 2026-09-19 |
 | 근거 | T-009 적재 계약·사용자 자료 전달 |
 
