@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Wordmark } from "@/components/brand";
+import { MapBanner, Wordmark } from "@/components/brand";
 import { ArrowRightIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { buttonStyles } from "@/components/ui";
 import { useI18n } from "@/i18n/locale";
+
+/**
+ * 배너의 도시 라벨. 브랜드 표기라 번역하지 않는다 — 워드마크의 "ULTSPOT",
+ * 목업의 "SEOUL" · "FAN TRAVEL FOOTPRINT"와 같은 층위다. 사전에 넣지 않는 이유도 그것이다.
+ */
+const BRAND_CITY = "SEOUL";
 
 export function HomeIntro() {
   const { t } = useI18n();
@@ -30,6 +36,10 @@ export function HomeIntro() {
         </Link>
         <span className="text-body-sm text-text-muted">{t.home.badge}</span>
       </div>
+
+      {/* 기준 목업의 첫인상 — "서울 곳곳에 스팟이 흩어져 있다". 지역 이름과 개수는
+          목업이 스스로 예시라고 적은 값이라 넣지 않는다. 자세한 것은 MapBanner 주석 참고. */}
+      <MapBanner label={BRAND_CITY} className="mt-12" />
 
       <h2 className="mt-14 text-label text-text-muted">{t.home.howTitle}</h2>
       <ol className="mt-4 grid gap-x-8 gap-y-5 md:grid-cols-3">
