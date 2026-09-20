@@ -15,12 +15,11 @@ const en = {
   lang: { group: "Language", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — Plan your K-pop day in Seoul",
-    description: "Pick the K-pop places and fan events you want to visit, and ULTSPOT builds a one-day plan that fits their opening hours. No sign-up.",
+    description: "Pick the K-pop places and fan events you want to visit, and ULTSPOT builds a one-day plan that fits their opening hours.",
     plan: "Plan your day",
   },
   home: {
-    badge: "No sign-up",
-    lead: "Pick the K-pop places and fan events you want to visit. ULTSPOT fits them into one day around opening hours, closed days and your own pace.",
+    lead: "Build your Seoul trip around K-pop spots and fan events.",
     howTitle: "How it works",
     how: [
       { title: "Set your day", body: "Date, start and end time, and who you’re going for." },
@@ -28,7 +27,6 @@ const en = {
       { title: "Get your setlist", body: "A timed plan with reasons for anything that didn’t fit. Add it to your calendar." },
     ],
     cta: "Plan my trip",
-    honesty: "Right now: 3 Seoul K-pop places with checked sources. A birthday-café list isn’t ready yet, so you can add an event yourself from its notice.",
   },
   steps: { nav: "Trip steps", labels: ["Your day", "Your spots", "Your setlist"], home: "ULTSPOT home" },
   titles: ["Set your Seoul day.", "Pick where you’ll go.", "Your Seoul setlist."],
@@ -54,7 +52,6 @@ const en = {
     minutes: (n: number) => `${n} minutes`,
     bufferSummary: (n: number) => `${n} min travel buffer — used only for legs we could not look up.`,
     cta: "Find my spots",
-    noSignup: "No sign-up. Nothing is uploaded unless you choose cloud save.",
   },
   pass: {
     title: "Fan day pass",
@@ -63,8 +60,6 @@ const en = {
     pace: "Pace",
     seoul: "Seoul, KR",
     perStop: (n: number) => `${n} min / stop`,
-    headline: "Less searching.\nMore of the day.",
-    body: "We leave room for an album-store detour and a new favourite corner of Seoul.",
     note: "A planning pass — not an admission ticket.",
   },
   artists: {
@@ -82,11 +77,9 @@ const en = {
     profile: (name: string) => `${name} official profile`,
     birthday: (date: string) => `Birthday ${date}`,
     none: "This artist isn’t in our verified selection yet. Try another name or explore all K-pop.",
-    scope: "Starting with 3 groups and Stray Kids members. A selection doesn’t guarantee events or appearances.",
   },
   spots: {
     listTitle: (day: string) => `Open on ${day}`,
-    thin: "Everything here has a checked source. There are only a few for now — a birthday-café list isn’t ready yet, so you can add one from its notice.",
     count: (shown: number) => `${shown} ${shown === 1 ? "place" : "places"}`,
     search: "Search places",
     searchPlaceholder: "Neighborhood or shop",
@@ -283,12 +276,11 @@ const ko: Messages = {
   lang: { group: "언어", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — 서울 K팝 하루 일정 만들기",
-    description: "가고 싶은 K팝 장소와 팬 행사를 고르면 운영시간에 맞춰 하루 일정을 만들어 드려요. 가입 없이 바로 쓸 수 있어요.",
+    description: "가고 싶은 K팝 장소와 팬 행사를 고르면 운영시간에 맞춰 하루 일정을 만들어 드려요.",
     plan: "하루 일정 만들기",
   },
   home: {
-    badge: "가입 없이",
-    lead: "가고 싶은 K팝 장소와 팬 행사를 고르면, 운영시간·휴무일·내 속도에 맞춰 하루 일정으로 엮어 드려요.",
+    lead: "최애의 스팟과 팬 행사를 내 서울 여행에 담아보세요.",
     howTitle: "이렇게 만들어요",
     how: [
       { title: "하루 정하기", body: "날짜, 시작·끝 시간, 그리고 누구를 보러 가는지." },
@@ -296,7 +288,6 @@ const ko: Messages = {
       { title: "내 셋리스트 받기", body: "시간이 붙은 일정과 빠진 곳의 이유. 캘린더에 바로 추가할 수 있어요." },
     ],
     cta: "일정 만들기",
-    honesty: "지금은 출처를 확인한 서울 K팝 장소 3곳이 있어요. 생일카페 목록은 아직 준비 중이라, 공지를 보고 직접 추가할 수 있어요.",
   },
   steps: { nav: "일정 만들기 단계", labels: ["하루 정하기", "갈 곳 고르기", "일정 받기"], home: "ULTSPOT 홈" },
   titles: ["서울에서의 하루를 정해요.", "어디에 갈지 골라요.", "나의 서울 셋리스트."],
@@ -322,7 +313,6 @@ const ko: Messages = {
     minutes: (n: number) => `${n}분`,
     bufferSummary: (n: number) => `이동 여유 ${n}분 — 이동시간을 확인하지 못한 구간에만 써요.`,
     cta: "갈 곳 보기",
-    noSignup: "가입 없이 써요. 클라우드 저장을 고르기 전엔 아무것도 올라가지 않아요.",
   },
   pass: {
     title: "팬 데이 패스",
@@ -331,8 +321,6 @@ const ko: Messages = {
     pace: "속도",
     seoul: "서울",
     perStop: (n: number) => `한 곳 ${n}분`,
-    headline: "덜 찾고,\n더 즐기기.",
-    body: "앨범 가게에 들르고 서울의 새 구석을 만날 시간을 남겨 둬요.",
     note: "계획용 패스예요 — 입장권이 아니에요.",
   },
   artists: {
@@ -350,11 +338,9 @@ const ko: Messages = {
     profile: (name: string) => `${name} 공식 프로필`,
     birthday: (date: string) => `생일 ${date}`,
     none: "아직 검증한 아티스트 목록에 없어요. 다른 이름으로 찾거나 K팝 전체를 둘러보세요.",
-    scope: "그룹 3팀과 스트레이 키즈 멤버부터 시작해요. 아티스트를 골라도 행사나 출연이 보장되지는 않아요.",
   },
   spots: {
     listTitle: (day: string) => `${day}에 여는 곳`,
-    thin: "모두 출처를 확인한 곳이에요. 아직 몇 곳뿐이고, 생일카페 목록은 준비 중이라 공지를 보고 직접 추가할 수 있어요.",
     count: (shown: number) => `${shown}곳`,
     search: "장소 검색",
     searchPlaceholder: "동네 또는 매장 이름",
