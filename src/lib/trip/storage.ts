@@ -18,7 +18,8 @@ export function safeSource(value: unknown): value is string {
 export function isPersonalEvent(value: unknown): value is FanEvent {
   if (!object(value) || !object(value.provenance)) return false;
   // Reviewed catalog metadata is never accepted from a private draft.
-  if (reviewedOnlyKeys.some(key => value[key] !== undefined)) return false;
+  if (reviewedOnlyKeys.some(key => value[key] !== undefined) ||
+      ['title_ja', 'do_ja', 'get_ja', 'area_ja', 'title_zh', 'do_zh', 'get_zh', 'area_zh', 'translation_review'].some(key => value[key] !== undefined)) return false;
   const p = value.provenance;
   /**
    * 운영시간은 둘 다 숫자이거나 둘 다 null이다.

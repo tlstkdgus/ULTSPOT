@@ -15,15 +15,25 @@ export type DateOverride = {
   source: string;
   checked_on: string;
 };
+export type TranslationReview = { author: string; source: string; status: 'draft' | 'reviewed'; checked_on?: string };
 
 export type FanEvent = {
+  title_ja?: string;
+  do_ja?: string;
+  get_ja?: string;
+  area_ja?: string;
+  title_zh?: string;
+  do_zh?: string;
+  get_zh?: string;
+  area_zh?: string;
+  translation_review?: Partial<Record<'ja' | 'zh', Partial<Record<'title' | 'do' | 'get' | 'area' | 'station' | 'line' | 'price', TranslationReview>>>>;
   title_ko?: string;
   do_ko?: string;
   get_ko?: string;
   area_ko?: string;
   image_asset_id?: string;
-  transit?: { station_ko: string; station_en: string; line_ko: string; line_en: string; exit: string; walk_minutes: number; source: string; checked_on: string };
-  participation?: { price_ko: string; price_en: string; cash_required: boolean | null; first_come_quantity: number | null; lucky_draw: boolean | null; source: string; checked_on: string };
+  transit?: { station_ja?: string; station_zh?: string; line_ja?: string; line_zh?: string; station_ko: string; station_en: string; line_ko: string; line_en: string; exit: string; walk_minutes: number; source: string; checked_on: string };
+  participation?: { price_ja?: string; price_zh?: string; price_ko: string; price_en: string; cash_required: boolean | null; first_come_quantity: number | null; lucky_draw: boolean | null; source: string; checked_on: string };
   /** 검수된 좌표만 넣는다. 없으면 이동시간을 확정할 수 없고 그 사실을 화면에 알린다. */
   coord?: CoordRecord;
   /** 날짜별 운영 예외. 요일 휴무보다 우선한다. */

@@ -2,7 +2,7 @@
 
 작성 기준: 2026-09-20. 브랜치·배포·행사 상태는 실행 시 다시 확인한다.
 
-파일: [Perplexity 첨부 요청서](perplexity-research.md) · [Kiro 개발 인계](kiro-development.md).
+파일: [Perplexity 첨부 요청서](perplexity-research.md) · [Kiro 개발 인계](kiro-development.md) · [Codex 일본어·중국어 데이터 요청](codex-i18n-data.md).
 
 ## 바로 시작하기
 
@@ -31,6 +31,20 @@ Claude가 맡은 UI와 작업이 겹치지 않게 소유권을 확인하고 별�
 Perplexity 조사가 끝나기 전에는 PR #19의 데이터와 최신 UI 통합·검증부터 진행해.
 조사 결과는 외부 입력이고 게시 승인이 아니다. 출처·미확인·권리 상태를 유지해.
 파일 명세와 실제 코드의 차이를 확인한 뒤 구현하고, 실행한 검증과 미완료 항목을 정확히 보고해.
+```
+
+### Codex 시작 프롬프트
+
+T-022로 UI는 4개 언어가 됐지만 장소 데이터는 한국어·영어까지만 있다. 일본어·중국어 화면에서 카드 본문이 영어로 나가는 상태를 메우는 요청이다.
+
+```text
+docs/handoff/codex-i18n-data.md를 읽고 일본어·중국어 장소 데이터 작업을 시작해 줘.
+AGENTS.md와 CONTRIBUTING.md를 먼저 적용하고 최신 원격 main과 열린 PR을 확인해.
+src/lib/trip/**와 scripts/catalog/**가 네 범위이고 src/components/**와 src/i18n/**은 Claude가 쓰고 있으니 건드리지 마.
+eventCopy의 provenance.mode === 'reviewed' 조건과 storage.ts의 개인 행사 판별 불변식을 깨지 말고, 새 필드를 그 목록에도 더해.
+검수받지 않은 기계 번역으로 운영시간·참여 조건을 채우지 마. 번역 출처를 필드로 남기고 미검수는 미검수라고 적어.
+번역본이 없으면 영어로 떨어지게 두고, 한국어로 떨어뜨리지 마.
+실행한 검증과 남긴 미완료 항목을 숫자로 보고해.
 ```
 
 ## Perplexity에 추가로 줄 자료

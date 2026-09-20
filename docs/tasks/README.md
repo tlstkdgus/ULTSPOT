@@ -27,3 +27,4 @@
 | [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 리뷰 중 | `design/T-021-korean-data-ui` | PR 준비 |
 | [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 리뷰 중 | `feat/T-022-multilingual` | PR 준비 |
 | [T-025](T-025/README.md) | 카카오 지도·경로 실연동, 필수 방문 우선 일정, Jev 취향 추천, 조사 배치 변환 | 구현·실연동 검증 (배포 전) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
+| [T-027](T-027/README.md) | �Ϻ���߱��� ��� ������ ��� | ����������, UI ���� ��� | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
