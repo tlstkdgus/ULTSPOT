@@ -1,5 +1,7 @@
 # ULTSPOT
 
+지도 연동 검토: `node scripts/review/travel-contract.mjs <검사할-checkout-경로>`. 실제 API 호출 없이 서버 계약을 검사합니다. [수정·통합 기준](docs/handoff/kiro-integration-review.md)을 참고하세요.
+
 > **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
 
 <img src="docs/tasks/T-005/screenshots/home-desktop.png" alt="ULTSPOT 비회원 플래너 진입 (desktop)" width="720">
