@@ -386,6 +386,7 @@ export const zh: Messages = {
       notEnoughPoints: "积分不够。分享情况或记录到访即可积累。",
       signInFailed: "无法创建访客记录。没有发送任何内容。",
       disabled: "当前构建已关闭现场情况。",
+      notShareable: "这个地点只存在于您的浏览器，因此没有共享的现场情况。",
       failed: "处理失败。没有保存任何内容。",
     },
   },

@@ -70,6 +70,9 @@ function toCode(message: string): string {
   if (/checked in here/i.test(message)) return "alreadyVisited";
   if (/need .* more points/i.test(message)) return "notEnoughPoints";
   if (/Sign in/i.test(message)) return "signInFailed";
+  // 개인 장소는 이 브라우저에만 있어서 공유 기록을 만들 수 없다. 사용자가 고를 수 있는
+  // 경우라 "처리하지 못했어요"로 뭉뚱그리지 않고 이유를 말한다 (T-043).
+  if (/reviewed_place_id/i.test(message)) return "notShareable";
   return "failed";
 }
 
@@ -104,19 +107,42 @@ export async function unlockPlace(placeId: string) {
   return { balance: await rpc<number>("unlock_place", { target_place_id: placeId }) };
 }
 
+export type SummaryRow = { place_id: string; open_to_me: boolean; waiting: string | null; perks: string | null; reports: number };
+
+/**
+ * DB는 장소당 **여러 행**을 준다. `place_status_summary`가 `group by … waiting, perks`라
+ * 서로 다른 답이 올라온 만큼 행이 쪼개진다. 한 장소에 대해 한 줄만 보여줘야 하므로 여기서 합친다.
+ *
+ * 대표값은 **가장 많이 보고된 조합**이다. 먼저 온 행을 쓰면 한 사람의 답이 스무 명의 답을
+ * 가린다 — 실제로 프로덕션에서 medium/plenty 2건이 long/none 1건에 가려졌다.
+ * 동점이면 먼저 온 쪽을 유지해 순서가 흔들리지 않게 한다.
+ */
+export function mergeSummary(rows: SummaryRow[]): PlaceStatus[] {
+  const merged = new Map<string, PlaceStatus>();
+  const topCount = new Map<string, number>();
+  for (const row of rows) {
+    const current = merged.get(row.place_id)
+      ?? { placeId: row.place_id, openToMe: false, waiting: null, perks: null, reports: 0 };
+    current.openToMe = current.openToMe || row.open_to_me;
+    current.reports += row.reports ?? 0;
+    const waiting = (waitingLevels as readonly string[]).includes(row.waiting ?? "") ? row.waiting as WaitingLevel : null;
+    const perks = (perkLevels as readonly string[]).includes(row.perks ?? "") ? row.perks as PerkLevel : null;
+    // 값이 없는 행(잠긴 장소, 보고 0건)은 대표가 될 수 없다.
+    if (waiting && (row.reports ?? 0) > (topCount.get(row.place_id) ?? 0)) {
+      topCount.set(row.place_id, row.reports ?? 0);
+      current.waiting = waiting;
+      current.perks = perks;
+    }
+    merged.set(row.place_id, current);
+  }
+  return [...merged.values()];
+}
+
 /** 한 번에 1~50곳. 열리지 않은 곳도 행은 오되 집계가 비어 있다. */
 export async function placeStatuses(placeIds: string[]): Promise<PlaceStatus[]> {
   const ids = [...new Set(placeIds)].slice(0, 50);
   if (!ids.length) return [];
-  const rows = await rpc<{ place_id: string; open_to_me: boolean; waiting: string | null; perks: string | null; reports: number }[]>(
-    "place_status_summary", { place_ids: ids });
-  return (rows ?? []).map(r => ({
-    placeId: r.place_id,
-    openToMe: r.open_to_me,
-    waiting: (waitingLevels as readonly string[]).includes(r.waiting ?? "") ? r.waiting as WaitingLevel : null,
-    perks: (perkLevels as readonly string[]).includes(r.perks ?? "") ? r.perks as PerkLevel : null,
-    reports: r.reports ?? 0,
-  }));
+  return mergeSummary(await rpc<SummaryRow[]>("place_status_summary", { place_ids: ids }) ?? []);
 }
 
 /** 내 포인트 잔액. 원장은 읽기만 가능하다. */
