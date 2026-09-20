@@ -1,4 +1,11 @@
 export type FanEvent = {
+  title_ko?: string;
+  do_ko?: string;
+  get_ko?: string;
+  area_ko?: string;
+  image_asset_id?: string;
+  transit?: { station_ko: string; station_en: string; line_ko: string; line_en: string; exit: string; walk_minutes: number; source: string; checked_on: string };
+  participation?: { price_ko: string; price_en: string; cash_required: boolean | null; first_come_quantity: number | null; lucky_draw: boolean | null; source: string; checked_on: string };
   artistIds?: string[];
   id: string;
   title: string;

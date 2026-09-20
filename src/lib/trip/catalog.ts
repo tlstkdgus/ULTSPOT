@@ -4,6 +4,11 @@ import type { FanEvent } from "./planner";
 export const catalog: FanEvent[] = [
   {
     id: "hikr-ground", title: "HiKR Ground · K-pop floors", area: "Jung-gu", kind: "K-pop experience",
+    title_ko: "하이커 그라운드 · K팝 체험 공간", area_ko: "중구",
+    do_ko: "운영시간 안에 공개된 K팝 전시 공간을 둘러보세요. 별도 프로그램은 시설 안내를 확인하세요.",
+    get_ko: "K팝 세트와 체험형 전시를 즐길 수 있습니다. 일반 입장은 무료이며 특별 프로그램에는 별도 조건이 있을 수 있습니다.",
+    transit: { station_ko: "종각역", station_en: "Jonggak", line_ko: "1호선", line_en: "Line 1", exit: "5", walk_minutes: 2, source: "https://english.visitkorea.or.kr/svc/sp/hikr", checked_on: "2026-09-20" },
+    participation: { price_ko: "일반 입장 무료 · 유료 프로그램 별도 안내", price_en: "General admission free; paid programs announced separately", cash_required: null, first_come_quantity: null, lucky_draw: null, source: "https://english.visitkorea.or.kr/svc/sp/hikr", checked_on: "2026-09-20" },
     address: "40 Cheonggyecheon-ro, Jung-gu, Seoul", from: null, to: null,
     opens: 600, closes: 1200, lastEntry: 1180, closedDays: [1], reservation: false,
     do: "Visit the public K-pop exhibition floors during opening hours. Check separate programs with the venue.",
@@ -12,6 +17,9 @@ export const catalog: FanEvent[] = [
   },
   {
     id: "music-korea", title: "Music Korea · Myeongdong 2", area: "Jung-gu", kind: "Album shop",
+    title_ko: "뮤직코리아 · 명동 2호점", area_ko: "중구",
+    do_ko: "매장을 둘러보고 원하는 음반을 구매하세요. 재고와 구매 특전은 직원에게 확인하세요.",
+    get_ko: "구매한 음반이나 굿즈를 받을 수 있습니다. 팬사인회 참여나 무료 특전은 보장되지 않습니다.",
     address: "1F, 134 Toegye-ro, Jung-gu, Seoul", from: null, to: null,
     opens: 600, closes: 1320, closedDays: [], reservation: false,
     do: "Browse the store and pay for any albums you choose. Confirm stock and purchase benefits with staff.",
@@ -20,6 +28,9 @@ export const catalog: FanEvent[] = [
   },
   {
     id: "k-star-road", title: "K-Star Road", area: "Gangnam-gu", kind: "Public fan landmark",
+    title_ko: "한류스타거리 K-STAR ROAD", area_ko: "강남구",
+    do_ko: "방문 전 현장 접근 조건을 확인하고, 일반인에게 공개된 거리에서만 관람하세요.",
+    get_ko: "K팝 테마 조형물을 둘러보는 산책 장소입니다. 아티스트 만남이나 사유 건물 출입은 포함되지 않습니다.",
     address: "407 Apgujeong-ro, Gangnam-gu, Seoul", from: null, to: null,
     opens: null, closes: null, closedDays: [], reservation: false,
     do: "Check local access conditions before visiting the public street. Stay in public visitor areas.",
