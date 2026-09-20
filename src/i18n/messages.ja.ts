@@ -15,15 +15,16 @@ export const ja: Messages = {
     lead: "K-POPスポットとファンイベントを、自分だけのソウル旅に。",
     howTitle: "使い方",
     how: [
-      { title: "日程を決める", body: "日付、開始・終了時刻、そして誰に会いに行くか。" },
-      { title: "行き先を選ぶ", body: "出典を確認した場所と、主催者の告知を見て自分で追加したイベント。" },
-      { title: "プランを受け取る", body: "時刻付きのプランと、入らなかった場所の理由。カレンダーに追加できます。" },
+      { title: "推しを選ぶ", body: "グループやメンバー名で探せます。" },
+      { title: "行きたいSPOTを選ぶ", body: "出典を確認した場所だけを表示します。" },
+      { title: "旅行の日程を決める", body: "日付、時間、1日のペースを決めます。" },
+      { title: "自分だけの旅程を受け取る", body: "時刻付きのプランをカレンダーへ。" },
     ],
     cta: "プランを作る",
   },
   // 動詞つきのラベルは390pxの分割に収まらず、最後の1文字だけが次の行に落ちる(T-026)。
   // 4ステップではさらに狭いので、英語(Your day)や中国語(4文字)と同じく名詞で置く。
-  steps: { nav: "プラン作成のステップ", labels: ["推し", "行き先", "日程", "プラン"], home: "ULTSPOT ホーム" },
+  steps: { nav: "プラン作成のステップ", labels: ["推し", "SPOT", "日程", "旅程"], home: "ULTSPOT ホーム" },
   titles: ["誰を追いかけますか？", "どこへ行くか選びましょう。", "ソウルで過ごす日程を決めましょう。", "あなたのソウル・セットリスト。"],
   subtitles: [
     "推しを選ぶと関連スポットを表示します。全体を見て回ってもかまいません。",
@@ -381,6 +382,17 @@ export const ja: Messages = {
     "Preference ranking returned an unreadable answer, so the reviewed order is used.": "好みの評価の応答を読み取れなかったため、既定の順序で表示します。",
     "The documented facts are not enough to rank by preference, so the reviewed order is used.": "確認済みの情報が不足しているため、既定の順序で表示します。",
     "Too many candidates to rank, so the reviewed order is used.": "候補が多すぎるため、既定の順序で表示します。",
+    // T-029 여정 검증 오류. 한국어에만 있어 일본어 화면에 영어 원문이 그대로 나갔다(i18n 가드가 잡음).
+    "Invalid journey.": "旅程の情報を読み取れませんでした。",
+    "Unknown visit or day.": "該当する訪問または日付が見つかりません。",
+    "Invalid visit position.": "移動先の位置が正しくありません。",
+    "Invalid journey dates.": "旅程の日付が正しくありません。",
+    "Unknown day.": "該当する日付が見つかりません。",
+    "Invalid or duplicate visit.": "すでに追加済みか、値が正しくありません。",
+    "Invalid or duplicate personal place.": "すでに追加した場所か、値が正しくありません。",
+    "Unknown visit.": "該当する訪問が見つかりません。",
+    "Invalid visit time.": "訪問時刻が正しくありません。",
+    "Journey is invalid or too large.": "旅程の情報が正しくないか、大きすぎます。",
   },
   file: {
     header: (date: string) => `ULTSPOT · ${date} · 韓国時間`,

@@ -10,7 +10,7 @@ englishLocale();
 test("onboarding keeps choices when moving back and guides focus", async ({ page }) => {
   await page.goto("/plan");
   // 첫 단계는 최애 고르기다. 갈 곳 단계는 아직 열리지 않았다 (T-029).
-  await expect(page.getByRole("region", { name: "Your spots" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Your SPOTs" })).toHaveCount(0);
   await browseAllSpots(page);
   await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
   await page.getByRole("button", { name: "Add HiKR Ground · K-pop floors", exact: true }).click();
