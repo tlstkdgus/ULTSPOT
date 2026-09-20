@@ -14,8 +14,11 @@ export default function HomePage() {
         radius={[1.5, 4.5]}
         alpha={[0.12, 0.45]}
         seed={11}
-        className="absolute inset-x-0 top-0 h-[62vh] [mask-image:linear-gradient(180deg,#000_30%,transparent)]"
+        className="absolute inset-x-0 top-0 h-[62vh] [mask-image:linear-gradient(180deg,transparent_0,transparent_5.5rem,#000_8rem,#000_30%,transparent)]"
       />
+      {/* 마스크가 위 5.5rem을 비우는 이유: 입자 하나가 언어 선택 바로 아래에 떨어져
+          컨트롤에 붙은 점처럼 보였다. 시드를 바꾸면 다른 자리로 옮겨갈 뿐이라,
+          헤더 높이만큼은 어떤 시드에서도 입자가 안 깔리게 한다. */}
       <HomeIntro />
     </main>
   );

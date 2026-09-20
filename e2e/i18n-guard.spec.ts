@@ -35,10 +35,11 @@ function leaks(dict: Record<string, unknown>, pattern: RegExp) {
 }
 
 test("일본어·중국어 UI 문구에 한글이 섞이지 않는다 @static", () => {
-  // artists.placeholder는 한국어 이름 검색이 된다는 것을 보여주는 예시라 의도된 한글이다.
-  const allow = (hit: string) => hit.startsWith("artists.placeholder:");
-  expect(leaks(ja, HANGUL).filter(h => !allow(h))).toEqual([]);
-  expect(leaks(zh, HANGUL).filter(h => !allow(h))).toEqual([]);
+  // 3회차에서 artists.placeholder("Stray Kids、필릭스…")를 "검색 예시라 의도된 한글"로 예외 처리했다가
+  // 4회차 critique에서 다시 잡혔다. 일본어 독자에게는 첫 단계 첫 입력칸의 한글일 뿐이다.
+  // 예외 없이 막는다. 검색 예시는 라틴 이름(Felix)으로도 충분하다.
+  expect(leaks(ja, HANGUL)).toEqual([]);
+  expect(leaks(zh, HANGUL)).toEqual([]);
 });
 
 test("한국어·영어 UI 문구에 가나가 섞이지 않는다 @static", () => {

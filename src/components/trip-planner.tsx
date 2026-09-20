@@ -373,7 +373,7 @@ export function TripPlanner({ today }: { today: string }) {
 
     {step === 1 && <section aria-label={t.steps.labels[1]}>
       {artistIds.length > 0 && <div className={cn("mb-6 rounded-xl border p-5", hasArtistSpots ? "border-line-strong" : "border-warning/40 bg-surface")}>
-        <p className="text-body">{hasArtistSpots ? t.spots.artistMatch(artistNames) : t.spots.artistNone(artistNames, dayLabel)}</p>
+        <p className="text-body">{hasArtistSpots ? t.spots.artistMatch(artistNames) : t.spots.artistNone(artistNames)}</p>
         {!hasArtistSpots && <>
           <p className="mt-2 text-body-sm text-text-muted">{t.spots.artistNoneNext}</p>
           <Button className="mt-4" variant="ghost" onClick={askForEvent}>{t.spots.addFromNotice} <ArrowRightIcon /></Button>
@@ -381,7 +381,9 @@ export function TripPlanner({ today }: { today: string }) {
       </div>}
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className="text-heading">{t.spots.listTitle(dayLabel)}</h2>
+        {/* 2단계는 날짜로 거르지 않는다(위 runsOn 조건은 step > 1). 그런데 제목·배너·빈 상태가
+            사용자가 정하지 않은 기본 날짜를 사실처럼 단언하고 있었다. 날짜는 3단계에서 정한다. */}
+        <h2 className="text-heading">{t.spots.listTitle}</h2>
         <p role="status" className="text-caption text-text-muted">{t.spots.count(candidates.length)}</p>
       </div>
       {/* 필터마다 개수를 함께 보여준다. 0인 분류를 숨기면 "없다"는 사실이 가려진다. */}
