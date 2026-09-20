@@ -11,7 +11,7 @@ const id = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$/;
 const lists = new Set(['source_ids', 'aliases', 'supported_fields']);
 const dateFields = new Set(['start_date', 'end_date', 'date', 'debut_date', 'anniversary_date', 'content_date', 'applicable_date']);
 const timeFields = new Set(['opens', 'closes', 'last_entry', 'last_order']);
-const stampFields = new Set(['checked_at', 'published_at', 'booking_start', 'booking_end', 'sold_out_at', 'expires_at', 'starts_at', 'ends_at', 'opens_at', 'closes_at']);
+const stampFields = new Set(['checked_at', 'rights_checked_at', 'published_at', 'booking_start', 'booking_end', 'sold_out_at', 'expires_at', 'starts_at', 'ends_at', 'opens_at', 'closes_at']);
 const numericFields = new Set(['latitude', 'longitude', 'price_amount', 'visit_minutes_estimate', 'quantity', 'per_person_limit', 'close_day_offset', 'weekday']);
 export const validDate = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(v).toISOString().slice(0, 10) === v;
 const minutes = (v) => Number(v.slice(0, 2)) * 60 + Number(v.slice(3));
