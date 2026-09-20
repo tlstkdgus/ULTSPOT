@@ -13,6 +13,8 @@ export function safeSource(value: unknown): value is string {
 
 export function isPersonalEvent(value: unknown): value is FanEvent {
   if (!object(value) || !object(value.provenance)) return false;
+  // Reviewed catalog metadata is never accepted from a private draft.
+  if (['title_ko', 'do_ko', 'get_ko', 'area_ko', 'image_asset_id', 'transit', 'participation'].some(key => value[key] !== undefined)) return false;
   const p = value.provenance;
   if (!text(value.id, 80) || !value.id.startsWith("personal-") ||
       ![value.title, value.area, value.kind, value.address, value.do, value.get].every(v => text(v)) ||

@@ -19,4 +19,7 @@
 | [T-013](T-013/README.md) | 원문 행사 조건·부가 CSV 수용 | 구현·검증 | `feat/T-013-intake-conditions` | [#14](https://github.com/tlstkdgus/ULTSPOT/pull/14) |
 | [T-014](T-014/README.md) | Claude UI 분담·이미지 데이터 계약 | 구현·검증 | `feat/T-014-image-data-contract` | PR 준비 |
 | [T-015](T-015/README.md) | 한국어 기본 전환·`/plan` 온보딩 개편 | 완료·배포됨 | `design/T-015-planner-polish` | [#16](https://github.com/tlstkdgus/ULTSPOT/pull/16) |
+| [T-016](T-016/README.md) | 방문 데이터·유사 서비스 검토 | 데이터 구현·UI 연결 대기 | `feat/T-016-visitor-data` | [#19](https://github.com/tlstkdgus/ULTSPOT/pull/19) |
+| T-017 | Perplexity 조사·Kiro 개발 인계 문서 | 문서 완료 | `docs/T-017-research-development-handoff` | [#21](https://github.com/tlstkdgus/ULTSPOT/pull/21) |
+| [T-018](T-018/README.md) | T-016 방문 데이터를 최신 main에 통합 | 구현·검증 (UI 연결 대기) | `feat/T-018-visitor-data-integration` | [#24](https://github.com/tlstkdgus/ULTSPOT/pull/24) |
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
