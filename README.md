@@ -115,4 +115,6 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 
 일본어·중국어 장소 데이터: [번역 계약](docs/specs/localized-place-data.md). 여러 날 여행 확장: [구현 계약 초안](docs/specs/multi-day-product-contract.md).
 
-여러 날 일정 저장 모듈과 DB 적용 순서: [journey-storage](docs/specs/journey-storage.md). 현재 UI 연결은 후속입니다.
+여러 날 일정 저장 모듈과 DB 적용 순서: [journey-storage](docs/specs/journey-storage.md).
+
+체크인·공간 현황·포인트·가계부의 권한·동의·삭제 계약과 적용 절차: [on-site-records](docs/specs/on-site-records.md). 이 문서는 결정 C-12의 개정 기록도 담고 있습니다.
