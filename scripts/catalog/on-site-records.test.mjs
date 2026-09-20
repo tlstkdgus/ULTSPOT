@@ -30,6 +30,8 @@ async function database() {
   `);
   await db.exec(await readFile('supabase/migrations/202609190001_guest_trips.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202609200002_on_site_records.sql', 'utf8'));
+  // T-043: 호스팅 프로젝트에 적용해보고 나서야 드러난 두 가지를 고친다. 원본과 같이 적용한다.
+  await db.exec(await readFile('supabase/migrations/202609210001_place_status_fixes.sql', 'utf8'));
   await db.query('insert into auth.users(id) values ($1), ($2)', [ALICE, BOB]);
   return db;
 }
@@ -42,7 +44,10 @@ const rows = async (db, sql, params) => (await db.query(sql, params)).rows;
 test('a place id must be a reviewed catalog slug, not a place that lives in one browser', async () => {
   const db = await database();
   await as(db, ALICE);
-  for (const bad of ['custom-1758000000', 'personal-abc', 'HiKR-Ground', 'hikr ground', '-hikr', 'hikr--ground']) {
+  // 'HiKR-Ground'는 T-043 전까지 여기 있었다. 대문자를 막는 것이 계약의 일부처럼 보였지만,
+  // 실제로 지키려던 것은 개인 장소(personal-/custom-) 차단이었고 대문자 금지는 그 곁다리였다.
+  // 생일카페 id가 전부 대문자라 정작 필요한 곳을 막고 있어서 도메인을 넓혔다.
+  for (const bad of ['custom-1758000000', 'personal-abc', 'hikr ground', '-hikr', 'hikr--ground']) {
     await assert.rejects(
       db.query('select public.record_checkin($1, $2)', [bad, 'manual']),
       /reviewed_place_id/,
@@ -272,5 +277,61 @@ test('a signed-out caller is refused before anything is written', async () => {
   await assert.rejects(db.query('select public.place_status_summary($1)', [['hikr-ground']]), /Sign in to read/);
   await admin(db);
   assert.equal((await rows(db, 'select count(*)::int as n from public.point_ledger'))[0].n, 0);
+  await db.close();
+});
+
+/**
+ * T-043. 아래 두 건은 PGlite에서는 전부 통과하던 SQL을 호스팅 프로젝트에 실제로 적용하고
+ * 익명 사용자 두 명으로 돌려본 뒤에야 드러났다. 원본 테스트가 검증 장소를 전부 소문자
+ * `hikr-ground`로만 썼고, 현황을 올린 뒤 집계를 되읽어보지 않았기 때문이다.
+ */
+test('a place id may carry capitals, because the fan birthday cafes do', async () => {
+  const db = await database();
+  await as(db, ALICE);
+  // 대기·특전이 가장 중요한 곳이 생일카페인데, 바로 그 id가 도메인에 걸려 막혀 있었다.
+  const report = (await rows(db, 'select * from public.record_status_report($1, $2, $3)',
+    ['BC-SEUNGMIN-AUTUMN-BREAK', 'long', 'few']))[0];
+  assert.equal(report.points_awarded, 20);
+  const checkin = (await rows(db, 'select * from public.record_checkin($1, $2)',
+    ['BC-KYUNGMIN-CURIOUS-ANGEL', 'manual']))[0];
+  assert.equal(checkin.points_awarded, 10);
+  // 대문자를 허용했다고 개인 장소 차단이 뚫리면 안 된다. 비교는 대소문자를 무시한다.
+  for (const forged of ['PERSONAL-abc', 'Personal-abc', 'CUSTOM-abc', 'personal-abc']) {
+    await assert.rejects(
+      db.query('select public.record_status_report($1, $2, $3)', [forged, 'short', 'few']),
+      /reviewed_place_id/, forged);
+  }
+  // 공백·언더스코어 같은 원래 막히던 형식은 그대로 막힌다.
+  for (const bad of ['has space', 'under_score', '-leading', 'trailing-', 'a--b']) {
+    await assert.rejects(
+      db.query('select public.record_status_report($1, $2, $3)', [bad, 'short', 'few']),
+      /reviewed_place_id/, bad);
+  }
+  await db.close();
+});
+
+test('sharing an update opens that place to you, the same way a check-in does', async () => {
+  const db = await database();
+  await as(db, ALICE);
+  await db.query('select public.record_status_report($1, $2, $3)', ['hikr-ground', 'medium', 'plenty']);
+  const [mine] = await rows(db, 'select * from public.place_status_summary($1)', [['hikr-ground']]);
+  // 체크인(+10, 무검증 수동)으로는 열리는데 현황(+20, 현장에 있어야 아는 값)으로는 닫혀 있었다.
+  assert.equal(mine.open_to_me, true);
+  assert.equal(mine.waiting, 'medium');
+  assert.equal(mine.perks, 'plenty');
+  assert.equal(mine.reports, 1);
+
+  // 아무 연결도 없는 장소는 여전히 닫혀 있고, 남의 기록이 새지 않는다.
+  const [other] = await rows(db, 'select * from public.place_status_summary($1)', [['music-korea']]);
+  assert.equal(other.open_to_me, false);
+  assert.equal(other.waiting, null);
+  assert.equal(other.reports, 0);
+
+  // BOB이 같은 장소에 올려도 ALICE의 집계에만 수가 더해지고 내용은 최근 2일치로 제한된다.
+  await as(db, BOB);
+  await db.query('select public.record_status_report($1, $2, $3)', ['hikr-ground', 'short', 'none']);
+  await as(db, ALICE);
+  const summary = await rows(db, 'select * from public.place_status_summary($1)', [['hikr-ground']]);
+  assert.equal(summary.reduce((n, row) => n + row.reports, 0), 2);
   await db.close();
 });
