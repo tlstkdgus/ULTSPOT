@@ -25,3 +25,4 @@
 | [T-019](T-019/README.md) | 필수 행사·구간 이동시간 경로 검증 | 모듈 구현·연동 대기 | `feat/T-019-route-feasibility` | [#23](https://github.com/tlstkdgus/ULTSPOT/pull/23) |
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
 | [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 리뷰 중 | `design/T-021-korean-data-ui` | PR 준비 |
+| [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 리뷰 중 | `feat/T-022-multilingual` | PR 준비 |

@@ -34,10 +34,12 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
   event: FanEvent; date: string; selected: boolean; disabled: boolean; onToggle: () => void;
 }) {
   const { locale, t } = useI18n();
+  // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
+  const dataLocale = locale === "ko" ? "ko" : "en";
   const status = spotStatus(event, date);
   const personal = event.provenance.mode === "personal";
   const kind = (locale === "ko" && t.kinds[event.kind]) || event.kind;
-  const copy = eventCopy(event, locale);
+  const copy = eventCopy(event, dataLocale);
   // 한국어 원문이 있으면 그대로, 없으면 영어 원문이 나온다. 사용자가 쓴 개인 행사는 언어를 알 수 없다.
   // 영어 원문일 때만 lang을 붙여 스크린리더가 한국어로 읽지 않게 한다.
   const langOf = (korean?: string) => (personal || (locale === "ko" && korean) ? undefined : "en");

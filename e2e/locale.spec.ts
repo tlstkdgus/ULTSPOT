@@ -4,9 +4,11 @@ import { localeCookie } from "../src/i18n/config";
 test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 유지된다", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
-  await expect(page.getByRole("button", { name: "English" })).toBeVisible();
+  // 언어는 4개라 select로 고른다 (T-022).
+  const picker = page.getByLabel("언어");
+  await expect(picker).toHaveValue("ko");
 
-  await page.getByRole("button", { name: "English" }).click();
+  await picker.selectOption("en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("link", { name: "Plan my trip" })).toBeVisible();
 
@@ -30,7 +32,7 @@ test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 �
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await expect(page.getByText("1 / 6곳 담음")).toBeVisible();
 
-  await page.getByRole("button", { name: "English" }).click();
+  await page.getByLabel("언어").selectOption("en");
   // 같은 단계, 같은 선택 상태가 유지되어야 한다.
   await expect(page.getByText("1 / 6 added")).toBeVisible();
   await expect(page.getByRole("button", { name: "Remove HiKR Ground · K-pop floors", exact: true })).toBeVisible();
@@ -79,4 +81,37 @@ test("날짜를 바꾸면 담아둔 장소가 비워지는 것을 알려준다",
   await page.getByRole("button", { name: "하루 다시 정하기" }).click();
   await page.getByLabel("여행 날짜").fill("2026-09-23");
   await expect(page.getByRole("status").filter({ hasText: "1곳을 비웠어요" })).toBeVisible();
+});
+
+// 언어마다 새 컨텍스트를 열어야 해서 테스트를 나눈다. 한 테스트에서 4번 열면 30초 제한에 걸린다.
+for (const [browserLocale, lang, heading] of [
+  ["ja-JP", "ja", "使い方"],
+  ["zh-CN", "zh-Hans", "使用方式"],
+  ["en-GB", "en", "How it works"],
+  ["fr-FR", "ko", "이렇게 만들어요"],
+] as const) {
+  test(`쿠키가 없으면 ${browserLocale} 브라우저는 ${lang} 화면을 받는다`, async ({ browser, baseURL }) => {
+    // 브라우저 컨텍스트를 새로 여는 테스트라 병렬 실행에서는 기본 30초로 부족하다.
+    test.slow();
+    // 설정의 locale(ko-KR)이 헤더를 덮으므로 컨텍스트 로케일로 지정한다.
+    const context = await browser.newContext({ locale: browserLocale, baseURL });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    await expect(page.getByText(heading)).toBeVisible();
+    await context.close();
+  });
+}
+
+test("고른 언어는 브라우저 언어보다 우선한다", async ({ browser, baseURL }) => {
+  test.slow();
+  const context = await browser.newContext({ locale: "ja-JP", baseURL });
+  const page = await context.newPage();
+  await page.goto("/plan");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+  await page.getByLabel("言語").selectOption("zh");
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hans");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hans");
+  await context.close();
 });
