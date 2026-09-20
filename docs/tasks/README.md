@@ -21,3 +21,5 @@
 | T-015 | Claude 한국어 기본·온보딩 개편 (별도 worktree 기록) | 별도 PR | `design/T-015-planner-polish` | [#16](https://github.com/tlstkdgus/ULTSPOT/pull/16) |
 | [T-016](T-016/README.md) | 방문 데이터·유사 서비스 검토 | 데이터 구현·UI 연결 대기 | `feat/T-016-visitor-data` | [#19](https://github.com/tlstkdgus/ULTSPOT/pull/19) |
 | [T-017](T-017/README.md) | Perplexity 조사·Kiro 병렬 개발 인계 | 문서 완료 | `docs/T-017-research-development-handoff` | [#21](https://github.com/tlstkdgus/ULTSPOT/pull/21) |
+| T-018 | Kiro 방문 데이터 통합 (별도 worktree) | 진행 상태 별도 확인 | `feat/T-018-visitor-data-integration` | — |
+| [T-019](T-019/README.md) | 필수 행사·구간 이동시간 경로 검증 | 모듈 구현·연동 대기 | `feat/T-019-route-feasibility` | [#23](https://github.com/tlstkdgus/ULTSPOT/pull/23) |
