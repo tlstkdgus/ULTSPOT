@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 리뷰 중 |
 | 브랜치 | `design/T-016-critique-fixes` (기준: `main`) |
-| PR | #21 |
+| PR | #22 |
 | 기간 | 2026-09-20 |
 | 근거 | [T-015](../T-015/README.md) 이후 critique 재실행 · [디자인 시스템](../../design-system.md) · 브랜드 가이드 v1.0 |
 
