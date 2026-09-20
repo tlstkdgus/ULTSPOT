@@ -28,3 +28,4 @@
 | [T-022](T-022/README.md) | 4ê°œ ì–¸ì–´ UIÂ·ë¸Œë¼ìš°ì € ì–¸ì–´ ìë™ ê°ì§€ | ë¦¬ë·° ì¤‘ | `feat/T-022-multilingual` | PR ì¤€ë¹„ |
 | [T-025](T-025/README.md) | ì¹´ì¹´ì˜¤ ì§€ë„Â·ê²½ë¡œ ì‹¤ì—°ë™, í•„ìˆ˜ ë°©ë¬¸ ìš°ì„  ì¼ì •, Jev ì·¨í–¥ ì¶”ì²œ, ì¡°ì‚¬ ë°°ì¹˜ ë³€í™˜ | êµ¬í˜„Â·ì‹¤ì—°ë™ ê²€ì¦ (ë°°í¬ ì „) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
 | [T-027](T-027/README.md) | ÀÏº»¾î¡¤Áß±¹¾î Àå¼Ò µ¥ÀÌÅÍ °è¾à | ±¸Çö¡¤°ËÁõ, UI ¿¬°á ´ë±â | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
+| [T-023](T-023/README.md) | Jev ÃßÃµ Æò°¡ 30°Ç¡¤¿¬°á °è¾à | ÇÕ¼º »ç·Ê ½ÇÁ¦ Æò°¡ ¿Ï·á¡¤Á¦Ç° ¿¬°á ´ë±â | `test/T-023-jev-evaluation` | [#28](https://github.com/tlstkdgus/ULTSPOT/pull/28) |
