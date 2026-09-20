@@ -20,6 +20,8 @@ export const travelReasons = {
   noRoute: "No public transport route was found for this leg.",
   samePoint: "Start and end are the same place.",
   lookupFailed: "Route lookup failed, so travel time is unconfirmed.",
+  timedOut: "Route lookup took too long, so travel time is unconfirmed.",
+  budgetReached: "Today's route lookup limit is reached, so travel time is unconfirmed.",
   tooFar: "This leg is too far for a single route lookup.",
   notRequested: "Travel time was not looked up for this leg.",
 } as const;

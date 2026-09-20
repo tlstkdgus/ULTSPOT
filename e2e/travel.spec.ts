@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { isKoreanCoord, mapLinks, roundCoord, straightLineMeters } from "../src/lib/trip/geo";
 import { legKey, travelMinutes, travelReasons, unconfirmed, hasUnconfirmedTravel, type TravelEstimate } from "../src/lib/trip/travel";
-import { parseAddressSearch, parseTransitRoute, parseWalkRoute } from "../src/lib/trip/kakao";
+import { lookupLeg, parseAddressSearch, parseTransitRoute, parseWalkRoute } from "../src/lib/trip/kakao";
 import { effectiveHours, eventPoint, planTrip, statusOn, unavailableReason, type FanEvent } from "../src/lib/trip/planner";
 import { planningLegs } from "../src/lib/trip/travel-client";
 import { catalog } from "../src/lib/trip/catalog";
@@ -202,20 +202,31 @@ test("saved drafts keep start, end and travel mode but reject bad coordinates an
  * /api/travel은 키가 없을 때도 200을 돌려주고 모든 구간을 미확인으로 표시한다.
  * 키가 없는 상태가 정상 경로이므로, 여기서 500이 나면 화면이 빈칸이 된다.
  */
-test("travel API answers without a key and never leaks the key to the browser", async ({ request }) => {
+/**
+ * 키가 있든 없든 응답 계약은 같다. 키가 없으면 전 구간 미확인, 있으면 조회값이거나 미확인이다.
+ * 어느 쪽이든 500이 되지 않고 키가 브라우저로 새지 않는다.
+ */
+test("travel API answers in both key states and never leaks the key to the browser", async ({ request }) => {
   const legs = [{ from, to }];
   const response = await request.post("/api/travel", { data: { mode: "transit", bufferMinutes: 45, legs } });
   expect(response.status()).toBe(200);
   const body = await response.json() as { configured: boolean; estimates: Record<string, TravelEstimate> };
   const estimate = body.estimates[legKey("a", "b", "transit")];
-  expect(estimate.status).toBe("unconfirmed");
-  if (estimate.status === "unconfirmed") {
+  if (estimate.status === "known") {
+    // 키가 설정된 환경: 실제 조회값이어야 하고 계획용 여유 시간이 섞이지 않는다.
+    expect(body.configured).toBe(true);
+    expect(estimate.minutes).toBeGreaterThan(0);
+    expect(estimate.provider).toBe("카카오맵 REST API");
+    expect(estimate.fetchedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  } else {
     expect(estimate.bufferMinutes).toBe(45);
     expect(estimate.manualUrl).toContain("map.kakao.com/link/by/traffic/");
-    // 키가 없는 환경에서의 사유. 키가 있으면 실제 조회 결과가 온다.
-    expect([travelReasons.noKey, travelReasons.noRoute, travelReasons.lookupFailed]).toContain(estimate.reason);
+    expect([travelReasons.noKey, travelReasons.noCoord, travelReasons.noRoute,
+      travelReasons.lookupFailed, travelReasons.timedOut, travelReasons.budgetReached]).toContain(estimate.reason);
   }
-  expect(JSON.stringify(body)).not.toContain("KakaoAK");
+  const serialised = JSON.stringify(body);
+  expect(serialised).not.toContain("KakaoAK");
+  expect(serialised).not.toContain(process.env.KAKAO_REST_API_KEY ?? "no-key-configured");
 });
 
 test("travel API rejects bad input instead of guessing", async ({ request }) => {
@@ -229,4 +240,65 @@ test("travel API rejects bad input instead of guessing", async ({ request }) => 
   expect(noCoord.status()).toBe(200);
   const body = await noCoord.json() as { estimates: Record<string, TravelEstimate> };
   expect(body.estimates[legKey("a", "b", "transit")].status).toBe("unconfirmed");
+});
+
+/**
+ * T-024 검토 재현 3건을 서버에서 다시 막는다.
+ * 계약 검사(scripts/review/travel-contract.mjs)는 모듈을 직접 불러 확인하고, 이 테스트는
+ * 실제 라우트 핸들러가 같은 경계를 지키는지 확인한다.
+ */
+test("travel API caps the body by bytes, rejects clashing ids and never repeats a leg lookup", async ({ request }) => {
+  // 한글은 글자 하나가 3바이트다. 글자 수로 재면 통과하지만 바이트로는 16KiB를 넘는다.
+  const fat = Array.from({ length: 15 }, (_, i) => ({
+    from: { ...from, id: `a${i}`, name: "가".repeat(120), address: "가".repeat(300) },
+    to: { ...to, id: `b${i}`, name: "나".repeat(120), address: "나".repeat(300) },
+  }));
+  const payload = JSON.stringify({ mode: "walk", legs: fat });
+  expect(payload.length).toBeLessThan(16 * 1024);
+  expect(Buffer.byteLength(payload, "utf8")).toBeGreaterThan(16 * 1024);
+  const tooBig = await request.post("/api/travel", { headers: { "Content-Type": "application/json" }, data: payload });
+  expect(tooBig.status()).toBe(413);
+
+  // 같은 id에 다른 좌표를 보내면 구간 키가 겹쳐 엉뚱한 응답이 붙는다. 조회 전에 거부한다.
+  const clash = await request.post("/api/travel", { data: { mode: "walk", legs: [
+    { from, to }, { from: { ...from, coord: { lat: 37.6, lng: 127.1 } }, to },
+  ] } });
+  expect(clash.status()).toBe(400);
+
+  // 같은 구간 42개를 보내도 외부 고유 호출은 1건을 넘지 않는다(키가 없으면 0건).
+  const duplicated = await request.post("/api/travel", { data: { mode: "walk", legs: Array(42).fill({ from, to }) } });
+  expect(duplicated.status()).toBe(200);
+  const body = await duplicated.json() as { estimates: Record<string, TravelEstimate>; upstreamCalls: number };
+  expect(Object.keys(body.estimates)).toHaveLength(1);
+  expect(body.upstreamCalls).toBeLessThanOrEqual(1);
+});
+
+/**
+ * 무응답 공급자 테스트. 계약 검사는 signal이 넘어가는지만 보고, 시간 제한이 실제로 걸리는지는
+ * 보지 않는다. 타임아웃이 없으면 화면이 영원히 매달리고 "이동시간 미확인" 경로가 동작하지 않는다.
+ */
+test("a hanging provider is cut off and becomes an unconfirmed leg, not a hung request", async () => {
+  const original = globalThis.fetch;
+  let receivedSignal: AbortSignal | undefined;
+  let aborted = false;
+  // 응답을 주지 않고 매달리는 공급자. 취소 신호가 오면 그때만 끝난다.
+  globalThis.fetch = ((_input: unknown, init?: { signal?: AbortSignal }) => new Promise((_resolve, reject) => {
+    receivedSignal = init?.signal;
+    init?.signal?.addEventListener("abort", () => { aborted = true; reject(new Error("aborted")); }, { once: true });
+  })) as typeof globalThis.fetch;
+  process.env.KAKAO_REST_API_KEY = "test-key-not-a-real-key";
+  try {
+    const started = Date.now();
+    const estimate = await lookupLeg(from, to, "transit", 45, { timeoutMs: 300, now });
+    const elapsed = Date.now() - started;
+    expect(receivedSignal).toBeDefined();
+    expect(aborted).toBe(true);
+    expect(elapsed).toBeLessThan(3_000);
+    expect(estimate).toMatchObject({ status: "unconfirmed", reason: travelReasons.timedOut, bufferMinutes: 45 });
+    // 실패해도 직접 확인 경로는 남는다.
+    expect(estimate.status === "unconfirmed" && estimate.manualUrl).toContain("map.kakao.com/link/by/traffic/");
+  } finally {
+    globalThis.fetch = original;
+    delete process.env.KAKAO_REST_API_KEY;
+  }
 });

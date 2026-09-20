@@ -97,20 +97,60 @@ export function parseAddressSearch(body: unknown): { coord: Coord; addressName: 
   return { coord: roundCoord(coord), addressName: typeof first.address_name === "string" ? first.address_name : "" };
 }
 
-async function kakaoGet(path: string, params: Record<string, string>, signal?: AbortSignal) {
+/** 조회 하나에 허용하는 최대 시간. 사용자가 일정 화면에서 기다릴 수 있는 범위로 잡았다. */
+export const UPSTREAM_TIMEOUT_MS = 4_000;
+
+/** 타임아웃이 걸려 중단됐다는 표시. 일반 실패와 다른 사유로 보여주기 위해 구분한다. */
+export class TravelTimeoutError extends Error {
+  constructor() { super("Kakao route lookup timed out"); this.name = "TravelTimeoutError"; }
+}
+
+/**
+ * 호출자 신호와 자체 타임아웃을 합친다.
+ *
+ * 왜 직접 엮는가: `AbortSignal.any`/`AbortSignal.timeout`은 런타임에 따라 없을 수 있고,
+ * 무응답 공급자를 기다리다 요청이 영원히 매달리면 화면이 멈춘다. 타임아웃이 없으면
+ * "이동시간 미확인"으로 떨어지는 안전한 경로 자체가 동작하지 못한다.
+ */
+function withDeadline(signal: AbortSignal | undefined, timeoutMs: number) {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
+  const relay = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener("abort", relay, { once: true });
+  }
+  return {
+    signal: controller.signal,
+    get timedOut() { return timedOut; },
+    done() { clearTimeout(timer); signal?.removeEventListener("abort", relay); },
+  };
+}
+
+async function kakaoGet(path: string, params: Record<string, string>, signal?: AbortSignal, timeoutMs = UPSTREAM_TIMEOUT_MS) {
   const key = kakaoKey();
   if (!key) throw new Error("KAKAO_REST_API_KEY is not set.");
   const url = new URL(path, KAKAO_HOST);
   for (const [name, value] of Object.entries(params)) url.searchParams.set(name, value);
-  const response = await fetch(url, { headers: { Authorization: `KakaoAK ${key}` }, signal, cache: "no-store" });
-  if (!response.ok) throw new Error(`Kakao ${path} responded ${response.status}`);
-  return response.json() as Promise<unknown>;
+  const deadline = withDeadline(signal, timeoutMs);
+  try {
+    // signal은 항상 넘긴다. 없으면 무응답 공급자에게 매달린다.
+    const response = await fetch(url, { headers: { Authorization: `KakaoAK ${key}` }, signal: deadline.signal, cache: "no-store" });
+    if (!response.ok) throw new Error(`Kakao ${path} responded ${response.status}`);
+    return await response.json() as unknown;
+  } catch (error) {
+    if (deadline.timedOut) throw new TravelTimeoutError();
+    throw error;
+  } finally {
+    deadline.done();
+  }
 }
 
 /** 구간 하나를 조회한다. 실패는 예외로 올리지 않고 unconfirmed로 돌려준다. */
 export async function lookupLeg(
   from: TravelPoint, to: TravelPoint, mode: TravelMode, bufferMinutes: number,
-  options: { signal?: AbortSignal; now?: () => string } = {},
+  options: { signal?: AbortSignal; now?: () => string; timeoutMs?: number } = {},
 ): Promise<TravelEstimate> {
   const now = options.now ?? (() => new Date().toISOString());
   if (!isKakaoConfigured()) return unconfirmed(from, to, mode, bufferMinutes, travelReasons.noKey);
@@ -120,12 +160,15 @@ export async function lookupLeg(
     end_x: String(to.coord.lng), end_y: String(to.coord.lat), e_name: to.name.slice(0, 40),
   };
   try {
-    const body = await kakaoGet(mode === "walk" ? "/v2/routing/walk" : "/v2/routing/publictraffic", params, options.signal);
+    const body = await kakaoGet(mode === "walk" ? "/v2/routing/walk" : "/v2/routing/publictraffic",
+      params, options.signal, options.timeoutMs ?? UPSTREAM_TIMEOUT_MS);
     return mode === "walk"
       ? parseWalkRoute(body, from, to, bufferMinutes, now)
       : parseTransitRoute(body, from, to, bufferMinutes, now);
-  } catch {
-    return unconfirmed(from, to, mode, bufferMinutes, travelReasons.lookupFailed);
+  } catch (error) {
+    // 시간 초과와 그 밖의 실패를 구분한다. 어느 쪽이든 추정값을 만들지 않는다.
+    return unconfirmed(from, to, mode, bufferMinutes,
+      error instanceof TravelTimeoutError ? travelReasons.timedOut : travelReasons.lookupFailed);
   }
 }
 
