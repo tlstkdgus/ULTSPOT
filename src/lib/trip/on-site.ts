@@ -70,6 +70,9 @@ function toCode(message: string): string {
   if (/checked in here/i.test(message)) return "alreadyVisited";
   if (/need .* more points/i.test(message)) return "notEnoughPoints";
   if (/Sign in/i.test(message)) return "signInFailed";
+  // 개인 장소는 이 브라우저에만 있어서 공유 기록을 만들 수 없다. 사용자가 고를 수 있는
+  // 경우라 "처리하지 못했어요"로 뭉뚱그리지 않고 이유를 말한다 (T-043).
+  if (/reviewed_place_id/i.test(message)) return "notShareable";
   return "failed";
 }
 
