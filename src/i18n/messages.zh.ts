@@ -102,6 +102,7 @@ export const zh: Messages = {
     period: (from: string, to: string) => `${from} – ${to}`,
     source: (author: string, checked: string) => `来源：${author}。${checked} 核对。`,
     sourceLink: "查看原文",
+    englishSource: "为避免营业时间和参与条件被误译，来源保持英文原文显示。",
     maps: "在地图中查看",
     naver: "NAVER 地图",
     kakao: "Kakao 地图",

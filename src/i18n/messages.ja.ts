@@ -21,7 +21,9 @@ export const ja: Messages = {
     ],
     cta: "プランを作る",
   },
-  steps: { nav: "プラン作成のステップ", labels: ["日程を決める", "行き先を選ぶ", "プランを見る"], home: "ULTSPOT ホーム" },
+  // 動詞つきの6文字は390pxの3分割に収まらず、最後の1文字だけが次の行に落ちていた。
+  // 英語（Your day / Your spots）や中国語（4文字）と同じく名詞で置く。
+  steps: { nav: "プラン作成のステップ", labels: ["日程", "行き先", "プラン"], home: "ULTSPOT ホーム" },
   titles: ["ソウルで過ごす1日を決めましょう。", "どこへ行くか選びましょう。", "あなたのソウル・セットリスト。"],
   subtitles: [
     "日付とペースを選ぶと、その日に開いている場所だけを表示します。",
@@ -102,6 +104,7 @@ export const ja: Messages = {
     period: (from: string, to: string) => `${from} – ${to}`,
     source: (author: string, checked: string) => `出典: ${author}. ${checked} 確認。`,
     sourceLink: "原文を見る",
+    englishSource: "営業時間や参加条件の誤訳を避けるため、出典は英語の原文のまま表示しています。",
     maps: "地図で見る",
     naver: "NAVER地図",
     kakao: "カカオマップ",
@@ -119,7 +122,7 @@ export const ja: Messages = {
     back: "日程を選び直す",
     build: "プランを作る",
     picked: (n: number) => `${n} / 6か所`,
-    pickFirst: "1か所以上선택してください",
+    pickFirst: "1か所以上選んでください",
   },
   status: {
     open: "この日は営業",

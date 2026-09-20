@@ -224,7 +224,8 @@ export function TripPlanner({ today }: { today: string }) {
 
   return <main className="shell pb-16">
     <header className="flex items-center justify-between gap-4 border-b border-line py-4">
-      <Link href="/" aria-label={t.steps.home}><Wordmark /></Link>
+      {/* 글자 높이(25px)가 그대로 탭 영역이 되던 자리 — 페이지에서 유일하게 44px에 못 미쳤다. */}
+      <Link href="/" aria-label={t.steps.home} className="inline-flex min-h-11 items-center"><Wordmark /></Link>
       <LanguageToggle />
     </header>
 

@@ -27,7 +27,10 @@ export type ButtonStyleOptions = {
 export function buttonStyles({ variant = "primary", size = "md", block, className }: ButtonStyleOptions = {}) {
   return cn(
     "inline-flex items-center justify-center gap-2 rounded-md font-sans font-bold whitespace-nowrap",
-    "transition-colors duration-150 ease-out-soft disabled:pointer-events-none disabled:opacity-40",
+    "transition-colors duration-150 ease-out-soft disabled:pointer-events-none",
+    // 1단계의 주 버튼은 장소를 고르기 전까지 비활성이 "기본" 상태다. 투명도 40%로 흐리면
+    // 라임 위 잉크가 3.4:1까지 떨어져 고장난 버튼으로 읽혔다. 별도 색이면 7.3:1로 "아직"이 된다.
+    "disabled:bg-surface-2 disabled:text-text-muted disabled:border-line-strong",
     variantClass[variant],
     sizeClass[size],
     block && "w-full",
