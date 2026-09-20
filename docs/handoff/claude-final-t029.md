@@ -41,3 +41,6 @@
 
 ## Codex 최종 검증
 기록 데이터 24건, 여정 UI 24건, 현장 기록 UI 30건 통과. typecheck 및 변경 테스트 파일 ESLint 통과. 처음 실행에서 저장 계약/선택자 오류가 있었고 수정 후 재검증했다. 최신 main 통합과 프로덕션 검증은 아직 남았다.
+
+## 이어받을 PR
+PR #50: https://github.com/tlstkdgus/ULTSPOT/pull/50 (40de799). Kiro 폴더의 진행 중 병합은 해결했다. GitHub에서 최신 main과는 CONFLICTING 상태를 확인했다. Claude가 현재 UI 변경을 보존하면서 #50을 통합하는 것이 다음 최우선 작업이다.
