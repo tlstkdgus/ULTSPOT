@@ -53,3 +53,38 @@ main 머지와 배포는 통합 검증 단계에서 진행한다.
 ```
 
 Claude PR이 준비되면 Codex에게 URL을 전달한다. 통합 시 데이터 변경과 UI 변경을 함께 검증하고 작업 브랜치의 전체 의존 PR을 확인한다. 이 분담은 Claude 모델을 Codex의 내부 하위 에이전트로 실행하는 방식이 아니라 별도의 Claude 세션을 사용하는 방식이다.
+
+## 파일 담당 범위 (2026-09-20 확정)
+
+Claude worktree `C:\Users\tlstk\Desktop\ULTSPOT-claude`(`design/T-016-critique-fixes`)가 실행 중인 것을 확인했고, Kiro worktree는 `C:\Users\tlstk\Desktop\ULTSPOT-kiro`다. 서로 같은 파일을 고치지 않는다.
+
+| 담당 | 파일 |
+|---|---|
+| Claude | `src/app/page.tsx`, `src/app/layout.tsx`, `src/components/**`, `src/i18n/**`, `src/styles/theme.css`, `src/lib/cn.ts`, `e2e/artists.spec.ts`, `e2e/capture.spec.ts`, `e2e/locale.spec.ts` |
+| Kiro | `src/lib/trip/**`, `src/lib/calendar.ts`, `src/lib/supabase/**`, `src/app/api/**`, `scripts/**`, `supabase/**`, `docs/**`, 새로 만드는 e2e 파일 |
+
+경계에 걸리는 변경은 직접 고치지 않고 아래 요청 목록에 추가한다.
+
+## Kiro → Claude 연결 요청 (T-018)
+
+T-016 데이터가 최신 `main` 기반으로 들어왔다(`feat/T-018-visitor-data-integration`). 라이브러리 계약은 준비됐고 화면 연결만 남았다. **지금 `/plan`에서 한국어를 골라도 장소 이름과 Do/Get은 영어 원문이다.**
+
+1. `src/lib/trip/event-copy.ts`의 `eventCopy(event, locale)`를 호출해 표시 문구를 바꾼다. 대상: `spot-card.tsx`의 제목·지역·Do/Get, `trip-planner.tsx`의 일정 카드 제목·설명, 검색 필터의 대조 문자열, `.txt`/`.ics` 내보내기 본문.
+   - `eventCopy`는 `provenance.mode === 'reviewed'`이고 `locale === 'ko'`일 때만 한국어를 돌려준다. 사용자가 입력한 개인 행사는 원문 그대로 나온다.
+   - 한국어 값이 없는 필드는 영어 원문으로 떨어진다. **이때 `lang="en"`을 유지**하고, 한국어를 돌려받은 노드에서는 `lang="en"`을 빼야 한다. 지금 `spot-card.tsx`에서 제목·지역에 `lang="en"`을 붙이는 변경은 `eventCopy` 연결과 함께 조건부로 바꿔야 한다.
+   - **주소·출처명·`provenance.url`은 계속 원문**이다. 번역하지 않는다.
+   - `eventCopy`는 순수 함수이고 원본을 변형하지 않는다. 일정 계산 입력(`opens`/`closes`/`lastEntry`/`closedDays`/`reservation`)에는 절대 쓰지 않는다.
+2. 검색 입력이 한국어일 때도 걸리도록 후보 필터를 고친다. 현재 `trip-planner.tsx`는 `` `${e.title} ${e.area} ${e.kind}` `` 만 본다. 한국어 표기가 있으면 같이 넣는다.
+3. `event.transit`이 있으면 카드 상세에 역·노선·출구·도보 분을 보여준다(예: `1호선 종각역 5번 출구에서 도보 2분`). 출처·확인일을 함께 적는다. **없으면 칸을 비우지 말고 "교통 안내 미확인"으로 적는다.** 없음이나 도보 불가를 뜻하지 않는다.
+4. `event.participation`이 있으면 가격 문구를 보여준다. `cash_required`·`first_come_quantity`·`lucky_draw`의 `null`은 **미확인**이다. "무료", "현금 불필요", "특전 없음"으로 표시하면 안 된다. `false`와 `null`을 다르게 표시한다.
+5. `image_asset_id`는 승인 자산 0건이라 아직 이미지로 쓰지 않는다. "사진 준비 중"을 유지한다.
+6. `src/i18n/messages.ts`에 필요한 키를 추가한다(교통 안내 라벨·미확인 문구, 참여 조건 라벨·미확인 문구). `t.lib` 사전은 Kiro가 새 영어 원문을 추가하면 한국어 대응을 채워 달라. 사전에 없으면 영어 원문이 그대로 노출된다.
+
+## Kiro → Claude 연결 요청 (T-019 이동시간)
+
+`src/lib/trip/travel.ts`가 구간별 이동시간을 `known` / `unconfirmed` 두 상태로 돌려준다. 화면에서 두 상태를 **반드시 다르게** 보여준다.
+
+- `known`: 실제 조회된 값. 분·이동수단(대중교통/도보)·환승 횟수·출처·조회 시각을 표시한다.
+- `unconfirmed`: 조회 실패거나 좌표가 없는 상태. **정확한 동선처럼 보이게 하면 안 된다.** "이동시간 미확인 · 계획용 여유 N분"으로 적고, `manualUrl`(카카오맵 길찾기 링크)로 직접 확인 경로를 준다. `reason`은 `t.lib` 사전으로 번역한다.
+- 좌표가 없으면 `manualUrl`은 주소 검색 링크로 떨어진다. 이 경우 "출발·도착 좌표 미확인"을 숨기지 않는다.
+- 지금은 API 키가 없어 **모든 구간이 `unconfirmed`**다. 이 상태가 기본이라고 보고 화면을 만든다.
