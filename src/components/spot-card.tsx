@@ -1,4 +1,16 @@
 "use client";
+import { reportedEvents } from '@/i18n/reported-events';
+import { FanEventArt } from '@/components/fan-event-art';
+import Image from 'next/image';
+
+const cardImages: Record<string, string> = {
+  'hikr-ground': '/images/hikr-ground.jpg',
+  'BC-SEUNGMIN-AUTUMN-BREAK': '/images/seungmin-autumn.png',
+  'BC-SEUNGMIN-DANDY-BOY': '/images/seungmin-dandy.png',
+  'BC-KYUNGMIN-CURIOUS-ANGEL': '/images/kyungmin-cafe.png',
+  'music-korea': '/images/music-korea.png',
+  'k-star-road': '/images/k-star-road.png',
+};
 
 import { Badge, Button, type BadgeTone } from "@/components/ui";
 import { CameraIcon, CheckIcon, ClockIcon, ExternalIcon, PinIcon, PlusIcon, TrainIcon } from "@/components/icons";
@@ -59,14 +71,16 @@ export function SpotCard({ event, date, selected, disabled, onToggle, required =
   return (
     <article className={cn("flex min-w-0 flex-col overflow-hidden rounded-xl border bg-surface transition-colors",
       selected ? "border-text" : "border-line-strong")}>
-      {/* 승인된 사진이 없으면 그 사실을 적는다. 장식 기호로 사진 자리를 채우지 않는다. */}
-      <div className="flex h-24 flex-col items-center justify-center gap-1 border-b border-line-strong bg-surface-2 text-text-muted">
+      {cardImages[event.id] ? <a href={cardImages[event.id]} target="_blank" rel="noopener noreferrer" className={`relative block overflow-hidden border-b border-line-strong bg-surface-2 ${event.category === 'birthdayCafe' ? 'aspect-[5/7]' : 'aspect-[4/3]'}`}>
+        <Image src={cardImages[event.id]} alt={copy.title} fill sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw" className={event.category === 'birthdayCafe' || event.id === 'hikr-ground' ? 'object-contain' : 'object-cover'} />
+      </a> : event.category === 'birthdayCafe' ? <FanEventArt title={copy.title} date={`${event.from ?? ''} — ${event.to ?? ''}`} variant={event.id.includes('DANDY') ? 1 : 0} locale={locale} /> : <div className="flex h-24 flex-col items-center justify-center gap-1 border-b border-line-strong bg-surface-2 text-text-muted">
         <CameraIcon className="text-subhead" />
         <span className="text-caption">{t.spots.photoPending}</span>
-      </div>
+      </div>}
       <div className="flex flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={tone[status]}>{t.status[status]}</Badge>
+          {event.provenance.mode === 'reported' && <Badge tone="accent">{reportedEvents[locale]}</Badge>}
           {personal && <Badge tone="accent">{t.status.personal}</Badge>}
           {required && <Badge tone="accent">{t.musts.badge}</Badge>}
           {selected && <span className="inline-flex items-center gap-1 text-caption text-text"><CheckIcon />{t.spots.added}</span>}

@@ -93,7 +93,7 @@ export function TripPlanner({ today }: { today: string }) {
    * 검색은 표시 언어의 문구까지 본다. 한국어로 쳤을 때 영어 원문만 보고 놓치지 않게 한다.
    */
   const candidates = events.filter(event => {
-    if (!matchesArtists(event.artistIds, artistIds)) return false;
+    if (!matchesArtists(event.artistIds, artistIds, event.category === 'birthdayCafe')) return false;
     if (!matchesCategory(event, category)) return false;
     if (step > 1 && !runsOn(event, date)) return false;
     if (!query.trim()) return true;
@@ -101,7 +101,7 @@ export function TripPlanner({ today }: { today: string }) {
     const haystack = `${event.title} ${event.area} ${event.kind} ${copy.title} ${copy.area}`.toLowerCase();
     return haystack.includes(query.trim().toLowerCase());
   });
-  const counts = categoryCounts(events.filter(e => matchesArtists(e.artistIds, artistIds)));
+  const counts = categoryCounts(events.filter(e => matchesArtists(e.artistIds, artistIds, e.category === 'birthdayCafe')));
   /**
    * 관심사 칩 + 속도 → 추천 입력. 추천 순서와 주변 후보 종류에만 쓴다.
    * planTrip과 unavailableReason은 이 값을 받지 않는다 (구조로 보장).
@@ -352,8 +352,8 @@ export function TripPlanner({ today }: { today: string }) {
 
     {step === 0 && <FavoriteStep selected={artistIds} onNext={() => setStep(1)} onChange={ids => {
       setArtistIds(ids);
-      setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
-      setRequired(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
+      setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids, e.category === 'birthdayCafe'))));
+      setRequired(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids, e.category === 'birthdayCafe'))));
       invalidate();
     }} />}
 

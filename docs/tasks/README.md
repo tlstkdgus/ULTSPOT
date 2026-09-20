@@ -42,3 +42,4 @@
 | [T-033](T-033/README.md) | 첫 화면 구도 정리와 제출용 16:9 이미지 | 리뷰 중 | `design/T-033-visual-polish` | PR 준비 |
 | [T-034](T-034/README.md) | critique 4회차 수정 — 정하지 않은 날짜 단언·한글 누수·언어 선택 여백 | 리뷰 중 | `fix/T-034-round4` | PR 준비 |
 | [T-035](T-035/README.md) | Kiro 여정·현장 기록 통합과 홈 4단계 안내 | 리뷰 중 | `integrate/t029-journey` | PR 준비 |
+| [T-037](T-037/README.md) | 생일카페 수집 자료와 목업 카드 연결 | 리뷰 준비 | `feat/T-037-fan-cafe-catalog` | PR 준비 |
