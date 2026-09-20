@@ -24,4 +24,9 @@
 | [T-018](T-018/README.md) | T-016 ë°©ë¬¸ ë°ì´í„°ë¥¼ ìµœì‹  mainì— í†µí•© | êµ¬í˜„Â·ê²€ì¦ (UI ì—°ê²° ëŒ€ê¸°) | `feat/T-018-visitor-data-integration` | [#24](https://github.com/tlstkdgus/ULTSPOT/pull/24) |
 | [T-019](T-019/README.md) | í•„ìˆ˜ í–‰ì‚¬Â·êµ¬ê°„ ì´ë™ì‹œê°„ ê²½ë¡œ ê²€ì¦ | ëª¨ë“ˆ êµ¬í˜„Â·ì—°ë™ ëŒ€ê¸° | `feat/T-019-route-feasibility` | [#23](https://github.com/tlstkdgus/ULTSPOT/pull/23) |
 | [T-020](T-020/README.md) | critique ì¬ì‹¤í–‰ ìˆ˜ì • â€” ëŒ€ë¹„Â·í„°ì¹˜ ì˜ì—­Â·1ë‹¨ê³„ CTAÂ·íœ´ë¬´ ì •ë³´ | ì™„ë£ŒÂ·ë°°í¬ë¨ | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
-| [T-024](T-024/README.md) | ì§€ë„Â·Jev í†µí•© ì „ ê²€í†  ë° ì¬í˜„ ê²€ì‚¬ | ê²€í†  ì™„ë£ŒÂ·Kiro ìˆ˜ì • ëŒ€ê¸° | `test/T-024-route-integration-review` | [#32](https://github.com/tlstkdgus/ULTSPOT/pull/32) |
+| [T-021](T-021/README.md) | í•œêµ­ì–´ ì¥ì†Œ ë°ì´í„°Â·êµí†µÂ·ìƒì¼ì„ í™”ë©´ì— ì—°ê²° | ë¦¬ë·° ì¤‘ | `design/T-021-korean-data-ui` | PR ì¤€ë¹„ |
+| [T-022](T-022/README.md) | 4ê°œ ì–¸ì–´ UIÂ·ë¸Œë¼ìš°ì € ì–¸ì–´ ìë™ ê°ì§€ | ë¦¬ë·° ì¤‘ | `feat/T-022-multilingual` | PR ì¤€ë¹„ |
+| [T-025](T-025/README.md) | ì¹´ì¹´ì˜¤ ì§€ë„Â·ê²½ë¡œ ì‹¤ì—°ë™, í•„ìˆ˜ ë°©ë¬¸ ìš°ì„  ì¼ì •, Jev ì·¨í–¥ ì¶”ì²œ, ì¡°ì‚¬ ë°°ì¹˜ ë³€í™˜ | êµ¬í˜„Â·ì‹¤ì—°ë™ ê²€ì¦ (ë°°í¬ ì „) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
+| [T-027](T-027/README.md) | ÀÏº»¾î¡¤Áß±¹¾î Àå¼Ò µ¥ÀÌÅÍ °è¾à | ±¸Çö¡¤°ËÁõ, UI ¿¬°á ´ë±â | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
+| [T-023](T-023/README.md) | Jev ÃßÃµ Æò°¡ 30°Ç¡¤¿¬°á °è¾à | ÇÕ¼º »ç·Ê ½ÇÁ¦ Æò°¡ ¿Ï·á¡¤Á¦Ç° ¿¬°á ´ë±â | `test/T-023-jev-evaluation` | [#28](https://github.com/tlstkdgus/ULTSPOT/pull/28) |
+| [T-024](T-024/README.md) | Áöµµ ÅëÇÕ Àü °è¾à °Ë»ç¿Í Kiro ¼öÁ¤ ±âÁØ | °ËÅä ¿Ï·á¡¤Kiro ¹İ¿µ ÈÄ¼Ó | `test/T-024-route-integration-review` | [#32](https://github.com/tlstkdgus/ULTSPOT/pull/32) |

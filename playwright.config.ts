@@ -19,6 +19,9 @@ export default defineConfig({
   testDir: "./e2e",
   outputDir: "./test-results",
   fullyParallel: true,
+  // 프로덕션 빌드를 띄우고 폰트 로딩까지 기다리는 테스트라 기본 30초로는 병렬 실행에서 간헐적으로 모자란다.
+  // 느린 검사를 숨기려는 값이 아니라, 단독 실행에서 10초대인 테스트가 부하에서만 넘기는 것을 막는 값이다.
+  timeout: 60_000,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",

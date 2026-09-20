@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CheckIcon, ExternalIcon, PlusIcon } from "@/components/icons";
+import { intlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
 import { cn } from "@/lib/cn";
 import { artists, searchArtists } from "@/lib/trip/artists";
@@ -21,6 +22,12 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
     const artist = artists.find(a => a.id === id);
     if (!artist) return "";
     return locale === "ko" ? artist.name : artist.korean;
+  };
+  // 데이터에는 월-일만 있다(생년 미수집). 화면 언어에 맞춰 표기만 바꾼다.
+  const birthdayLabel = (mmdd: string) => {
+    const [month, day] = mmdd.split("-").map(Number);
+    return new Intl.DateTimeFormat(intlLocale[locale], { month: "long", day: "numeric", timeZone: "UTC" })
+      .format(new Date(Date.UTC(2026, month - 1, day)));
   };
   const toggle = (id: string) => onChange(selected.includes(id) ? selected.filter(value => value !== id) : [...selected, id]);
 
@@ -64,7 +71,10 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-label">{label(artist.id)}</span>
-                    <span className="block truncate text-caption text-text-muted">{secondary(artist.id)} · {kind}</span>
+                    <span className="block truncate text-caption text-text-muted">
+                      {secondary(artist.id)} · {kind}
+                      {artist.birthday_mm_dd && ` · ${t.artists.birthday(birthdayLabel(artist.birthday_mm_dd))}`}
+                    </span>
                   </span>
                 </button>
                 <a href={artist.source} target="_blank" rel="noopener noreferrer"
