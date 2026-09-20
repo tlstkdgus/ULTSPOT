@@ -47,3 +47,4 @@
 | [T-039](T-039/README.md) | 카탈로그 확장·날짜 경과로 깨져 있던 검증 복구 | 완료 — 배포·프로덕션 검증됨 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
 | [T-040](T-040/README.md) | 배포 검증 기록과 카카오 지도 키 이름 고정 | 리뷰 중 | `docs/T-040-deploy-record` | PR 준비 |
 | [T-041](T-041/README.md) | 생일카페 3건 좌표와 지오코딩 확인일 KST 교정 | 리뷰 중 | `feat/T-041-fan-cafe-coords` | PR 준비 |
+| [T-042](T-042/README.md) | 현장 현황·포인트 UI와 게스트 동의 모달 | 리뷰 중 — 운영 DB 적용 대기 | `feat/T-042-place-status` | PR 준비 |
