@@ -7,13 +7,26 @@ export const journeyStorageKey = 'ultspot.journey.v2';
 export type Visit = { id: string; placeId: string; stay: number; lockedAt?: number };
 export type JourneyDay = { date: string; start: number; end: number; bufferMinutes: number; visits: Visit[] };
 export type CustomPlace = { id: string; title: string; address: string; kind: string; note: string };
-export type Journey = { version: 2; timezone: 'Asia/Seoul'; startDate: string; endDate: string; days: JourneyDay[]; unassigned: Visit[]; personal: FanEvent[]; custom: CustomPlace[]; artistIds: string[] };
+/**
+ * A visit you actually made. `on` is the day you were there, recorded when you say so, so
+ * reorganising the plan afterwards never rewrites where you have been. The time of day is
+ * deliberately not stored: F-10 refuses to put exact visit times on a share card, and the
+ * safest way to keep that promise is to never have the value.
+ */
+export type Visited = { visitId: string; on: string };
+/** Money spent, in whole won. `placeId` is optional because not every cost belongs to a place. */
+export type Spend = { id: string; on: string; amountKrw: number; placeId?: string; label?: string };
+export type Journey = { version: 2; timezone: 'Asia/Seoul'; startDate: string; endDate: string; days: JourneyDay[]; unassigned: Visit[]; personal: FanEvent[]; custom: CustomPlace[]; artistIds: string[]; visited: Visited[]; spend: Spend[] };
 const obj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const text = (v: unknown, n = 300): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= n;
 const int = (v: unknown, a: number, b: number): v is number => Number.isInteger(v) && Number(v) >= a && Number(v) <= b;
 const only = (v: Record<string, unknown>, keys: string[]) => Object.keys(v).every(k => keys.includes(k));
+/** A real calendar day in YYYY-MM-DD. Rejects 2026-02-30 and friends, not just the shape. */
+export const isJourneyDate = (v: unknown): v is string =>
+  typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+  && Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0,10) === v;
 export function journeyDates(start: string, end: string): string[] | null {
-  const valid = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0,10) === s;
+  const valid = isJourneyDate;
   if (!valid(start) || !valid(end) || start > end) return null;
   const count = (Date.parse(end) - Date.parse(start)) / 86400000 + 1;
   if (count > 31) return null;
@@ -22,7 +35,7 @@ export function journeyDates(start: string, end: string): string[] | null {
 export function createJourney(startDate: string, endDate: string): Journey {
   const dates = journeyDates(startDate,endDate);
   if (!dates) throw new Error('Choose a valid trip of 1–31 days.');
-  return { version:2, timezone:'Asia/Seoul', startDate,endDate, days:dates.map(date=>({date,start:600,end:1200,bufferMinutes:45,visits:[]})), unassigned:[],personal:[],custom:[],artistIds:[] };
+  return { version:2, timezone:'Asia/Seoul', startDate,endDate, days:dates.map(date=>({date,start:600,end:1200,bufferMinutes:45,visits:[]})), unassigned:[],personal:[],custom:[],artistIds:[],visited:[],spend:[] };
 }
 export function parseJourney(value: unknown): Journey | null {
   if (!obj(value)) return null;
@@ -51,7 +64,23 @@ export function parseJourney(value: unknown): Journey | null {
     if (!obj(day)||!only(day,['date','start','end','bufferMinutes','visits'])||day.date!==dates[i]||!int(day.start,0,1438)||!int(day.end,1,1439)||day.start>=day.end||!int(day.bufferMinutes,5,120)||!visits(day.visits)) return null;
   }
   if (!visits(value.unassigned)||seen.size>100) return null;
-  return JSON.parse(JSON.stringify({ version:2,timezone:value.timezone,startDate:value.startDate,endDate:value.endDate,days:value.days,unassigned:value.unassigned,personal:value.personal,custom:value.custom,artistIds:value.artistIds })) as Journey;
+  // Records written before this field existed simply have none; an older draft stays readable.
+  const visited = value.visited ?? [];
+  const marked = new Set<string>();
+  if (!Array.isArray(visited)||visited.length>100||!visited.every(v=>{
+    if (!obj(v)||!only(v,['visitId','on'])||!text(v.visitId,80)||!seen.has(v.visitId)||marked.has(v.visitId)||!isJourneyDate(v.on)) return false;
+    marked.add(v.visitId); return true;
+  })) return null;
+  const spend = value.spend ?? [];
+  const spent = new Set<string>();
+  if (!Array.isArray(spend)||spend.length>200||!spend.every(s=>{
+    if (!obj(s)||!only(s,['id','on','amountKrw','placeId','label'])||!text(s.id,80)||spent.has(s.id)) return false;
+    if (!isJourneyDate(s.on)||!int(s.amountKrw,1,100000000)) return false;
+    if (s.placeId!==undefined&&(!text(s.placeId,80)||!places.includes(s.placeId))) return false;
+    if (s.label!==undefined&&!text(s.label,80)) return false;
+    spent.add(s.id); return true;
+  })) return null;
+  return JSON.parse(JSON.stringify({ version:2,timezone:value.timezone,startDate:value.startDate,endDate:value.endDate,days:value.days,unassigned:value.unassigned,personal:value.personal,custom:value.custom,artistIds:value.artistIds,visited,spend })) as Journey;
 }
 /** Atomic move: errors leave the original untouched; visit IDs survive date/order changes. */
 export function moveVisit(journey: Journey, id: string, date: string | null, index: number): Journey {
@@ -125,7 +154,29 @@ export function removeVisit(journey: Journey, id: string): Journey {
   const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
   next.unassigned=next.unassigned.filter(v=>v.id!==id);
   for (const day of next.days) day.visits=day.visits.filter(v=>v.id!==id);
+  // Taking the place out of the trip takes its visit record with it. Spending stays: the money
+  // was still spent, and the entry keeps its own date.
+  next.visited=next.visited.filter(v=>v.visitId!==id);
   return next;
+}
+/** Records that you were there on `on`. Marking twice replaces the day instead of adding a second row. */
+export function markVisited(journey: Journey, visitId: string, on: string): Journey {
+  const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
+  next.visited=[...next.visited.filter(v=>v.visitId!==visitId),{visitId,on}];
+  const checked=parseJourney(next); if (!checked) throw new Error('That visit cannot be marked as done.'); return checked;
+}
+export function unmarkVisited(journey: Journey, visitId: string): Journey {
+  const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
+  next.visited=next.visited.filter(v=>v.visitId!==visitId); return next;
+}
+export function addSpend(journey: Journey, entry: Spend): Journey {
+  const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
+  next.spend=[...next.spend,entry];
+  const checked=parseJourney(next); if (!checked) throw new Error('That amount could not be recorded.'); return checked;
+}
+export function removeSpend(journey: Journey, id: string): Journey {
+  const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
+  next.spend=next.spend.filter(s=>s.id!==id); return next;
 }
 export function updateVisit(journey: Journey, id: string, stay: number, lockedAt?: number): Journey {
   const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');

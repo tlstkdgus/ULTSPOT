@@ -1,35 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import { journeyStorageKey } from "../src/lib/trip/journey";
-import type { TravelPoint } from "../src/lib/trip/geo";
-import { legKey, type TravelMode } from "../src/lib/trip/travel";
-import { browseAllSpots, goToStep } from "./flow";
+import { browseAllSpots, fixTravelLookups, goToStep } from "./flow";
 import { englishLocale } from "./locale";
 
 englishLocale();
 
 /**
- * 이 파일은 **여정 화면**을 검사한다. 이동시간 조회 자체는 검사하지 않는다.
- * 그래서 /api/travel 응답을 고정한다. 이유는 두 가지고, 둘 다 실제 문제였다.
- *  - 이 스펙은 뷰포트 3종 × 7건 = 21번 돌고, 매번 실제 카카오 호출을 일으켜 무료 쿼터를 태웠다.
- *  - 그 요청들이 /api/travel의 IP별 분당 상한(60건)을 밀어 올려, 같은 서버를 쓰는
- *    travel.spec.ts가 200·400을 기대한 자리에서 429를 받고 깨졌다.
- * 서버 라우트의 실제 동작(키 유무·상한·본문 크기·중복 호출)은 travel.spec.ts가 직접 검사하고,
- * UI에서 실제 /api/travel까지 가는 경로는 planner.spec.ts가 검사한다. 여기서는 응답 형태만 지킨다.
+ * 이 파일은 **여정 화면**을 검사한다. 이동시간 조회 자체는 검사하지 않으므로 /api/travel 응답을
+ * 고정한다 (이유는 flow.ts의 fixTravelLookups 주석 참조).
  */
-const FIXED_MINUTES = 20;
-async function fixTravelLookups(page: Page) {
-  await page.route("**/api/travel", async route => {
-    const body = route.request().postDataJSON() as { mode?: TravelMode; legs?: { from: TravelPoint; to: TravelPoint }[] };
-    const mode = body.mode ?? "transit";
-    const estimates = Object.fromEntries((body.legs ?? []).map(leg => [legKey(leg.from.id, leg.to.id, mode), {
-      status: "known", mode, minutes: FIXED_MINUTES, transfers: 0, fareKrw: 1_550,
-      steps: [{ mode: "subway", minutes: FIXED_MINUTES, name: "2호선" }],
-      provider: "test-fixture", fetchedAt: new Date().toISOString(),
-      manualUrl: `https://map.kakao.com/link/by/traffic/${leg.from.id},${leg.to.id}`,
-    }]));
-    await route.fulfill({ json: { configured: true, estimates, budgetExhausted: false } });
-  });
-}
 
 /** 2박 3일 여정을 만들고 Day 1에 검수 장소 2곳을 담은 상태까지 간다. */
 async function twoNightTrip(page: Page) {

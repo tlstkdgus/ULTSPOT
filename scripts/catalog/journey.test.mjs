@@ -107,3 +107,55 @@ test('a locked visit following unknown timing still reports uncertainty',()=>{
  let trip=j.createJourney('2026-09-21','2026-09-21');trip=j.addVisit(trip,v('a','hikr-ground'),'2026-09-21');trip=j.addVisit(trip,{...v('b'),lockedAt:700},'2026-09-21');
  const rows=j.scheduleJourneyDay(trip,'2026-09-21',()=>10);assert.equal(rows[1].arrival,700);assert.ok(rows[1].issues.includes('Previous visit timing is unconfirmed.'));
 });
+
+// journey.ts runs in a vm sandbox, so its objects have that realm's prototypes and
+// deepStrictEqual would reject them on identity alone. Compare the plain data instead.
+const plain=x=>JSON.parse(JSON.stringify(x));
+test('a visit record keeps the day you were there, even after the plan moves it',()=>{
+ let trip=j.createJourney('2026-09-21','2026-09-23');trip=j.addVisit(trip,v('a'),'2026-09-21');
+ trip=j.markVisited(trip,'a','2026-09-21');
+ assert.deepEqual(plain(trip.visited),[{visitId:'a',on:'2026-09-21'}]);
+ // Moving the visit to another day does not rewrite where you have already been.
+ trip=j.moveVisit(trip,'a','2026-09-23',0);
+ assert.deepEqual(plain(trip.visited),[{visitId:'a',on:'2026-09-21'}]);
+ // Marking again replaces the day instead of adding a second record.
+ trip=j.markVisited(trip,'a','2026-09-22');
+ assert.deepEqual(plain(trip.visited),[{visitId:'a',on:'2026-09-22'}]);
+ assert.deepEqual(plain(j.unmarkVisited(trip,'a').visited),[]);
+ // Shrinking the trip moves the visit to unassigned and keeps the record with it.
+ const shrunk=j.resizeJourney(trip,'2026-09-21','2026-09-21');
+ assert.equal(shrunk.unassigned[0].id,'a');
+ assert.deepEqual(plain(shrunk.visited),[{visitId:'a',on:'2026-09-22'}]);
+ // Taking the place out of the trip takes the record with it.
+ assert.deepEqual(plain(j.removeVisit(trip,'a').visited),[]);
+});
+test('a visit record cannot point at a visit that is not in the trip, or at an impossible day',()=>{
+ let trip=j.createJourney('2026-09-21','2026-09-21');trip=j.addVisit(trip,v('a'),'2026-09-21');
+ assert.throws(()=>j.markVisited(trip,'ghost','2026-09-21'),/cannot be marked/);
+ for(const bad of ['2026-02-30','2026-9-21','yesterday','']) assert.throws(()=>j.markVisited(trip,'a',bad));
+ assert.equal(j.parseJourney({...trip,visited:[{visitId:'a',on:'2026-09-21'},{visitId:'a',on:'2026-09-21'}]}),null);
+ assert.equal(j.parseJourney({...trip,visited:[{visitId:'a',on:'2026-09-21',at:600}]}),null);
+ assert.equal(j.parseJourney({...trip,visited:'2026-09-21'}),null);
+});
+test('spending is whole won, keeps its own date and only attaches to places in the trip',()=>{
+ let trip=j.createJourney('2026-09-21','2026-09-22');trip=j.addVisit(trip,v('a'),'2026-09-21');
+ trip=j.addSpend(trip,{id:'s1',on:'2026-09-21',amountKrw:8500,placeId:'music-korea',label:'Cup sleeve set'});
+ trip=j.addSpend(trip,{id:'s2',on:'2026-09-21',amountKrw:1350});
+ assert.equal(trip.spend.length,2);
+ assert.equal(j.parseJourney(JSON.parse(JSON.stringify(trip))).spend[0].amountKrw,8500);
+ assert.deepEqual(plain(j.removeSpend(trip,'s1').spend.map(s=>s.id)),['s2']);
+ // A place that is not in this trip cannot receive spending, and neither can a fraction of a won.
+ assert.throws(()=>j.addSpend(trip,{id:'s3',on:'2026-09-21',amountKrw:100,placeId:'not-a-place'}));
+ for(const bad of [0,-100,1.5,100000001,'8500']) assert.throws(()=>j.addSpend(trip,{id:'s4',on:'2026-09-21',amountKrw:bad}));
+ assert.throws(()=>j.addSpend(trip,{id:'s1',on:'2026-09-21',amountKrw:100}),/could not be recorded/);
+ assert.equal(j.parseJourney({...trip,spend:[{id:'s9',on:'2026-09-21',amountKrw:100,note:'extra'}]}),null);
+});
+test('a draft saved before these fields existed still loads, and stays loadable after',()=>{
+ let trip=j.createJourney('2026-09-21','2026-09-21');trip=j.addVisit(trip,v('a'),'2026-09-21');
+ const older=JSON.parse(JSON.stringify(trip));delete older.visited;delete older.spend;
+ const loaded=j.parseJourney(older);
+ assert.deepEqual(plain(loaded.visited),[]);assert.deepEqual(plain(loaded.spend),[]);
+ const store=new Map();
+ j.saveJourneyLocally({setItem:(k,val)=>store.set(k,val)},j.markVisited(loaded,'a','2026-09-21'));
+ assert.deepEqual(plain(j.loadJourneyLocally({getItem:k=>store.get(k)??null}).visited),[{visitId:'a',on:'2026-09-21'}]);
+});

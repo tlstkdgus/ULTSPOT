@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge, Button } from "@/components/ui";
-import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, CloseIcon, ExternalIcon, PinIcon } from "@/components/icons";
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, CloseIcon, ExternalIcon, PinIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
 import { useI18n } from "@/i18n/locale";
 import { intlLocale } from "@/i18n/config";
@@ -12,9 +12,11 @@ import { mapLinks } from "@/lib/trip/geo";
 import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
 import { clock } from "@/lib/trip/planner";
 import {
-  moveVisit, removeVisit, resizeJourney, scheduleJourneyDay, updateVisit,
+  markVisited, moveVisit, removeVisit, resizeJourney, scheduleJourneyDay, unmarkVisited, updateVisit,
   type Journey, type ScheduledVisit, type Visit,
 } from "@/lib/trip/journey";
+import { SpendingPanel } from "@/components/spending-panel";
+import { FootprintPanel } from "@/components/footprint-panel";
 import { daySummary, journeyLegs, legEstimate, travelLookup } from "@/lib/trip/journey-travel";
 import { journeyPlaces, type ResolvedPlace } from "@/lib/trip/journey-places";
 import { fetchTravelTable } from "@/lib/trip/travel-client";
@@ -88,6 +90,12 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
 
   const label = (place: ResolvedPlace | undefined) =>
     place?.event ? eventCopy(place.event, locale).title : place?.title ?? "";
+  const placeName = (placeId: string) => label(byId.get(placeId)) || placeId;
+
+  /** 다녀온 날 기록. 같은 방문을 다시 누르면 기록을 지운다. */
+  const visitedOn = new Map((journey.visited ?? []).map(record => [record.visitId, record.on]));
+  const doneCount = (journey.visited ?? []).length;
+  const plannedCount = journey.days.reduce((n, d) => n + d.visits.length, 0) + journey.unassigned.length;
 
   const dayName = (date: string) => t.journey.dayTab(dates.indexOf(date) + 1);
   const dateLabel = (date: string) => new Intl.DateTimeFormat(intlLocale[uiLocale], {
@@ -132,6 +140,21 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
               {item.issues.map(issue => <li key={issue}>{translateLib(t, issue)}</li>)}
             </ul>
           </div>}
+
+          {/* 현장 기록. 계정이 없어도 동작하고, 날짜만 남긴다 (시각은 저장하지 않는다). */}
+          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line-strong pt-3">
+            <Button size="sm" variant={visitedOn.has(item.visit.id) ? "primary" : "ghost"}
+              aria-pressed={visitedOn.has(item.visit.id)}
+              aria-label={`${t.records.markVisited}: ${label(place)}`}
+              onClick={() => apply(() => visitedOn.has(item.visit.id)
+                ? unmarkVisited(journey, item.visit.id)
+                : markVisited(journey, item.visit.id, current))}>
+              <CheckIcon />{t.records.markVisited}
+            </Button>
+            {visitedOn.has(item.visit.id)
+              ? <span className="text-caption text-text">{t.records.visitedOn(visitedOn.get(item.visit.id)!)}</span>
+              : <span className="text-caption text-text-faint">{t.records.timeNote}</span>}
+          </div>
 
           <div className="mt-3 flex flex-wrap items-end gap-3">
             <label className="text-caption text-text-muted">{t.journey.stay}
@@ -260,6 +283,7 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
               {summary.unconfirmed > 0 && <span className="text-warning">{t.journey.summaryUnconfirmed(summary.unconfirmed)}</span>}
               {summary.missingCoord > 0 && <span className="text-warning">{t.journey.summaryNoCoord(summary.missingCoord)}</span>}
             </>}
+            {plannedCount > 0 && <span className="text-text">{t.records.progress(doneCount, plannedCount)}</span>}
           </p>
 
           {/* 지도는 핀만. 직선을 경로로 보이게 하지 않는다. */}
@@ -283,6 +307,11 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
           </div> : <ol className="mt-4 space-y-4">
             {scheduled.map((item, index) => renderVisitRow(item, index, day.visits))}
           </ol>}
+
+          <SpendingPanel journey={journey} onChange={onChange} activeDate={current}
+            placeName={placeName} notice={notice} />
+
+          <FootprintPanel journey={journey} locale={locale} notice={notice} />
 
           <p className="mt-4 flex items-center gap-2 text-caption text-text-muted">
             <ClockIcon />{t.footer(day.bufferMinutes)}
