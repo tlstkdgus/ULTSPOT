@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { DotField, DotLoader, SpotPin, Wordmark } from "@/components/brand";
-import { AvatarStack, Badge, Button, Card, Chip, DateChip, Eyebrow } from "@/components/ui";
+import { Avatar, AvatarStack, Badge, Button, Card, Chip, DateChip, Eyebrow, PhotoPlaceholder } from "@/components/ui";
 import { color, dotPalette } from "@/design-system/tokens";
 
 export const metadata: Metadata = {
@@ -238,9 +238,10 @@ export default function DesignSystemPage() {
                 <Badge tone="closing">마감임박</Badge>
                 <Badge tone="closed">마감</Badge>
                 <Badge tone="accent">NEW</Badge>
+                <Badge tone="category">생일카페</Badge>
                 <Badge>일반</Badge>
               </div>
-              <p className="mt-3 text-body-sm text-text-muted">상태 뱃지는 의미 색만, 오렌지는 상태가 아닌 태그에만.</p>
+              <p className="mt-3 text-body-sm text-text-muted">상태 뱃지는 의미 색만. 오렌지는 상태가 아닌 태그, 라임은 분류 라벨에 쓴다.</p>
             </Card>
             <Card className="p-5">
               <div className="mb-3 text-caption font-bold text-lime uppercase">Chip</div>
@@ -250,6 +251,24 @@ export default function DesignSystemPage() {
                 <Chip>팝업</Chip>
                 <Chip dotColor={color.orange}>굿즈</Chip>
               </div>
+            </Card>
+            <Card className="p-5">
+              <div className="mb-3 text-caption font-bold text-lime uppercase">Avatar</div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Avatar initials="SK" label="스트레이 키즈" />
+                <Avatar initials="BP" label="블랙핑크" />
+                <Avatar initials="BM" size="sm" label="베이비몬스터" />
+              </div>
+              <p className="mt-3 text-body-sm text-text-muted">
+                승인된 아티스트 사진이 0건이라 이니셜로 둔다. 초상을 임의로 가져다 쓰지 않는다.
+              </p>
+            </Card>
+            <Card className="overflow-hidden p-0">
+              <div className="px-5 pt-5 pb-3 text-caption font-bold text-lime uppercase">PhotoPlaceholder</div>
+              <PhotoPlaceholder label="사진 준비 중" className="border-y" />
+              <p className="px-5 py-4 text-body-sm text-text-muted">
+                승인된 사진이 없는 자리. 장식 그래픽으로 채우면 실제 매장 사진으로 읽힌다.
+              </p>
             </Card>
           </div>
         </div>
@@ -279,7 +298,9 @@ export default function DesignSystemPage() {
       </Section>
 
       <footer className="flex flex-wrap justify-between gap-2.5 py-10 text-xs text-text-faint">
-        <span>ULTSPOT — AI 덕질 여행 플래너</span>
+        {/* "AI 덕질 여행 플래너"는 없는 기능이라 layout.tsx의 설명에서 이미 뺐는데
+            이 줄만 남아 있었다. 일정 계산은 규칙 기반이고 모델 호출이 없다. */}
+        <span>ULTSPOT — K팝 하루 일정 플래너</span>
         <span>Brand &amp; Design Guide v1.0 · Neon Lime × Sunset Orange</span>
       </footer>
     </div>

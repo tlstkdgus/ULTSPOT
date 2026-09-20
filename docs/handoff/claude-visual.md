@@ -112,6 +112,27 @@ pnpm capture T-0NN # 3개 뷰포트, 직접 열어 확인
 
 Kiro 담당 파일에 필요한 변경을 여기 적는다.
 
+### 새 UI 프리미티브 두 개 — 호출부 교체 요청 (T-032)
+
+기준 목업의 조각이 Kiro 담당 파일에 인라인으로 들어가 있다. `src/components/ui/`에 만들어 뒀으니 호출부만 바꿔 달라. **동작은 바뀌지 않는다.**
+
+| 새 컴포넌트 | 지금 인라인으로 있는 곳 | 목업 근거 |
+|---|---|---|
+| `PhotoPlaceholder` | `spot-card.tsx`의 `h-24 … bg-surface-2` 블록 | `.spot-photo` — 96px, 135° 그라디언트 |
+| `Avatar` | `favorite-step.tsx:49`의 `size-12 rounded-full …` | `.bias-avatar` — 원, 2px 라인, 디스플레이 글꼴 |
+
+```tsx
+// spot-card.tsx — 사진 자리
+<PhotoPlaceholder label={t.spots.photoPending} />
+
+// favorite-step.tsx — 이니셜 아바타
+<Avatar initials={initials(artist.id)} label={artist.korean ?? artist.name} />
+```
+
+`Badge`에 `tone="category"`(라임 알약)를 더했다. 목업의 `.spot-tag`에 해당하며, 카드 위 분류 라벨(생일카페·팝업)에 쓴다. 운영 상태 배지와 섞지 않는다.
+
+`Card`의 반경·여백을 목업에 맞춰 바꿨다(20px→18px, 16px→20px). 호출부 변경은 필요 없다.
+
 ### 반영 완료 — `trip-planner.tsx` 단계 레일 격자 (T-032)
 
 마감 당일 제출 이미지를 찍다가 발견해 클래스 문자열만 직접 고쳤다. 문서의 "직접 고치지 말 것" 규칙을 어긴 것이라 여기 남긴다.
