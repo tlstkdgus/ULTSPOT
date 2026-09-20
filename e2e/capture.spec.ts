@@ -55,6 +55,7 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.goto("/plan", { waitUntil: "networkidle" });
     const results = page.getByRole("list", { name: "검색 결과" });
     await page.getByLabel("여행 날짜").fill("2026-09-22");
+    await page.locator("summary").filter({ hasText: "누구를 보러 가요?" }).click();
     await results.getByRole("button", { name: "블랙핑크" }).click();
     await page.getByLabel("아티스트 검색", { exact: true }).fill("필릭스");
     await results.getByRole("button", { name: "필릭스" }).click();

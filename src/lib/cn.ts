@@ -6,7 +6,7 @@ import { extendTailwindMerge } from "tailwind-merge";
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      text: ["hero", "display", "title", "heading", "subhead", "body", "body-sm", "label", "caption", "eyebrow"],
+      text: ["hero", "display", "title", "heading", "subhead", "body", "body-sm", "label", "caption", "eyebrow", "badge"],
       radius: ["xs", "sm", "md", "lg", "xl", "device"],
     },
   },

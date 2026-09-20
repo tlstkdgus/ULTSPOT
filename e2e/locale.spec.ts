@@ -22,6 +22,7 @@ test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 
 test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 남는다", async ({ page }) => {
   await page.goto("/plan");
   await page.getByLabel("여행 날짜").fill("2026-09-22");
+  await page.locator("summary").filter({ hasText: "누구를 보러 가요?" }).click();
   await page.getByRole("list", { name: "검색 결과" }).getByRole("button", { name: "블랙핑크" }).click();
   await page.getByRole("button", { name: "갈 곳 보기" }).click();
   await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
@@ -29,10 +30,11 @@ test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 �
 
   await page.getByRole("button", { name: "English" }).click();
   // 같은 단계, 같은 선택 상태가 유지되어야 한다.
-  await expect(page.getByText("1 / 6 picked")).toBeVisible();
+  await expect(page.getByText("1 / 6 added")).toBeVisible();
   await expect(page.getByRole("button", { name: "Remove HiKR Ground · K-pop floors", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Back to day" }).click();
   await expect(page.getByLabel("Travel date")).toHaveValue("2026-09-22");
+  await page.locator("summary").filter({ hasText: "Who are you going for?" }).click();
   await expect(page.getByRole("list", { name: "Search results" }).getByRole("button", { name: "BLACKPINK" }))
     .toHaveAttribute("aria-pressed", "true");
 });

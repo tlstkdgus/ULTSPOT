@@ -25,9 +25,9 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
   const toggle = (id: string) => onChange(selected.includes(id) ? selected.filter(value => value !== id) : [...selected, id]);
 
   return (
-    <fieldset className="mt-6">
-      <legend className="text-subhead">{t.artists.legend} <span className="text-label text-text-muted">· {t.artists.optional}</span></legend>
-      <p className="mt-2 text-body-sm text-text-muted">{t.artists.hint}</p>
+    <fieldset className="mt-3">
+      <legend className="sr-only">{t.artists.legend}</legend>
+      <p className="text-body-sm text-text-muted">{t.artists.hint}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" aria-pressed={!selected.length} onClick={() => onChange([])}
@@ -68,7 +68,7 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
                   </span>
                 </button>
                 <a href={artist.source} target="_blank" rel="noopener noreferrer"
-                  aria-label={t.artists.profile(artist.name)}
+                  aria-label={t.artists.profile(label(artist.id))}
                   className="flex size-11 shrink-0 items-center justify-center rounded-md text-text-muted hover:text-text">
                   <ExternalIcon />
                 </a>

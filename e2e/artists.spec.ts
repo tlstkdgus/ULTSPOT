@@ -22,6 +22,8 @@ test('artist favorites search, save and restore with an honest general-place fal
   await page.goto('/plan');
   const results = page.getByRole('list', { name: 'Search results' });
   await page.getByLabel('Travel date').fill('2026-09-22');
+  // 아티스트 선택은 접혀 있다 (T-016): 결과를 바꾸지 못하는 선택이 CTA를 밀어내지 않게 했다.
+  await page.locator('summary').filter({ hasText: 'Who are you going for?' }).click();
   // 아티스트는 날짜와 함께 1단계에서 고른다 (T-015). 없는 아티스트 안내는 장소 단계 위에 나온다.
   await results.getByRole('button', { name: 'BLACKPINK' }).click();
   await page.getByLabel('Search artists', { exact: true }).fill('필릭스');
@@ -36,6 +38,8 @@ test('artist favorites search, save and restore with an honest general-place fal
   await page.getByText('Saved plans & storage', { exact: true }).click();
   await page.getByRole('button', { name: 'Restore device draft' }).click();
   await page.getByRole('button', { name: 'Edit day', exact: true }).click();
+  // 복원 뒤에도 선택은 남아 있지만 접힌 영역 안이다. 펼쳐서 확인한다.
+  await page.locator('summary').filter({ hasText: 'Who are you going for?' }).click();
   await expect(page.getByRole('button', { name: 'Remove BLACKPINK', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Remove Felix', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Explore all K-pop' }).click();
