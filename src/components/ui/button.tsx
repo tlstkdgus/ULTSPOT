@@ -11,7 +11,7 @@ const variantClass: Record<ButtonVariant, string> = {
 };
 
 const sizeClass: Record<ButtonSize, string> = {
-  sm: "h-9 px-3.5 text-label",
+  sm: "h-11 px-3.5 text-label",
   md: "h-12 px-4 text-label",
   lg: "h-14 px-6 text-subhead",
 };
