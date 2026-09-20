@@ -102,3 +102,8 @@ test('editing and deleting a visit preserves other days and original state',()=>
  assert.equal(j.updateVisit(edited,'a',30).days[0].visits[0].lockedAt,undefined);
  assert.equal(j.removeVisit(edited,'a').days[2].visits[0].id,'b');assert.throws(()=>j.updateVisit(edited,'a',-1));
 });
+
+test('a locked visit following unknown timing still reports uncertainty',()=>{
+ let trip=j.createJourney('2026-09-21','2026-09-21');trip=j.addVisit(trip,v('a','hikr-ground'),'2026-09-21');trip=j.addVisit(trip,{...v('b'),lockedAt:700},'2026-09-21');
+ const rows=j.scheduleJourneyDay(trip,'2026-09-21',()=>10);assert.equal(rows[1].arrival,700);assert.ok(rows[1].issues.includes('Previous visit timing is unconfirmed.'));
+});

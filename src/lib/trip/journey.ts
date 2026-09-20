@@ -84,6 +84,7 @@ export function scheduleJourneyDay(journey: Journey, date: string, travel: (from
     if (reason) issues.push(reason);
     const leg=i?travel(day.visits[i-1].placeId,visit.placeId,date):0;
     if (leg===null||!Number.isFinite(leg)||leg<0) { issues.push('Travel time is unconfirmed.'); cursor=null; }
+    if (cursor===null && !issues.includes('Travel time is unconfirmed.')) issues.push('Previous visit timing is unconfirmed.');
     let arrival:number|null=cursor===null?null:Math.max(cursor+(leg??0),event?.opens??0);
     if (visit.lockedAt!==undefined) {
       if (arrival!==null&&arrival>visit.lockedAt) issues.push('Cannot reach the locked time.');
