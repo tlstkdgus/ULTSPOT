@@ -112,3 +112,7 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 | [docs/specs/prd.md](docs/specs/prd.md) | **PRD** — 목표·범위(P0/P1/P2)·지표. 짝 문서: [기능명세서](docs/specs/functional-spec.md) · [유저플로우](docs/specs/user-flow.md) |
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |
+
+### Jev 추천 평가
+
+합성 데이터 30건의 오프라인 검사: `node scripts/jev/evaluate.mjs`. 요청 생성·결과 채점과 실제 평가 전제는 [Jev 평가 계약](docs/specs/jev-evaluation.md)을 참고하세요. 기본 실행은 외부 API를 호출하지 않습니다.
