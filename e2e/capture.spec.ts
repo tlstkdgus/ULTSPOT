@@ -56,6 +56,36 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });
+  /**
+   * 여정 화면의 현장 기록(체크인·가계부·발자취). T-038에서 붙었고 captureRoutes로는 닿지
+   * 않는다 — 기간을 이틀 이상으로 잡고 일정을 만들어야 나오는 화면이라 경로만으로는 못 간다.
+   * 빈 화면이 아니라 실제로 기록이 들어간 상태를 찍는다. 빈 패널은 이 작업이 무엇을 바꿨는지
+   * 보여주지 못한다.
+   */
+  test("journey-records", async ({ page }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("journey-records"), "journey capture not requested");
+    await page.goto("/plan", { waitUntil: "networkidle" });
+    await browseAllSpots(page, "ko");
+    for (const name of ["하이커 그라운드 · K팝 체험 공간", "뮤직코리아 · 명동 2호점"])
+      await page.getByRole("button", { name: `담기 ${name}`, exact: true }).click();
+    await goToStep(page, 2, "ko");
+    await page.getByLabel("여행 날짜").fill("2026-09-22");
+    await page.getByLabel("마지막날").fill("2026-09-24");
+    await page.getByRole("button", { name: "일정 만들기" }).click();
+
+    // 한 곳은 다녀온 것으로 표시하고 지출도 한 건 넣는다.
+    await page.getByRole("button", { name: "다녀왔어요: 하이커 그라운드 · K팝 체험 공간" }).click();
+    const spend = page.getByRole("region", { name: "쓴 돈" });
+    await spend.getByLabel("금액(원)").fill("8500");
+    await spend.getByLabel("무엇에 썼나요 (선택)").fill("컵홀더 세트");
+    await spend.getByRole("button", { name: "지출 추가" }).click();
+    await expect(spend.getByText("₩8,500").first()).toBeVisible();
+
+    // 이동시간 조회 중 화면을 찍지 않는다.
+    await expect(page.getByRole("status").filter({ hasText: "이동시간을 확인하는 중이에요" })).toHaveCount(0, { timeout: 20_000 });
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: shot(testInfo, "journey-records"), fullPage: true, animations: "disabled" });
+  });
   test("plan-spots", async ({ page }, testInfo) => {
     test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
     await page.goto("/plan", { waitUntil: "networkidle" });
