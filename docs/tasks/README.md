@@ -1,9 +1,7 @@
 # 태스크 목록
 
-작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
-
-| ID | 제목 | 상태 | 브랜치 | PR |
-|----|------|------|--------|----|
+| 신규 태스크 | 내용 |
+|---|---|
 | [T-001](T-001/README.md) | 프로젝트 기본 셋팅 — Next.js · 디자인 시스템 · Supabase · 캡처 파이프라인 · 작업 규칙 | 완료 | `chore/T-001-project-setup` | #1 (뼈대) · #2 |
 | [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 완료 — https://ultspot.vercel.app | `chore/T-002-vercel-deploy` | #3 |
 | [T-003](T-003/README.md) | 기획 보강 — 테마 테스트 초안, 장소 데이터 확보 방안, 기획안 v0.5, PRD·기능명세서·유저플로우 | 진행 중 — 기획 검토·X 토큰 대기 | `docs/T-003-theme-test-and-places` | #4 (Draft) |
@@ -26,4 +24,15 @@
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
 | [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 완료·배포됨 | `design/T-021-korean-data-ui` | [#29](https://github.com/tlstkdgus/ULTSPOT/pull/29) |
 | [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 완료·배포됨 | `feat/T-022-multilingual` | [#30](https://github.com/tlstkdgus/ULTSPOT/pull/30) |
+| [T-023](T-023/README.md) | Jev 추천 평가 30건·연결 계약 | 합성 사례 실제 평가 완료·제품 연결 대기 | `test/T-023-jev-evaluation` | [#28](https://github.com/tlstkdgus/ULTSPOT/pull/28) |
+| [T-024](T-024/README.md) | 지도 통합 전 계약 검사와 Kiro 수정 기준 | 검토 완료·Kiro 반영 후속 | `test/T-024-route-integration-review` | [#32](https://github.com/tlstkdgus/ULTSPOT/pull/32) |
+| [T-025](T-025/README.md) | 카카오 지도·경로 실연동, 필수 방문 우선 일정, Jev 취향 추천, 조사 배치 변환 | 구현·실연동 검증 (배포 전) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
 | [T-026](T-026/README.md) | critique 3회차 수정 — 일본어 한글·조판 범위·버려진 번역 | 리뷰 중 | `design/T-026-critique-round3` | PR 준비 |
+| [T-027](T-027/README.md) | 일본어·중국어 장소 데이터 계약 | 구현·검증, UI 연결 대기 | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
+| [T-030](T-030/README.md) | 지원하지 않는 브라우저 언어와 감지 실패 시 영어 기본값 |
+| [T-031](T-031/README.md) | 가입 배지·중복 안내·홍보 문구 제거 (4개 언어) |
+
+작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
+
+| ID | 제목 | 상태 | 브랜치 | PR |
+|----|------|------|--------|----|
