@@ -6,10 +6,13 @@
  * 아티스트 한글 이름은 데이터에 있는 공식 표기(artists.ts `korean`)만 쓴다.
  */
 
+import { ja } from "./messages.ja";
+import { zh } from "./messages.zh";
+
 type Duration = (minutes: number) => string;
 
 const en = {
-  lang: { group: "Language", ko: "한국어", en: "English" },
+  lang: { group: "Language", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — Plan your K-pop day in Seoul",
     description: "Pick the K-pop places and fan events you want to visit, and ULTSPOT builds a one-day plan that fits their opening hours. No sign-up.",
@@ -233,7 +236,7 @@ const en = {
 export type Messages = typeof en;
 
 const ko: Messages = {
-  lang: { group: "언어", ko: "한국어", en: "English" },
+  lang: { group: "언어", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — 서울 K팝 하루 일정 만들기",
     description: "가고 싶은 K팝 장소와 팬 행사를 고르면 운영시간에 맞춰 하루 일정을 만들어 드려요. 가입 없이 바로 쓸 수 있어요.",
@@ -477,7 +480,7 @@ const ko: Messages = {
   },
 };
 
-export const messages = { en, ko } as const;
+export const messages = { en, ko, ja, zh };
 
 /** lib 문장을 현재 언어로. 사전에 없으면 원문을 그대로 돌려준다(누락이 조용히 빈칸이 되지 않게). */
 export const translateLib = (t: Messages, message: string) => t.lib[message] ?? message;

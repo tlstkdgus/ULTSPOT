@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
-import { defaultLocale, localeCookie, type Locale } from "./config";
+import { defaultLocale, htmlLang, localeCookie, type Locale } from "./config";
 import { messages } from "./messages";
 
 const LocaleContext = createContext<{ locale: Locale; setLocale: (next: Locale) => void } | null>(null);
@@ -15,7 +15,7 @@ export function LocaleProvider({ initial, children }: { initial: Locale; childre
   const setLocale = useCallback((next: Locale) => {
     setState(next);
     document.cookie = `${localeCookie}=${next}; path=/; max-age=31536000; samesite=lax`;
-    document.documentElement.lang = next;
+    document.documentElement.lang = htmlLang[next];
   }, []);
   return <LocaleContext.Provider value={{ locale, setLocale }}>{children}</LocaleContext.Provider>;
 }

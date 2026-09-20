@@ -4,6 +4,7 @@ import { Unbounded } from "next/font/google";
 // unicode-range로 쪼갠 dynamic subset CSS를 써서 화면에 나온 글자 조각만 받게 한다.
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import { color } from "@/design-system/tokens";
+import { htmlLang } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/locale";
 import { messages } from "@/i18n/messages";
 import { getLocale } from "@/i18n/server";
@@ -36,7 +37,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   return (
-    <html lang={locale} className={unbounded.variable}>
+    <html lang={htmlLang[locale]} className={unbounded.variable}>
       <body>
         <LocaleProvider initial={locale}>{children}</LocaleProvider>
       </body>

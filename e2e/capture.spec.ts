@@ -62,7 +62,17 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-artists"), fullPage: true, animations: "disabled" });
   });
-  test("plan-en", async ({ page, context, baseURL }, testInfo) => {
+  // 4개 언어 화면을 한 장씩 남긴다. 장소 이름·설명은 데이터 원문(한국어/영어)이라 언어와 무관하게 같다.
+  for (const locale of ["en", "ja", "zh"] as const) {
+    test(`plan-${locale}`, async ({ page, context, baseURL }, testInfo) => {
+      test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
+      await context.addCookies([{ name: "ultspot-locale", value: locale, url: baseURL! }]);
+      await page.goto("/plan", { waitUntil: "networkidle" });
+      await page.evaluate(() => document.fonts.ready);
+      await page.screenshot({ path: shot(testInfo, `plan-${locale}`), fullPage: true, animations: "disabled" });
+    });
+  }
+  test("plan-en-spots", async ({ page, context, baseURL }, testInfo) => {
     test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
     await context.addCookies([{ name: "ultspot-locale", value: "en", url: baseURL! }]);
     await page.goto("/plan", { waitUntil: "networkidle" });
