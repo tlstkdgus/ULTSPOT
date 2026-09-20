@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/brand";
-import { Button } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, CheckIcon, CloseIcon, ExternalIcon, FastIcon, SlowIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { SpotCard } from "@/components/spot-card";
@@ -20,6 +20,7 @@ import {
 import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
+import { KakaoMap } from "@/components/kakao-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
@@ -539,11 +540,20 @@ export function TripPlanner({ today }: { today: string }) {
       <aside className="rounded-device border border-line-strong bg-surface p-6 lg:col-span-1">
         <p className="font-display text-title">{dayLabel}<br /><span className="text-text-muted">{t.pass.seoul}</span></p>
         <div className="my-5 border-t border-dashed border-line-strong" />
-        <p className="text-body-sm text-text-muted">{t.result.visits(result.stops.length)} · {t.result.stayEach(stay)}</p>
-        <p className="mt-2 text-body-sm text-text-muted">
-          {t.result.window(start, end)}
-          {lastStop && <><br />{t.result.ends(clock(result.stops[0].arrival), clock(lastStop.departure))}</>}
-        </p>
+        {/* 기준 목업의 요약 타일. 거리는 검증된 값이 없어 넣지 않는다 — 방문 수와 실제 소요 시간만. */}
+        {lastStop && <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-line bg-bg-soft px-4 py-3">
+            <p className="font-display text-heading">{result.stops.length}</p>
+            <p className="mt-1 text-caption text-text-muted">{t.result.visits(result.stops.length)}</p>
+          </div>
+          <div className="rounded-lg border border-line bg-bg-soft px-4 py-3">
+            <p className="font-display text-heading">{t.result.duration(lastStop.departure - result.stops[0].arrival)}</p>
+            {/* 시간 범위는 적지 않는다 — 정류장이 하나면 그 카드의 시간과 똑같아져 화면에 같은 글자가 둘이 된다. */}
+          </div>
+        </div>}
+        {/* 문구 순서는 그대로 둔다 — e2e가 "N visits ·"로 이 줄을 찾는다. */}
+        <p className="mt-4 text-body-sm text-text-muted">{t.result.visits(result.stops.length)} · {t.result.stayEach(stay)}</p>
+        <p className="mt-1 text-body-sm text-text-muted">{t.result.window(start, end)}</p>
         <Button className="mt-5" block disabled={!result.stops.length} onClick={addToCalendar}><CalendarIcon /> {t.result.calendar}</Button>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" variant="ghost" disabled={!!validation || busy} onClick={() => device("save")}>{t.result.saveDevice}</Button>
@@ -571,15 +581,29 @@ export function TripPlanner({ today }: { today: string }) {
           {lookingUp ? t.travel.lookingUp
             : unconfirmedLegs > 0 ? t.travel.someUnconfirmed(unconfirmedLegs) : t.travel.allChecked}
         </p>}
+        {/* 좌표가 있는 정류장만 핀으로. NEXT_PUBLIC_KAKAO_JS_KEY가 없으면 렌더되지 않는다. */}
+        <KakaoMap className="mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong"
+          points={result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; })} />
         <ol className="space-y-4">{result.stops.map((stop, index) => <li key={stop.event.id}>
           <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />
           <article className="rounded-xl border border-line-strong bg-surface p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-3">
+            {/* 기준 목업의 정류장 행: 번호 · 분류 태그 · 시간. 분류는 우리가 만든 라벨이라 번역해도 된다. */}
+            <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-line-strong px-3 py-1 text-caption">{t.result.track(index + 1)}</span>
-              <span className="font-mono text-label">{clock(stop.arrival)}–{clock(stop.departure)}</span>
+              {stop.event.provenance.mode !== "personal" && <Badge tone="category">{t.kinds[stop.event.kind] || stop.event.kind}</Badge>}
+              {required.includes(stop.event.id) && <Badge tone="accent">{t.musts.badge}</Badge>}
+              <span className="ml-auto font-mono text-label">{clock(stop.arrival)}–{clock(stop.departure)}</span>
             </div>
             <h2 className="mt-4 text-heading" lang={stopLang(stop.event, stop.event.title_ko)}>{eventCopy(stop.event, dataLocale).title}</h2>
-            <p className="mt-3 text-body-sm text-text-muted" lang={stopLang(stop.event, stop.event.do_ko)}>{eventCopy(stop.event, dataLocale).do}</p>
+            {/* 지역 · 가까운 역 한 줄. 교통 정보가 없으면 지역만 — 없는 값을 채우지 않는다. */}
+            <p className="mt-2 text-body-sm text-text-muted">
+              <span lang={stopLang(stop.event, stop.event.area_ko)}>{eventCopy(stop.event, dataLocale).area}</span>
+              {stop.event.transit && <> · {t.spots.transit(
+                locale === "ko" ? stop.event.transit.station_ko : stop.event.transit.station_en,
+                locale === "ko" ? stop.event.transit.line_ko : stop.event.transit.line_en,
+                stop.event.transit.exit, stop.event.transit.walk_minutes)}</>}
+            </p>
+            <p className="mt-3 text-caption text-text-muted" lang={stopLang(stop.event, stop.event.do_ko)}>{eventCopy(stop.event, dataLocale).do}</p>
             <a className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-body-sm underline underline-offset-4"
               href={`https://map.naver.com/p/search/${encodeURIComponent(stop.event.address)}`} target="_blank" rel="noopener noreferrer">
               <span lang="en">{stop.event.address}</span> <ExternalIcon />
