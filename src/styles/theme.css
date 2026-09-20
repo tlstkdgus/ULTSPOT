@@ -134,11 +134,14 @@
     var(--color-line-strong) var(--spacing-record-groove));
 }
 
-/* next/font가 <html>에 심는 변수를 참조하므로 inline으로 풀어야 한다. */
+/* next/font가 <html>에 심는 변수를 참조하므로 inline으로 풀어야 한다.
+   --font-sans에서 한국어 글꼴(Apple SD Gothic Neo·Noto Sans KR)을 뺐다. 전역에 두면
+   일본어·중국어 화면에서 Pretendard에 없는 가나·한자가 한국어 자형으로 떨어진다.
+   언어별 폴백은 globals.css의 html:lang() 규칙이 맡는다.
+   이 블록 안에는 주석을 넣지 않는다 — 넣었더니 theme 파싱이 통째로 깨져 색 토큰 104개가
+   전부 빈 값이 됐다(tokens.spec.ts가 잡았다). */
 @theme inline {
   --font-display: var(--font-unbounded), "Pretendard Variable", Pretendard, sans-serif;
-  --font-sans:
-    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
-    "Noto Sans KR", sans-serif;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }

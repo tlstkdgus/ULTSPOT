@@ -27,8 +27,7 @@
   body {
     @apply bg-bg font-sans text-text antialiased;
     min-height: 100dvh;
-    /* 한글이 음절 단위로 끊기지 않게 어절 단위 줄바꿈. 긴 URL 등은 anywhere로 넘친다. */
-    word-break: keep-all;
+    /* 긴 URL·로마자 주소가 넘치지 않게. 줄바꿈 규칙 자체는 언어마다 달라 아래에서 가른다. */
     overflow-wrap: anywhere;
   }
 
@@ -56,4 +55,53 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* 아래 언어별 규칙은 일부러 @layer 밖에 둔다.
+   Tailwind의 font-sans는 utilities 레이어라, 레이어 안(@layer base)에 적으면 명시도와
+   무관하게 진다 — 실제로 일본어 주 버튼만 한국어 글꼴(Malgun Gothic)로 그려졌다.
+   레이어 없는 규칙은 모든 레이어를 이긴다. */
+
+/* 한글이 음절 단위로 끊기지 않게 어절 단위 줄바꿈.
+   이 규칙을 일본어·중국어에 걸면 띄어쓰기 없는 문장 전체가 끊을 수 없는 한 덩어리가 되어
+   모든 줄바꿈이 금칙처리 없는 비상 탈출이 된다. 실제로 "K-POP"이 이름 중간에서 쪼개지고
+   줄 첫머리에 "。"만 남았다. 일본어·중국어는 브라우저 기본 금칙처리에 맡긴다. */
+html:lang(ko) body {
+  word-break: keep-all;
+}
+
+/* 글꼴 폴백은 언어마다 달라야 한다. 한국어 글꼴을 전역 목록에 두면 Pretendard에 없는
+   가나·한자가 한국어 자형으로 떨어진다 — 일본어 한 문단에서 서체 4종, 중국어 제목에는
+   브랜드 글꼴이 하나도 남지 않는 것이 실측됐다. 공통 앞부분(Pretendard)으로 라틴·한글의
+   브랜드 목소리를 지키고, 그 뒤 폴백만 언어별로 가른다. */
+html:lang(ko) body,
+html:lang(ko) :is(button, input, select, textarea, optgroup) {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+/* 일본어·중국어는 그 언어의 글꼴을 Pretendard보다 앞에 둔다. Pretendard에는 한자가 일부
+   들어 있어서 뒤에 두면 한 단어 안에서 한자는 Pretendard, 가나·간체 전용자는 다른 글꼴로
+   갈린다("行程节奏"의 앞뒤 굵기가 달랐다). 라틴 문자까지 그 언어 글꼴로 넘어가지만,
+   브랜드 라틴은 제목의 Unbounded가 따로 맡으므로 잃는 것이 적다. */
+/* 버튼·입력칸은 글꼴을 상속하지 않아 따로 적어야 한다. 이것을 빠뜨렸더니 일본어 화면의
+   주 버튼("行き先を見る")만 한국어 글꼴로 그려졌다 — Malgun Gothic 3자 + Pretendard 3자. */
+html:lang(ja) body,
+html:lang(ja) :is(button, input, select, textarea, optgroup) {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Pretendard Variable", Pretendard, sans-serif;
+}
+
+html:lang(zh) body,
+html:lang(zh) :is(button, input, select, textarea, optgroup) {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Pretendard Variable", Pretendard, sans-serif;
+}
+
+/* 제목도 같은 이유로 갈라야 한다. Unbounded에는 가나·한자가 없어 그대로 두면
+   중국어 제목이 시스템 UI 글꼴로 떨어진다(Unbounded 0자·Pretendard 0자로 실측). */
+/* Unbounded는 라틴 전용이라 앞에 두어도 한자를 가져가지 않는다. 그 뒤는 본문과 같은 순서. */
+html:lang(ja) :is(h1, h2, h3) {
+  font-family: var(--font-unbounded), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Pretendard Variable", Pretendard, sans-serif;
+}
+
+html:lang(zh) :is(h1, h2, h3) {
+  font-family: var(--font-unbounded), "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Pretendard Variable", Pretendard, sans-serif;
 }
