@@ -56,23 +56,26 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
   const byId = useMemo(() => new Map(places.map(place => [place.id, place])), [places]);
 
   /** 이동시간 조회. 실패해도 편집과 저장은 계속 된다. 늦게 온 응답은 번호로 버린다. */
-  const lookup = useCallback(async (target: Journey, mode: TravelMode) => {
-    const legs = journeyLegs(target);
-    if (!legs.length) { setTable({}); return; }
+  const lookup = useCallback(async (target: Journey, mode: TravelMode, signal: AbortSignal) => {
     const id = ++lookupId.current;
+    if (signal.aborted) return;
+    const legs = journeyLegs(target);
+    if (!legs.length) { setTable({}); setLookingUp(false); return; }
     setLookingUp(true);
     try {
-      const { table: next } = await fetchTravelTable(legs, mode, 45);
-      if (id === lookupId.current) setTable(next);
+      const { table: next } = await fetchTravelTable(legs, mode, 45, signal);
+      if (!signal.aborted && id === lookupId.current) setTable(next);
     } finally {
-      if (id === lookupId.current) setLookingUp(false);
+      if (!signal.aborted && id === lookupId.current) setLookingUp(false);
     }
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     // 마이크로태스크로 미뤄 effect 본문에서 곧바로 setState하지 않는다 (연쇄 렌더 방지).
     // 조회는 네트워크 작업이라 한 틱 늦어도 사용자에게 차이가 없다.
-    void Promise.resolve().then(() => lookup(journey, travelMode));
+    void Promise.resolve().then(() => lookup(journey, travelMode, controller.signal));
+    return () => controller.abort();
   }, [journey, travelMode, lookup]);
 
   const scheduled: ScheduledVisit[] = day
