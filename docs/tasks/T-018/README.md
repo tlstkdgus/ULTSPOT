@@ -4,7 +4,7 @@
 |---|---|
 | 상태 | 구현·검증 (UI 연결 대기) |
 | 브랜치 | `feat/T-018-visitor-data-integration` |
-| PR | #22 |
+| PR | [#24](https://github.com/tlstkdgus/ULTSPOT/pull/24) |
 | 기간 | 2026-09-20 |
 | 근거 | [Kiro 개발 인계](../../handoff/kiro-development.md) "조사와 병렬로 할 작업" 1·2 · 사용자 요청(PR #19와 최신 UI 통합) |
 
