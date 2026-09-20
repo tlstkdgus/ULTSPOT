@@ -1,6 +1,7 @@
 # T-023 Jev 추천 평가 준비
 
 - 브랜치: test/T-023-jev-evaluation
+- PR: [#28](https://github.com/tlstkdgus/ULTSPOT/pull/28)
 - 상태: 오프라인 평가 준비, 실제 모델 평가 대기
 - 근거: 사용자 요청(2026-09-20), TypeSafe 스킬
 - 산출물: [연결 계약 및 실행 순서](../../specs/jev-evaluation.md), 합성 사례 30개와 오프라인 채점 도구

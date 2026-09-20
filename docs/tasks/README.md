@@ -24,5 +24,4 @@
 | [T-018](T-018/README.md) | T-016 방문 데이터를 최신 main에 통합 | 구현·검증 (UI 연결 대기) | `feat/T-018-visitor-data-integration` | [#24](https://github.com/tlstkdgus/ULTSPOT/pull/24) |
 | [T-019](T-019/README.md) | 필수 행사·구간 이동시간 경로 검증 | 모듈 구현·연동 대기 | `feat/T-019-route-feasibility` | [#23](https://github.com/tlstkdgus/ULTSPOT/pull/23) |
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
-
-| [T-023](T-023/README.md) | Jev 추천 평가 30건·연결 계약 | 오프라인 검증·실제 평가 대기 | `test/T-023-jev-evaluation` | PR 준비 |
+| [T-023](T-023/README.md) | Jev 추천 평가 30건·연결 계약 | 오프라인 검증·실제 평가 대기 | `test/T-023-jev-evaluation` | [#28](https://github.com/tlstkdgus/ULTSPOT/pull/28) |
