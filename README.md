@@ -2,7 +2,7 @@
 
 > **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
 
-<img src="docs/tasks/T-001/screenshots/home-desktop.png" alt="ULTSPOT 임시 랜딩 (desktop)" width="720">
+<img src="docs/tasks/T-005/screenshots/home-desktop.png" alt="ULTSPOT 비회원 플래너 진입 (desktop)" width="720">
 
 **데모: https://ultspot.vercel.app** · 모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
 
@@ -25,7 +25,8 @@ cp .env.example .env.local        # Supabase 키가 없어도 화면은 뜹니�
 pnpm dev                          # http://localhost:3000
 ```
 
-- `/` — 임시 랜딩
+- `/` — 비회원 플래너 진입
+- `/plan` — 실제 장소·개인 행사 입력·일정 생성/수정·기기 저장/복원·다운로드. 클라우드 저장 연결은 [설정 안내](docs/setup-cloud-trips.md) 참조.
 - `/design-system` — 디자인 토큰·컴포넌트 확인 화면
 
 화면 캡처·E2E를 돌리려면 최초 1회 브라우저를 설치합니다.
@@ -64,6 +65,7 @@ pnpm exec playwright install chromium
 | `NEXT_PUBLIC_SUPABASE_URL` | 브라우저 | Supabase 프로젝트 URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 브라우저 | `sb_publishable_…` 키. 실제 보호는 RLS가 합니다 |
 | `OPENAI_API_KEY` | **서버 전용** | 예정. `NEXT_PUBLIC_`을 절대 붙이지 않습니다 |
+| `NEXT_PUBLIC_ENABLE_CLOUD_TRIPS` | 브라우저 | 기본 false. migration·익명 인증·RLS 검증 후 활성화 ([설정](docs/setup-cloud-trips.md)) |
 
 ## 폴더 구조
 
@@ -94,6 +96,14 @@ scripts/
 ```
 
 ## 문서
+
+T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이 가능합니다. 현재 공개 범위와 부분 날짜/회차별 예매 데이터 규칙은 [카탈로그 조건](docs/data/catalog-conditions.md)에 정리했습니다. 별도 API 키·migration 추가는 없습니다.
+
+새 수집 CSV의 접수·보완 검토는 `pnpm data:audit <CSV 폴더> <접수-ID> <YYYY-MM-DD>`로 수행합니다. 원본 해시·변환 후보·추가 메모·오류 보고서를 Git 제외 폴더에 보관하며 업로드하지 않습니다. `event_conditions`는 선택 탭이며 원문 조건을 보존합니다. 미지원 CSV(예: changelog)는 audit의 sidecar에 원본 바이트로 보관하고, strict check/prepare는 누락 방지를 위해 해당 CSV가 있는 폴더를 거부합니다. 검수한 candidate JSON을 사용하세요. [두 번째 수집 검토](docs/data/second-collection-review.md)를 참고하세요.
+
+수집 원본은 `.local-data/incoming/`에 넣습니다(Git 제외). `pnpm data:check <CSV 폴더 또는 JSON>`으로 검증하고 `pnpm data:prepare <경로> <batch-id>`로 비공개 적재 SQL을 생성합니다. 테스트는 `pnpm test:data`. [적재 안내](docs/data/intake.md)에 DB 적용·검수 절차가 있습니다. 엑셀·문서는 별도 변환이 필요합니다.
+
+데이터 수집 담당자에게는 [수집 요청서](docs/data/collection-brief.md)와 [복사용 프롬프트](docs/data/collection-prompt.md)를 함께 전달하세요. 제품 반영 범위와 미구현 기능은 [여러 아티스트 지원 계획](docs/specs/multi-artist-data.md)에 정리했습니다.
 
 | 문서 | 내용 |
 |------|------|

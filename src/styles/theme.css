@@ -106,6 +106,8 @@
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --animate-dot-pulse: dot-pulse 1.2s var(--ease-out-soft) infinite;
+  --spacing-record-groove: 0.5rem;
+  --spacing-record-line: 1px;
 
   @keyframes dot-pulse {
     0%,
@@ -118,6 +120,13 @@
       transform: scale(1);
     }
   }
+}
+
+/* Decorative record artwork, not a photo of a venue or an artist. */
+.trip-record {
+  background: repeating-radial-gradient(circle, var(--color-bg-soft) 0,
+    var(--color-bg-soft) calc(var(--spacing-record-groove) - var(--spacing-record-line)),
+    var(--color-line-strong) var(--spacing-record-groove));
 }
 
 /* next/font가 <html>에 심는 변수를 참조하므로 inline으로 풀어야 한다. */
