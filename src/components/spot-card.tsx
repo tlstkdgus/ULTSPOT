@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
 import { clock, unavailableReason, type FanEvent } from "@/lib/trip/planner";
-import { eventCopy } from "@/lib/trip/event-copy";
+import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
 
 export type SpotStatus = "open" | "closed" | "unconfirmed" | "reservation";
 
@@ -30,12 +30,15 @@ const mapLinks = (address: string) => [
   { key: "google" as const, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` },
 ];
 
-export function SpotCard({ event, date, selected, disabled, onToggle }: {
+export function SpotCard({ event, date, selected, disabled, onToggle, required = false, onToggleRequired }: {
   event: FanEvent; date: string; selected: boolean; disabled: boolean; onToggle: () => void;
+  /** 필수 방문 지정 여부. 담은 곳에만 쓸 수 있다. */
+  required?: boolean;
+  onToggleRequired?: () => void;
 }) {
   const { locale, t } = useI18n();
-  // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
-  const dataLocale = locale === "ko" ? "ko" : "en";
+  // T-027에서 장소 데이터가 ja·zh까지 늘었다. eventCopy가 초안 번역은 영어로 떨어뜨린다.
+  const dataLocale: DataLocale = locale;
   const status = spotStatus(event, date);
   const personal = event.provenance.mode === "personal";
   const kind = (locale === "ko" && t.kinds[event.kind]) || event.kind;
@@ -60,6 +63,7 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={tone[status]}>{t.status[status]}</Badge>
           {personal && <Badge tone="accent">{t.status.personal}</Badge>}
+          {required && <Badge tone="accent">{t.musts.badge}</Badge>}
           {selected && <span className="inline-flex items-center gap-1 text-caption text-text"><CheckIcon />{t.spots.added}</span>}
         </div>
         <h3 className="mt-3 text-subhead" lang={langOf(event.title_ko)}>{copy.title}</h3>
@@ -128,11 +132,20 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
           </div>
         </details>
 
-        <Button className="mt-auto" variant="ghost" onClick={onToggle} disabled={disabled}>
-          {selected ? <CheckIcon /> : <PlusIcon />}
-          {selected ? t.spots.remove : t.spots.add}
-          <span className="sr-only"> {copy.title}</span>
-        </Button>
+        <div className="mt-auto">
+          {/* 담은 곳만 필수 방문으로 지정할 수 있다. 필수는 방문 수보다 먼저 지켜진다. */}
+          {selected && onToggleRequired && <label className="flex min-h-11 cursor-pointer items-center gap-2 text-label">
+            <input type="checkbox" checked={required} onChange={onToggleRequired}
+              className="size-4 accent-[var(--color-text)]" />
+            <span>{t.musts.badge}</span>
+            <span className="sr-only">{required ? t.musts.off(copy.title) : t.musts.on(copy.title)}</span>
+          </label>}
+          <Button className="mt-1" variant="ghost" block onClick={onToggle} disabled={disabled}>
+            {selected ? <CheckIcon /> : <PlusIcon />}
+            {selected ? t.spots.remove : t.spots.add}
+            <span className="sr-only"> {copy.title}</span>
+          </Button>
+        </div>
       </div>
     </article>
   );

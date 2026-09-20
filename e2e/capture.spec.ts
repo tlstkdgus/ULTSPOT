@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import path from "node:path";
 import { captureRoutes } from "./routes";
 
@@ -38,6 +38,8 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     for (const name of ["하이커 그라운드 · K팝 체험 공간", "뮤직코리아 · 명동 2호점", "한류스타거리 K-STAR ROAD"])
       await page.getByRole("button", { name: `담기 ${name}`, exact: true }).click();
     await page.getByRole("button", { name: "일정 만들기" }).click();
+    // 이동시간 조회가 끝난 뒤에 찍는다. 조회 중 화면을 캡처하면 여유 시간 기준 일정이 결과처럼 남는다.
+    await expect(page.getByRole("status").filter({ hasText: "이동시간을 확인하는 중이에요" })).toHaveCount(0, { timeout: 20_000 });
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });

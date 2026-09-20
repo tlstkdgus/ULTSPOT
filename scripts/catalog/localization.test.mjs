@@ -15,11 +15,12 @@ function load(file) {
 }
 const { eventCopy } = load('src/lib/trip/event-copy.ts');
 const { catalog } = load('src/lib/trip/catalog.ts');
-const { isPersonalEvent } = load('src/lib/trip/storage.ts');
+const { isPersonalEvent, reviewedOnlyKeys } = load('src/lib/trip/storage.ts');
 const { catalogTranslationDrafts } = load('src/lib/trip/catalog-translation-drafts.ts');
 const original = catalog[0];
 const personal = { ...original, id: 'personal-test', from: '2026-09-21', to: '2026-09-21', closedDays: [], provenance: { mode: 'personal', author: 'visitor', url: 'https://example.com', checkedOn: '2026-09-20' } };
-for (const key of ['title_ko','area_ko','do_ko','get_ko','transit','participation','lastEntry','artistIds']) delete personal[key];
+// 검수 전용 필드 목록은 storage.ts가 원천이다. 새 필드가 늘어도 이 fixture가 어긋나지 않는다.
+for (const key of [...reviewedOnlyKeys, 'lastEntry', 'artistIds']) delete personal[key];
 test('ja/zh optional translations fall back to English, never Korean', () => {
   for (const locale of ['ja','zh']) assert.equal(eventCopy(original, locale).title, original.title);
   assert.equal(eventCopy(original, 'ko').title, original.title_ko);

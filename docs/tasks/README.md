@@ -28,4 +28,5 @@
 | [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 완료·배포됨 | `feat/T-022-multilingual` | [#30](https://github.com/tlstkdgus/ULTSPOT/pull/30) |
 | [T-027](T-027/README.md) | 일본어·중국어 장소 데이터 계약 | 구현·검증, UI 연결 대기 | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
 | [T-028](T-028/README.md) | 여러 날 일정·저장 구조 | 구현·검증, UI/DB 적용 대기 | `feat/T-028-multi-day-storage` | [#35](https://github.com/tlstkdgus/ULTSPOT/pull/35) |
-| [T-025](T-025/README.md) | Codex 일본어·중국어 데이터 요청 인계 | 문서 완료 | `docs/T-025-codex-i18n-request` | PR 준비 |
+| [T-025](T-025/README.md) | Codex 일본어·중국어 데이터 요청 인계 | 문서 완료 | `docs/T-025-codex-i18n-request` | [#33](https://github.com/tlstkdgus/ULTSPOT/pull/33) |
+| [T-029](T-029/README.md) | 전체 UX 통합 — 최애 선택·탐색·N박 N일 일정·커뮤니티·체크인·가계부·공유·발자취 | 진행 중 | `feat/T-029-full-ux` | PR 준비 |
