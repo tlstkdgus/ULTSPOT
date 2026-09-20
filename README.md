@@ -114,3 +114,5 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |
 
 일본어·중국어 장소 데이터: [번역 계약](docs/specs/localized-place-data.md). 여러 날 여행 확장: [구현 계약 초안](docs/specs/multi-day-product-contract.md).
+
+여러 날 일정 저장 모듈과 DB 적용 순서: [journey-storage](docs/specs/journey-storage.md). 현재 UI 연결은 후속입니다.
