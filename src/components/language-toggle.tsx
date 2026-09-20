@@ -13,7 +13,7 @@ import { GlobeIcon } from "@/components/icons";
 export function LanguageToggle({ className }: { className?: string }) {
   const { locale, setLocale, t } = useI18n();
   return (
-    <label className={cn("relative inline-flex items-center", className)}>
+    <label className={cn("relative inline-flex shrink-0 items-center", className)}>
       <span className="sr-only">{t.lang.group}</span>
       {/* 한국어를 못 읽는 사람에게 "한국어"라고 적힌 알약은 아무 단서가 아니다.
           기본 화살표 하나에 기대지 않도록 지구본을 붙인다. */}
@@ -21,12 +21,15 @@ export function LanguageToggle({ className }: { className?: string }) {
       <select
         value={locale}
         onChange={event => setLocale(event.target.value as Locale)}
-        className="min-h-11 rounded-full border border-line-strong bg-surface py-2 pl-9 pr-4 text-label text-text"
+        className="min-h-11 appearance-none rounded-full border border-line-strong bg-surface py-2 pl-9 pr-10 text-label text-text"
       >
         {locales.map(value => (
           <option key={value} value={value} lang={value}>{t.lang[value]}</option>
         ))}
       </select>
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute right-4 size-4 text-text">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
     </label>
   );
 }
