@@ -261,7 +261,9 @@ export function TripPlanner({ today }: { today: string }) {
       <LanguageToggle />
     </header>
 
-    <nav aria-label={t.steps.nav} className="my-6 grid grid-cols-3 gap-2 sm:gap-6">
+    {/* 단계가 4개인데 격자는 3칸이라 "일정 받기"만 아랫줄로 떨어지고 밑줄이 끊겨 보였다.
+        390px에서 4칸은 한 칸이 90px도 안 돼 라벨이 접히므로 모바일은 2×2로 둔다. */}
+    <nav aria-label={t.steps.nav} className="my-6 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-6">
       {t.steps.labels.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
         disabled={busy || (index === 3 && !result)} onClick={() => setStep(index)}
         className={cn("flex min-h-11 items-center gap-2 border-b-2 pb-3 text-left text-label transition-colors disabled:cursor-not-allowed disabled:text-text-faint",
