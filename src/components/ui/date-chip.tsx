@@ -13,7 +13,9 @@ export function DateChip({ weekday, day, active = false, className, type = "butt
       type={type}
       aria-pressed={active}
       className={cn(
-        "flex min-w-11 shrink-0 flex-col items-center rounded-sm border px-2.5 py-2 text-[0.6875rem] transition-colors duration-150",
+        // 0.6875rem은 --text-badge와 같은 값이다. 임의값 대신 토큰을 쓴다(AGENTS.md 5).
+        // 세로도 44px을 채운다 — 날짜 칩은 모바일에서 손가락으로 누르는 컨트롤이다.
+        "flex min-h-11 min-w-11 shrink-0 flex-col items-center justify-center rounded-sm border px-2.5 py-2 text-badge transition-colors duration-150",
         active
           ? "border-lime bg-lime text-lime-ink"
           : "border-line-strong bg-surface-2 text-text-muted hover:border-ink-400",

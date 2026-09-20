@@ -13,7 +13,9 @@ export function Chip({ selected = false, dotColor, className, children, type = "
       type={type}
       aria-pressed={selected}
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-label font-medium transition-colors duration-150",
+        // h-9(36px)는 44px 최소 터치 영역에 못 미쳤다. Button의 sm이 같은 이유로 h-11이 됐는데(T-020)
+        // 칩만 남아 있었다. 글자 크기는 그대로 두고 상자만 키운다.
+        "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-label font-medium transition-colors duration-150",
         selected
           ? "border-transparent bg-lime font-bold text-lime-ink"
           : "border-line-strong text-text-muted hover:border-ink-400 hover:text-text",

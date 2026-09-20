@@ -38,14 +38,14 @@ const typeScale = [
   { token: "text-hero", spec: "Unbounded 900 · clamp 52–132", sample: "FIND YOUR SPOT.", className: "text-hero font-display" },
   { token: "text-display", spec: "Unbounded 900 · clamp 40–56", sample: "SPOT IT", className: "text-display font-display" },
   { token: "text-heading", spec: "Unbounded 800 · clamp 22–34", sample: "덕질 일정, 한 화면에", className: "text-heading font-display" },
-  { token: "text-subhead", spec: "Pretendard 700 · 20", sample: "9월 12일 – 9월 24일, 스트레이 키즈", className: "text-subhead" },
+  { token: "text-subhead", spec: "Pretendard 700 · 20", sample: "부제목 한 줄이 여기 들어갑니다", className: "text-subhead" },
   {
     token: "text-body",
     spec: "Pretendard 400 · 16",
-    sample: "여행 날짜만 입력하면 그 기간에 열리는 생일카페와 팝업을 자동으로 매칭해드려요.",
+    sample: "본문은 이 크기로 들어갑니다. 실제 문구가 아니라 크기를 보기 위한 견본입니다.",
     className: "text-body text-text-muted",
   },
-  { token: "text-caption", spec: "Pretendard 500 · 12.5 · upper", sample: "HONGDAE · 09.16 OPEN", className: "text-caption uppercase text-text-faint" },
+  { token: "text-caption", spec: "Pretendard 500 · 12.5 · upper", sample: "CAPTION · SPECIMEN", className: "text-caption uppercase text-text-faint" },
 ];
 
 function Section({ id, eyebrow, title, description, children }: {
@@ -90,7 +90,7 @@ export default function DesignSystemPage() {
               <div className="p-3.5 md:p-4">
                 <div className="text-label">{s.name}</div>
                 <div className="mt-1 font-mono text-caption text-text-faint">{s.hex.toUpperCase()}</div>
-                <div className="mt-1 font-mono text-[0.6875rem] text-lime-dim">{s.token}</div>
+                <div className="mt-1 font-mono text-badge text-lime-dim">{s.token}</div>
                 <p className="mt-2 hidden text-caption font-normal tracking-normal text-text-muted sm:block">{s.use}</p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function DesignSystemPage() {
 
         <div className="mt-7 flex overflow-hidden rounded-md border border-line">
           {neutralScale.map(([step, hex, text]) => (
-            <div key={step} className={`flex h-14 flex-1 items-end px-2 pb-2 font-mono text-[0.6875rem] ${text}`} style={{ backgroundColor: hex }}>
+            <div key={step} className={`flex h-14 flex-1 items-end px-2 pb-2 font-mono text-badge ${text}`} style={{ backgroundColor: hex }}>
               {step}
             </div>
           ))}
@@ -174,16 +174,18 @@ export default function DesignSystemPage() {
         <div className="grid items-start gap-10 lg:grid-cols-[auto_1fr]">
           <div className="mx-auto w-full max-w-80 overflow-hidden rounded-device border-8 border-black bg-bg-soft shadow-[0_30px_60px_-20px_#000000aa]">
             <div className="px-4 pt-5">
-              <div className="mb-4.5 flex justify-between text-[0.6875rem] text-text-faint">
+              {/* 여기 글자는 전부 자리표시다. 실제 장소 이름처럼 보이는 값을 두면
+                  공개 경로라 심사자가 실제 목록으로 오해한다. 화면에도 그 사실을 적는다. */}
+              <div className="mb-4.5 flex justify-between text-badge text-text-faint">
                 <span>ULTSPOT</span>
-                <span>09.16 Wed</span>
+                <span>견본 · 실제 데이터 아님</span>
               </div>
-              <div className="font-display text-[1.375rem] leading-tight font-extrabold">
-                이번 주,
+              <div className="font-display text-title leading-tight font-extrabold">
+                제목이
                 <br />
-                <em className="text-lime not-italic">현진</em> 생일카페 7곳
+                <em className="text-lime not-italic">두 줄</em>로 들어갑니다
               </div>
-              <p className="mt-1.5 mb-4 text-[0.78125rem] text-text-muted">홍대 · 성수 지역 기준으로 정렬했어요</p>
+              <p className="mt-1.5 mb-4 text-caption text-text-muted">보조 설명 한 줄이 여기 붙습니다</p>
 
               <div className="mb-4.5 flex gap-2 overflow-x-auto pb-1">
                 <DateChip weekday="MON" day={14} />
@@ -196,17 +198,17 @@ export default function DesignSystemPage() {
               <Card className="relative mb-3.5">
                 <Badge tone="ongoing" className="absolute top-3.5 right-3.5">진행중</Badge>
                 <AvatarStack count={3} className="mb-2.5" />
-                <h4 className="mb-1 font-display text-[0.9375rem] font-bold">Hyunjin Ice Cave Cafe</h4>
-                <p className="text-xs text-text-muted">
-                  홍대 · <b className="font-bold text-lime">09.14–09.20</b> · 도보 6분
+                <h4 className="mb-1 font-display text-body font-bold">스팟 이름이 들어갑니다</h4>
+                <p className="text-caption text-text-muted">
+                  지역 · <b className="font-bold text-lime">운영 기간</b> · 도보 시간
                 </p>
               </Card>
               <Card className="relative">
                 <Badge tone="closing" className="absolute top-3.5 right-3.5">마감임박</Badge>
                 <AvatarStack count={2} className="mb-2.5" />
-                <h4 className="mb-1 font-display text-[0.9375rem] font-bold">Felix Sunset Diner Pop-up</h4>
-                <p className="text-xs text-text-muted">
-                  성수 · <b className="font-bold text-lime">09.16–09.17</b> · 도보 12분
+                <h4 className="mb-1 font-display text-body font-bold">두 번째 스팟 이름</h4>
+                <p className="text-caption text-text-muted">
+                  지역 · <b className="font-bold text-lime">운영 기간</b> · 도보 시간
                 </p>
               </Card>
 
