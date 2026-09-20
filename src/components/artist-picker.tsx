@@ -4,6 +4,7 @@ import { CheckIcon, ExternalIcon, PlusIcon } from "@/components/icons";
 import { intlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
 import { cn } from "@/lib/cn";
+import { directoryCopy } from "@/i18n/artist-directory";
 import { artists, searchArtists } from "@/lib/trip/artists";
 
 const MAX = 5;
@@ -11,7 +12,10 @@ const MAX = 5;
 export function ArtistPicker({ selected, onChange }: { selected: string[]; onChange: (ids: string[]) => void }) {
   const { locale, t } = useI18n();
   const [query, setQuery] = useState("");
-  const results = searchArtists(query);
+  const [filter, setFilter] = useState('all');
+  const copy = directoryCopy[locale];
+  const pool = query.trim() ? searchArtists(query) : artists;
+  const results = pool.filter(a => filter === 'all' || (filter === 'group' ? a.kind === 'group' : filter === 'unit' ? a.kind === 'unit' : filter === 'member' ? a.kind === 'person' && !!a.parentId : a.kind === 'person' && !a.parentId));
   // 이름은 번역하지 않는다. 데이터에 있는 공식 표기(name/korean)만 언어에 따라 앞뒤로 놓는다.
   const label = (id: string) => {
     const artist = artists.find(a => a.id === id);
@@ -37,10 +41,10 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
       <p className="text-body-sm text-text-muted">{t.artists.hint}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" aria-pressed={!selected.length} onClick={() => onChange([])}
+        <button type="button" disabled={!selected.length} onClick={() => onChange([])}
           className={cn("inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-label transition-colors",
             !selected.length ? "border-text bg-surface-2 text-text" : "border-line-strong text-text-muted hover:text-text")}>
-          {!selected.length ? <CheckIcon /> : null}{t.artists.all}
+          {copy.reset}
         </button>
         {selected.map(id => (
           <button key={id} type="button" onClick={() => toggle(id)}
@@ -56,12 +60,16 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
           placeholder={t.artists.placeholder} value={query} onChange={event => setQuery(event.target.value)} />
       </label>
 
+      <nav aria-label={copy.title} className="mt-4 flex flex-wrap gap-2">
+        {(['all', 'group', 'member', 'solo', 'unit'] as const).map(key => <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={cn("min-h-11 rounded-full border px-4 text-label", filter === key ? "border-text bg-surface-2 text-text" : "border-line-strong text-text-muted")}>{copy[key]}</button>)}
+      </nav>
+      <p className="mt-3 text-caption text-text-muted" role="status">{copy.title} · {results.length}</p>
       {results.length > 0 && (
-        <ul aria-label={t.artists.results} className="mt-3 grid gap-2">
+        <ul aria-label={t.artists.results} className="mt-3 grid max-h-screen gap-2 overflow-y-auto">
           {results.map(artist => {
             const picked = selected.includes(artist.id);
             const parent = artist.parentId ? artists.find(a => a.id === artist.parentId) : undefined;
-            const kind = parent ? t.artists.member(locale === "ko" ? parent.korean : parent.name) : t.artists.group;
+            const kind = parent ? t.artists.member(locale === "ko" ? parent.korean : parent.name) : artist.kind === "group" ? copy.group : artist.kind === "unit" ? copy.unit : copy.solo;
             return (
               <li key={artist.id} className="flex min-w-0 items-center gap-1 rounded-lg border border-line-strong bg-surface pr-1">
                 <button type="button" aria-pressed={picked} disabled={!picked && selected.length >= MAX} onClick={() => toggle(artist.id)}
@@ -72,7 +80,7 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
                   <span className="min-w-0">
                     <span className="block truncate text-label">{label(artist.id)}</span>
                     <span className="block truncate text-caption text-text-muted">
-                      {secondary(artist.id)} · {kind}
+                      {secondary(artist.id)} · {kind}{artist.collected ? ` · ${copy.collected}` : ""}
                       {artist.birthday_mm_dd && ` · ${t.artists.birthday(birthdayLabel(artist.birthday_mm_dd))}`}
                     </span>
                   </span>

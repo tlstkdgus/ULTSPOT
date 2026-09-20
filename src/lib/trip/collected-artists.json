@@ -1,0 +1,2641 @@
+﻿[
+    {
+        "id":  "A-SM-TVXQ",
+        "name":  "TVXQ",
+        "korean":  "동방신기",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-YUNHO",
+        "name":  "U-Know Yunho",
+        "korean":  "유노윤호",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-TVXQ"
+    },
+    {
+        "id":  "P-SM-CHANGMIN",
+        "name":  "Max Changmin",
+        "korean":  "최강창민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-TVXQ"
+    },
+    {
+        "id":  "A-SM-SJ",
+        "name":  "Super Junior",
+        "korean":  "슈퍼주니어",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-LEETEUK",
+        "name":  "Leeteuk",
+        "korean":  "이특",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-HEECHUL",
+        "name":  "Heechul",
+        "korean":  "희철",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-YESUNG",
+        "name":  "Yesung",
+        "korean":  "예성",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-SHINDONG",
+        "name":  "Shindong",
+        "korean":  "신동",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SUNGMIN",
+        "name":  "Sungmin",
+        "korean":  "성민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-EUNHYUK",
+        "name":  "Eunhyuk",
+        "korean":  "은혁",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-SIWON",
+        "name":  "Siwon",
+        "korean":  "시원",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-DONGHAE",
+        "name":  "Donghae",
+        "korean":  "동해",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-RYEOWOOK",
+        "name":  "Ryeowook",
+        "korean":  "려욱",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "P-SM-KYUHYUN",
+        "name":  "Kyuhyun",
+        "korean":  "규현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "A-SM-SNSD",
+        "name":  "Girls\u0027 Generation",
+        "korean":  "소녀시대",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-TAEYEON",
+        "name":  "Taeyeon",
+        "korean":  "태연",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SUNNY",
+        "name":  "Sunny",
+        "korean":  "써니",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SNSD"
+    },
+    {
+        "id":  "P-SM-TIFFANY",
+        "name":  "Tiffany",
+        "korean":  "티파니",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SNSD"
+    },
+    {
+        "id":  "P-SM-HYOYEON",
+        "name":  "Hyoyeon",
+        "korean":  "효연",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-YURI",
+        "name":  "Yuri",
+        "korean":  "유리",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SOOYOUNG",
+        "name":  "Sooyoung",
+        "korean":  "수영",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SNSD"
+    },
+    {
+        "id":  "P-SM-YOONA",
+        "name":  "Yoona",
+        "korean":  "윤아",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SEOHYUN",
+        "name":  "Seohyun",
+        "korean":  "서현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SNSD"
+    },
+    {
+        "id":  "A-SM-SHINEE",
+        "name":  "SHINee",
+        "korean":  "샤이니",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-ONEW",
+        "name":  "Onew",
+        "korean":  "온유",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SHINEE"
+    },
+    {
+        "id":  "P-SM-KEY",
+        "name":  "Key",
+        "korean":  "키",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SHINEE"
+    },
+    {
+        "id":  "P-SM-MINHO",
+        "name":  "Minho",
+        "korean":  "민호",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SHINEE"
+    },
+    {
+        "id":  "P-SM-TAEMIN",
+        "name":  "Taemin",
+        "korean":  "태민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SHINEE"
+    },
+    {
+        "id":  "A-SM-EXO",
+        "name":  "EXO",
+        "korean":  "엑소",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-XIUMIN",
+        "name":  "Xiumin",
+        "korean":  "시우민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-SUHO",
+        "name":  "Suho",
+        "korean":  "수호",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-LAY",
+        "name":  "Lay",
+        "korean":  "레이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-BAEKHYUN",
+        "name":  "Baekhyun",
+        "korean":  "백현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-CHEN",
+        "name":  "Chen",
+        "korean":  "첸",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-CHANYEOL",
+        "name":  "Chanyeol",
+        "korean":  "찬열",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-DO",
+        "name":  "D.O.",
+        "korean":  "디오",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-KAI",
+        "name":  "Kai",
+        "korean":  "카이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "P-SM-SEHUN",
+        "name":  "Sehun",
+        "korean":  "세훈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "A-SM-RV",
+        "name":  "Red Velvet",
+        "korean":  "레드벨벳",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-IRENE",
+        "name":  "Irene",
+        "korean":  "아이린",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SEULGI",
+        "name":  "Seulgi",
+        "korean":  "슬기",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-WENDY",
+        "name":  "Wendy",
+        "korean":  "웬디",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RV"
+    },
+    {
+        "id":  "P-SM-JOY",
+        "name":  "Joy",
+        "korean":  "조이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RV"
+    },
+    {
+        "id":  "P-SM-YERI",
+        "name":  "Yeri",
+        "korean":  "예리",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RV"
+    },
+    {
+        "id":  "A-SM-NCT",
+        "name":  "NCT",
+        "korean":  "엔시티",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-TAEYONG",
+        "name":  "Taeyong",
+        "korean":  "태용",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-DOYOUNG",
+        "name":  "Doyoung",
+        "korean":  "도영",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-TEN",
+        "name":  "Ten",
+        "korean":  "텐",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JAEHYUN",
+        "name":  "Jaehyun",
+        "korean":  "재현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-YUTA",
+        "name":  "Yuta",
+        "korean":  "유타",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-WINWIN",
+        "name":  "Winwin",
+        "korean":  "윈윈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-HAECHAN",
+        "name":  "Haechan",
+        "korean":  "해찬",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-RENJUN",
+        "name":  "Renjun",
+        "korean":  "런쥔",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JENO",
+        "name":  "Jeno",
+        "korean":  "제노",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JAEMIN",
+        "name":  "Jaemin",
+        "korean":  "재민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-CHENLE",
+        "name":  "Chenle",
+        "korean":  "천러",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JISUNG",
+        "name":  "Jisung",
+        "korean":  "지성",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JOHNNY",
+        "name":  "Johnny",
+        "korean":  "쟈니",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JUNGWOO",
+        "name":  "Jungwoo",
+        "korean":  "정우",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-KUN",
+        "name":  "Kun",
+        "korean":  "쿤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-XIAOJUN",
+        "name":  "Xiaojun",
+        "korean":  "샤오쥔",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-HENDERY",
+        "name":  "Hendery",
+        "korean":  "헨드리",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-YANGYANG",
+        "name":  "Yangyang",
+        "korean":  "양양",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SION",
+        "name":  "Sion",
+        "korean":  "시온",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-RIKU",
+        "name":  "Riku",
+        "korean":  "리쿠",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-YUSHI",
+        "name":  "Yushi",
+        "korean":  "유우시",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-JAEHEE",
+        "name":  "Jaehee",
+        "korean":  "재희",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-RYO",
+        "name":  "Ryo",
+        "korean":  "료",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SAKUYA",
+        "name":  "Sakuya",
+        "korean":  "사쿠야",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-TAEIL",
+        "name":  "Taeil",
+        "korean":  "태일",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-LUCAS",
+        "name":  "Lucas",
+        "korean":  "루카스",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-MARK",
+        "name":  "Mark",
+        "korean":  "마크",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-SHOTARO",
+        "name":  "Shotaro",
+        "korean":  "쇼타로",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "P-SM-SUNGCHAN",
+        "name":  "Sungchan",
+        "korean":  "성찬",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "A-SM-AESPA",
+        "name":  "aespa",
+        "korean":  "에스파",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-KARINA",
+        "name":  "Karina",
+        "korean":  "카리나",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-AESPA"
+    },
+    {
+        "id":  "P-SM-GISELLE",
+        "name":  "Giselle",
+        "korean":  "지젤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-AESPA"
+    },
+    {
+        "id":  "P-SM-WINTER",
+        "name":  "Winter",
+        "korean":  "윈터",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-AESPA"
+    },
+    {
+        "id":  "P-SM-NINGNING",
+        "name":  "Ningning",
+        "korean":  "닝닝",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-AESPA"
+    },
+    {
+        "id":  "A-SM-RIIZE",
+        "name":  "RIIZE",
+        "korean":  "라이즈",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-EUNSEOK",
+        "name":  "Eunseok",
+        "korean":  "은석",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "P-SM-WONBIN",
+        "name":  "Wonbin",
+        "korean":  "원빈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "P-SM-SOHEE",
+        "name":  "Sohee",
+        "korean":  "소희",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "P-SM-ANTON",
+        "name":  "Anton",
+        "korean":  "앤톤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RIIZE"
+    },
+    {
+        "id":  "P-SM-SEUNGHAN",
+        "name":  "Seunghan",
+        "korean":  "승한",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "A-SM-H2H",
+        "name":  "Hearts2Hearts",
+        "korean":  "하츠투하츠",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "P-SM-CARMEN",
+        "name":  "Carmen",
+        "korean":  "카르멘",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-H2H-JIWOO",
+        "name":  "Jiwoo",
+        "korean":  "지우",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-YUHA",
+        "name":  "Yuha",
+        "korean":  "유하",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-STELLA",
+        "name":  "Stella",
+        "korean":  "스텔라",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-JUUN",
+        "name":  "Juun",
+        "korean":  "주은",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-ANA",
+        "name":  "A-na",
+        "korean":  "에이나",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-IAN",
+        "name":  "Ian",
+        "korean":  "이안",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-YEON",
+        "name":  "Ye-on",
+        "korean":  "예온",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-H2H"
+    },
+    {
+        "id":  "P-SM-KANGTA",
+        "name":  "Kangta",
+        "korean":  "강타",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true
+    },
+    {
+        "id":  "A-SM-NCTU",
+        "name":  "NCT U",
+        "korean":  "엔시티 유",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-NCT127",
+        "name":  "NCT 127",
+        "korean":  "엔시티 127",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-DREAM",
+        "name":  "NCT DREAM",
+        "korean":  "엔시티 드림",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-WAYV",
+        "name":  "WayV",
+        "korean":  "웨이션브이",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-WISH",
+        "name":  "NCT WISH",
+        "korean":  "엔시티 위시",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-DJJ",
+        "name":  "NCT DoJaeJung",
+        "korean":  "엔시티 도재정",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-JNJM",
+        "name":  "NCT JNJM",
+        "korean":  "엔시티 제노재민",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-NCT"
+    },
+    {
+        "id":  "A-SM-OHGG",
+        "name":  "Oh!GG",
+        "korean":  "소녀시대-Oh!GG",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SNSD"
+    },
+    {
+        "id":  "A-SM-EXOSC",
+        "name":  "EXO-SC",
+        "korean":  "엑소-세찬",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-EXO"
+    },
+    {
+        "id":  "A-SM-RVIS",
+        "name":  "Red Velvet – Irene \u0026 Seulgi",
+        "korean":  "레드벨벳-아이린\u0026슬기",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-RV"
+    },
+    {
+        "id":  "A-SM-SJLSS",
+        "name":  "Super Junior-L.S.S.",
+        "korean":  "슈퍼주니어-L.S.S.",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/List_of_SM_Entertainment_artists",
+        "collected":  true,
+        "parentId":  "A-SM-SJ"
+    },
+    {
+        "id":  "A-JYP-TWICE",
+        "name":  "TWICE",
+        "korean":  "트와이스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://twice.jype.com",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-NAYEON",
+        "name":  "Nayeon",
+        "korean":  "나연",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "P-JYP-JEONGYEON",
+        "name":  "Jeongyeon",
+        "korean":  "정연",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "P-JYP-MOMO",
+        "name":  "Momo",
+        "korean":  "모모",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-SANA",
+        "name":  "Sana",
+        "korean":  "사나",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-JIHYO",
+        "name":  "Jihyo",
+        "korean":  "지효",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "P-JYP-MINA",
+        "name":  "Mina",
+        "korean":  "미나",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-DAHYUN",
+        "name":  "Dahyun",
+        "korean":  "다현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "P-JYP-CHAEYOUNG",
+        "name":  "Chaeyoung",
+        "korean":  "채영",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "P-JYP-TZUYU",
+        "name":  "Tzuyu",
+        "korean":  "쯔위",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "A-JYP-MISAMO",
+        "name":  "MiSaMo",
+        "korean":  "미사모",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/Twice",
+        "collected":  true,
+        "parentId":  "A-JYP-TWICE"
+    },
+    {
+        "id":  "A-JYP-SKZ",
+        "name":  "Stray Kids",
+        "korean":  "스트레이 키즈",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://straykids.jype.com",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-BANGCHAN",
+        "name":  "Bang Chan",
+        "korean":  "방찬",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-LEEKNOW",
+        "name":  "Lee Know",
+        "korean":  "리노",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "P-JYP-CHANGBIN",
+        "name":  "Changbin",
+        "korean":  "창빈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-HYUNJIN",
+        "name":  "Hyunjin",
+        "korean":  "현진",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "P-JYP-HAN",
+        "name":  "Han",
+        "korean":  "한",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-FELIX",
+        "name":  "Felix",
+        "korean":  "필릭스",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "P-JYP-SEUNGMIN",
+        "name":  "Seungmin",
+        "korean":  "승민",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "P-JYP-IN",
+        "name":  "I.N",
+        "korean":  "아이엔",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "P-JYP-WOOJIN",
+        "name":  "Woojin",
+        "korean":  "우진",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-3RACHA",
+        "name":  "3RACHA",
+        "korean":  "쓰리라차",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/Stray_Kids",
+        "collected":  true,
+        "parentId":  "A-JYP-SKZ"
+    },
+    {
+        "id":  "A-JYP-NMIXX",
+        "name":  "NMIXX",
+        "korean":  "엔믹스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://nmixx.jype.com",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-LILY",
+        "name":  "Lily",
+        "korean":  "릴리",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-HAEWON",
+        "name":  "Haewon",
+        "korean":  "해원",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-SULLYOON",
+        "name":  "Sullyoon",
+        "korean":  "설윤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-BAE",
+        "name":  "Bae",
+        "korean":  "배이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-NMX-JIWOO",
+        "name":  "Jiwoo",
+        "korean":  "지우",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-KYUJIN",
+        "name":  "Kyujin",
+        "korean":  "규진",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true,
+        "parentId":  "A-JYP-NMIXX"
+    },
+    {
+        "id":  "P-JYP-JINNI",
+        "name":  "Jinni",
+        "korean":  "지니",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Nmixx",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-2PM",
+        "name":  "2PM",
+        "korean":  "투피엠",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-JUNK",
+        "name":  "Jun. K",
+        "korean":  "준케이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "P-JYP-WOOYOUNG",
+        "name":  "Wooyoung",
+        "korean":  "우영",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "P-JYP-NICHKHUN",
+        "name":  "Nichkhun",
+        "korean":  "닉쿤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "P-JYP-TAECYEON",
+        "name":  "Taecyeon",
+        "korean":  "택연",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "P-JYP-CHANSUNG",
+        "name":  "Chansung",
+        "korean":  "찬성",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "P-JYP-JUNHO",
+        "name":  "Junho",
+        "korean":  "준호",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-2PM"
+    },
+    {
+        "id":  "A-JYP-DAY6",
+        "name":  "DAY6",
+        "korean":  "데이식스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-SUNGJIN",
+        "name":  "Sungjin",
+        "korean":  "성진",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-DAY6"
+    },
+    {
+        "id":  "P-JYP-YOUNGK",
+        "name":  "Young K",
+        "korean":  "영케이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-DAY6"
+    },
+    {
+        "id":  "P-JYP-WONPIL",
+        "name":  "Wonpil",
+        "korean":  "원필",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-DAY6"
+    },
+    {
+        "id":  "P-JYP-DOWOON",
+        "name":  "Dowoon",
+        "korean":  "도운",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-DAY6"
+    },
+    {
+        "id":  "A-JYP-EOD",
+        "name":  "DAY6 (Even of Day)",
+        "korean":  "데이식스(이븐 오브 데이)",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-DAY6"
+    },
+    {
+        "id":  "A-JYP-ITZY",
+        "name":  "ITZY",
+        "korean":  "있지",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-YEJI",
+        "name":  "Yeji",
+        "korean":  "예지",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-ITZY"
+    },
+    {
+        "id":  "P-JYP-YUNA",
+        "name":  "Yuna",
+        "korean":  "유나",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-ITZY"
+    },
+    {
+        "id":  "P-JYP-CHAERYEONG",
+        "name":  "Chaeryeong",
+        "korean":  "채령",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true,
+        "parentId":  "A-JYP-ITZY"
+    },
+    {
+        "id":  "A-JYP-XH",
+        "name":  "Xdinary Heroes",
+        "korean":  "엑스디너리 히어로즈",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "P-JYP-GUNIL",
+        "name":  "Gunil",
+        "korean":  "건일",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-NIZIU",
+        "name":  "NiziU",
+        "korean":  "니쥬",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-NEXZ",
+        "name":  "NEXZ",
+        "korean":  "넥스지",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-KICKFLIP",
+        "name":  "KickFlip",
+        "korean":  "킥플립",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-GIRLSET",
+        "name":  "Girlset",
+        "korean":  "걸셋",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-ALLHOURS",
+        "name":  "All(H)Ours",
+        "korean":  "올아워즈",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-DODREE",
+        "name":  "Dodree",
+        "korean":  "도드리",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-JYP-OURBIRTHDAY",
+        "name":  "Ourbirthday",
+        "korean":  "아워버스데이",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://en.wikipedia.org/wiki/JYP_Entertainment",
+        "collected":  true
+    },
+    {
+        "id":  "A-YG-BP",
+        "name":  "BLACKPINK",
+        "korean":  "블랙핑크",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://ygfamily.com/ko/artists/blackpink/profile",
+        "collected":  true
+    },
+    {
+        "id":  "P-YG-JISOO",
+        "name":  "Jisoo",
+        "korean":  "지수",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://grazia.sg/celebrity/yg-entertainment-video-announcement-updates-blackpink-babymonster-treasure/",
+        "collected":  true,
+        "parentId":  "A-YG-BP"
+    },
+    {
+        "id":  "P-YG-JENNIE",
+        "name":  "Jennie",
+        "korean":  "제니",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://grazia.sg/celebrity/yg-entertainment-video-announcement-updates-blackpink-babymonster-treasure/",
+        "collected":  true,
+        "parentId":  "A-YG-BP"
+    },
+    {
+        "id":  "P-YG-ROSE",
+        "name":  "Rosé",
+        "korean":  "로제",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://grazia.sg/celebrity/yg-entertainment-video-announcement-updates-blackpink-babymonster-treasure/",
+        "collected":  true,
+        "parentId":  "A-YG-BP"
+    },
+    {
+        "id":  "P-YG-LISA",
+        "name":  "Lisa",
+        "korean":  "리사",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://grazia.sg/celebrity/yg-entertainment-video-announcement-updates-blackpink-babymonster-treasure/",
+        "collected":  true,
+        "parentId":  "A-YG-BP"
+    },
+    {
+        "id":  "A-YG-BM",
+        "name":  "BABYMONSTER",
+        "korean":  "베이비몬스터",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true
+    },
+    {
+        "id":  "A-YG-TREASURE",
+        "name":  "TREASURE",
+        "korean":  "트레저",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true
+    },
+    {
+        "id":  "P-YG-KANGSEUNGYOON",
+        "name":  "Kang Seung Yoon",
+        "korean":  "강승윤",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/en/main",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-ENHYPEN",
+        "name":  "ENHYPEN",
+        "korean":  "엔하이픈",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://beliftlab.com/enhypen",
+        "collected":  true
+    },
+    {
+        "id":  "P-HY-JAY",
+        "name":  "Jay",
+        "korean":  "제이",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-JAKE",
+        "name":  "Jake",
+        "korean":  "제이크",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-SUNGHOON",
+        "name":  "Sunghoon",
+        "korean":  "성훈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-SUNOO",
+        "name":  "Sunoo",
+        "korean":  "선우",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-JUNGWON",
+        "name":  "Jungwon",
+        "korean":  "정원",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-NIKI",
+        "name":  "Ni-Ki",
+        "korean":  "니키",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true,
+        "parentId":  "A-HY-ENHYPEN"
+    },
+    {
+        "id":  "P-HY-HEESEUNG",
+        "name":  "Heeseung",
+        "korean":  "희승",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Enhypen",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-LSF",
+        "name":  "LE SSERAFIM",
+        "korean":  "르세라핌",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://sourcemusic.com/le_sserafim",
+        "collected":  true
+    },
+    {
+        "id":  "P-HY-SAKURA",
+        "name":  "Sakura",
+        "korean":  "사쿠라",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true,
+        "parentId":  "A-HY-LSF"
+    },
+    {
+        "id":  "P-HY-CHAEWON",
+        "name":  "Kim Chaewon",
+        "korean":  "김채원",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true,
+        "parentId":  "A-HY-LSF"
+    },
+    {
+        "id":  "P-HY-YUNJIN",
+        "name":  "Huh Yunjin",
+        "korean":  "허윤진",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true,
+        "parentId":  "A-HY-LSF"
+    },
+    {
+        "id":  "P-HY-KAZUHA",
+        "name":  "Kazuha",
+        "korean":  "카즈하",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true,
+        "parentId":  "A-HY-LSF"
+    },
+    {
+        "id":  "P-HY-EUNCHAE",
+        "name":  "Hong Eunchae",
+        "korean":  "홍은채",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true,
+        "parentId":  "A-HY-LSF"
+    },
+    {
+        "id":  "P-HY-GARAM",
+        "name":  "Kim Garam",
+        "korean":  "김가람",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Le_Sserafim",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-CORTIS",
+        "name":  "CORTIS",
+        "korean":  "코르티스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortisofficial.us",
+        "collected":  true
+    },
+    {
+        "id":  "P-HY-JAMES",
+        "name":  "James",
+        "korean":  "제임스",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Cortis",
+        "collected":  true,
+        "parentId":  "A-HY-CORTIS"
+    },
+    {
+        "id":  "P-HY-JUHOON",
+        "name":  "Juhoon",
+        "korean":  "주훈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Cortis",
+        "collected":  true,
+        "parentId":  "A-HY-CORTIS"
+    },
+    {
+        "id":  "P-HY-MARTIN",
+        "name":  "Martin",
+        "korean":  "마틴",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Cortis",
+        "collected":  true,
+        "parentId":  "A-HY-CORTIS"
+    },
+    {
+        "id":  "P-HY-SEONGHYEON",
+        "name":  "Seonghyeon",
+        "korean":  "성현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Cortis",
+        "collected":  true,
+        "parentId":  "A-HY-CORTIS"
+    },
+    {
+        "id":  "P-HY-KEONHO",
+        "name":  "Keonho",
+        "korean":  "건호",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/Cortis",
+        "collected":  true,
+        "parentId":  "A-HY-CORTIS"
+    },
+    {
+        "id":  "A-HY-SVT",
+        "name":  "SEVENTEEN",
+        "korean":  "세븐틴",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "P-HY-SCOUPS",
+        "name":  "S.Coups",
+        "korean":  "에스쿱스",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/S.Coups_X_Mingyu",
+        "collected":  true
+    },
+    {
+        "id":  "P-HY-MINGYU",
+        "name":  "Mingyu",
+        "korean":  "민규",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://en.wikipedia.org/wiki/S.Coups_X_Mingyu",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-CXM",
+        "name":  "S.Coups X Mingyu",
+        "korean":  "에스쿱스X민규",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://en.wikipedia.org/wiki/S.Coups_X_Mingyu",
+        "collected":  true,
+        "parentId":  "A-HY-SVT"
+    },
+    {
+        "id":  "A-HY-BTS",
+        "name":  "BTS",
+        "korean":  "방탄소년단",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-TXT",
+        "name":  "TOMORROW X TOGETHER",
+        "korean":  "투모로우바이투게더",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-BND",
+        "name":  "BOYNEXTDOOR",
+        "korean":  "보이넥스트도어",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-TWS",
+        "name":  "TWS",
+        "korean":  "투어스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-ILLIT",
+        "name":  "ILLIT",
+        "korean":  "아일릿",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-ANDTEAM",
+        "name":  "\u0026TEAM",
+        "korean":  "앤팀",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-KATSEYE",
+        "name":  "KATSEYE",
+        "korean":  "캣츠아이",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-AOEN",
+        "name":  "aoen",
+        "korean":  "아오엔",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-NJ",
+        "name":  "NewJeans",
+        "korean":  "뉴진스",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true
+    },
+    {
+        "id":  "A-HY-BSS",
+        "name":  "BSS",
+        "korean":  "부석순",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true,
+        "parentId":  "A-HY-SVT"
+    },
+    {
+        "id":  "A-HY-HXW",
+        "name":  "Hoshi X Woozi",
+        "korean":  "호시X우지",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true,
+        "parentId":  "A-HY-SVT"
+    },
+    {
+        "id":  "A-HY-DXS",
+        "name":  "DK X Seungkwan",
+        "korean":  "도겸X승관",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true,
+        "parentId":  "A-HY-SVT"
+    },
+    {
+        "id":  "A-HY-JXW",
+        "name":  "Jeonghan X Wonwoo",
+        "korean":  "정한X원우",
+        "aliases":  [
+
+                    ],
+        "kind":  "unit",
+        "source":  "https://cortis.fandom.com/wiki/HYBE",
+        "collected":  true,
+        "parentId":  "A-HY-SVT"
+    },
+    {
+        "id":  "P-YG-BM-RUKA",
+        "name":  "RUKA",
+        "korean":  "루카",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-PHARITA",
+        "name":  "PHARITA",
+        "korean":  "파리타",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-ASA",
+        "name":  "ASA",
+        "korean":  "아사",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-AHYEON",
+        "name":  "AHYEON",
+        "korean":  "아현",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-RAMI",
+        "name":  "RAMI",
+        "korean":  "라미",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-RORA",
+        "name":  "RORA",
+        "korean":  "로라",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-BM-CHIQUITA",
+        "name":  "CHIQUITA",
+        "korean":  "치키타",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/babymonster/profile",
+        "collected":  true,
+        "parentId":  "A-YG-BM"
+    },
+    {
+        "id":  "P-YG-TR-HYUNSUK",
+        "name":  "CHOI HYUN SUK",
+        "korean":  "최현석",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-JIHOON",
+        "name":  "JIHOON",
+        "korean":  "지훈",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-YOSHI",
+        "name":  "YOSHI",
+        "korean":  "요시",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-JUNKYU",
+        "name":  "JUNKYU",
+        "korean":  "준규",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-JAEHYUK",
+        "name":  "YOON JAE HYUK",
+        "korean":  "윤재혁",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-ASAHI",
+        "name":  "ASAHI",
+        "korean":  "아사히",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-DOYOUNG",
+        "name":  "DOYOUNG",
+        "korean":  "도영",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-HARUTO",
+        "name":  "HARUTO",
+        "korean":  "하루토",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-JEONGWOO",
+        "name":  "PARK JEONG WOO",
+        "korean":  "박정우",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "P-YG-TR-JUNGHWAN",
+        "name":  "SO JUNG HWAN",
+        "korean":  "소정환",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/treasure/profile",
+        "collected":  true,
+        "parentId":  "A-YG-TREASURE"
+    },
+    {
+        "id":  "A-YG-BIGBANG",
+        "name":  "BIGBANG",
+        "korean":  "빅뱅",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://ygfamily.com/ko/artists/bigbang/main",
+        "collected":  true
+    },
+    {
+        "id":  "A-YG-WINNER",
+        "name":  "WINNER",
+        "korean":  "위너",
+        "aliases":  [
+
+                    ],
+        "kind":  "group",
+        "source":  "https://ygfamily.com/ko/artists/winner/profile",
+        "collected":  true
+    },
+    {
+        "id":  "P-YG-EUNJIWON",
+        "name":  "EUN JIWON",
+        "korean":  "은지원",
+        "aliases":  [
+
+                    ],
+        "kind":  "person",
+        "source":  "https://ygfamily.com/ko/artists/eun-jiwon/profile",
+        "collected":  true
+    }
+]

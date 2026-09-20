@@ -46,3 +46,4 @@
 | [T-038](T-038/README.md) | T-029 체크인·가계부·발자취를 최신 main에 통합 | 완료 — 배포·프로덕션 검증됨 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
 | [T-039](T-039/README.md) | 카탈로그 확장·날짜 경과로 깨져 있던 검증 복구 | 완료 — 배포·프로덕션 검증됨 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
 | [T-040](T-040/README.md) | 배포 검증 기록과 카카오 지도 키 이름 고정 | 리뷰 중 | `docs/T-040-deploy-record` | PR 준비 |
+| [T-041](T-041/README.md) | 검색 없이 아티스트 전체·유형별 탐색 | 리뷰 준비 | `fix/T-041-explore-all` | |

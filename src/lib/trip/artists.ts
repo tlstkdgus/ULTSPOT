@@ -1,8 +1,9 @@
-export type Artist = { id: string; name: string; korean: string; aliases: string[]; kind: 'group' | 'person' | 'unit'; parentId?: string; source: string; birthday_mm_dd?: string; birthday_checked_on?: string };
+import collectedArtists from "./collected-artists.json";
+export type Artist = { id: string; name: string; korean: string; aliases: string[]; kind: 'group' | 'person' | 'unit'; parentId?: string; source: string; birthday_mm_dd?: string; birthday_checked_on?: string; collected?: boolean };
 const skz = 'https://straykids.jype.com/profile';
 // Name/type/current membership checked against these official profiles on 2026-09-19.
 // Member birthday month/day separately checked on 2026-09-20; no birth years or photos copied.
-export const artists: Artist[] = [
+const reviewedArtists: Artist[] = [
   { id: 'A-JYP-SKZ', name: 'Stray Kids', korean: '스트레이 키즈', aliases: ['SKZ', '스트레이키즈'], kind: 'group', source: skz },
   { id: 'A-YG-BP', name: 'BLACKPINK', korean: '블랙핑크', aliases: [], kind: 'group', source: 'https://ygfamily.com/en/artists/blackpink/profile' },
   { id: 'A-YG-BM', name: 'BABYMONSTER', korean: '베이비몬스터', aliases: [], kind: 'group', source: 'https://ygfamily.com/en/artists/babymonster/profile' },
@@ -12,6 +13,7 @@ export const artists: Artist[] = [
     ['SEUNGMIN', 'Seungmin', '승민', '09-22'], ['IN', 'I.N', '아이엔', '02-08'],
   ].map(([id, name, korean, birthday_mm_dd]): Artist => ({ id: `P-JYP-${id}`, name, korean, birthday_mm_dd, birthday_checked_on: '2026-09-20', aliases: [], kind: 'person', parentId: 'A-JYP-SKZ', source: skz })),
 ];
+export const artists: Artist[] = [...reviewedArtists, ...(collectedArtists as Artist[]).filter(a => !reviewedArtists.some(existing => existing.id === a.id))];
 const normalize = (value: string) => value.normalize('NFKD').replace(/[\s.\p{M}]/gu, '').toLowerCase();
 export function searchArtists(query: string) {
   const key = normalize(query);
