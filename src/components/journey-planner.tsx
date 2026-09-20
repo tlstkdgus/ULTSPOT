@@ -17,6 +17,7 @@ import {
 } from "@/lib/trip/journey";
 import { SpendingPanel } from "@/components/spending-panel";
 import { FootprintPanel } from "@/components/footprint-panel";
+import { PlaceStatusPanel } from "@/components/place-status-panel";
 import { daySummary, journeyLegs, legEstimate, travelLookup } from "@/lib/trip/journey-travel";
 import { journeyPlaces, type ResolvedPlace } from "@/lib/trip/journey-places";
 import { fetchTravelTable } from "@/lib/trip/travel-client";
@@ -315,6 +316,9 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
             placeName={placeName} notice={notice} />
 
           <FootprintPanel journey={journey} locale={locale} notice={notice} />
+
+          {/* 이 화면에서 유일하게 서버로 나가는 부분. 게스트 동의 전에는 아무 요청도 없다. */}
+          <PlaceStatusPanel placeIds={day.visits.map(v => v.placeId)} placeName={placeName} notice={notice} />
 
           <p className="mt-4 flex items-center gap-2 text-caption text-text-muted">
             <ClockIcon />{t.footer(day.bufferMinutes)}
