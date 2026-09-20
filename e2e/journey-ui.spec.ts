@@ -4,6 +4,28 @@ import type { TravelPoint } from "../src/lib/trip/geo";
 import { legKey, type TravelMode } from "../src/lib/trip/travel";
 import { browseAllSpots, goToStep } from "./flow";
 import { englishLocale } from "./locale";
+import { readFile } from "node:fs/promises";
+
+test("multi-day calendar exports separate dates and excludes unassigned visits", async ({ page }, testInfo) => {
+  await twoNightTrip(page);
+  const second = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Music Korea · Myeongdong 2" }) });
+  await second.getByRole("button", { name: "Move to Day 2" }).click();
+  await expect(page.getByText("2 visits ready.", { exact: false })).toBeVisible();
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Add to calendar (.ics)', exact: true }).click();
+  const download = await downloadEvent;
+  const content = await readFile((await download.path())!, 'utf8');
+  expect(download.suggestedFilename()).toBe('ultspot-2026-09-22-2026-09-24.ics');
+  expect(content.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+  expect(content).toContain('DTSTART:20260922T');
+  expect(content).toContain('DTSTART:20260923T');
+  await page.getByRole('button', { name: /^Day 2/ }).click();
+  await second.getByRole('button', { name: 'Take off this day', exact: true }).click();
+  await expect(page.getByText('1 visits ready. 1 excluded:', { exact: false })).toBeVisible();
+  if (process.env.CAPTURE_TASK === 'T-036') {
+    await page.screenshot({ path: `docs/tasks/T-036/screenshots/calendar-${testInfo.project.name}.png`, fullPage: true });
+  }
+});
 
 englishLocale();
 
@@ -32,7 +54,7 @@ test("moving the last travel leg away clears a pending lookup", async ({ page })
     const request = page.waitForRequest("**/api/travel");
     await first.getByLabel("Time here").selectOption("120");
     await request;
-    await expect(page.getByText("Checking travel times…", { exact: true })).toBeVisible();
+    await expect(page.getByText("Checking travel times…", { exact: true }).first()).toBeVisible();
     const second = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Music Korea · Myeongdong 2" }) });
     await second.getByRole("button", { name: "Move to Day 2" }).click();
     await expect(page.getByText("Checking travel times…", { exact: true })).toHaveCount(0);

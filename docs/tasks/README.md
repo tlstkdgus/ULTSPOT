@@ -1,5 +1,7 @@
 # 태스크 목록
 
+- [T-036](T-036/README.md): 여러 날 일정 캘린더 내보내기
+
 - [T-035](T-035/README.md): 여러 날 일정의 이전 이동시간 조회 취소 (Kiro 브랜치 후속)
 
 작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
