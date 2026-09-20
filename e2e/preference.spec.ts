@@ -6,6 +6,11 @@ import { catalog } from "../src/lib/trip/catalog";
 
 const input = { date: "2026-09-22", start: 660, end: 1080, stay: 60, transfer: 45 };
 
+// 카탈로그 순서를 인덱스로 쥐지 않는다. PR #48이 생일카페 3건을 앞에 붙이면서 catalog[0]이
+// 운영시간 미확인 행사로 바뀌었고, 그것을 토대로 만든 "예약 필요" 사례가 예약이 아니라
+// 미확인으로 판정돼 이 스펙이 깨졌다. 사례의 토대는 운영시간이 확인된 장소여야 한다.
+const spot = (id: string) => catalog.find(e => e.id === id)!;
+
 test("chips build a preference sentence and narrow the nearby kinds", () => {
   const meal = preferenceProfile({ interests: ["meal"], stay: 60 });
   expect(meal.sentence).toBe("I want a proper sit-down meal rather than dessert.");
@@ -58,28 +63,33 @@ test("preference never changes what the engine will schedule", () => {
     expect(profile.sentence.length >= 0).toBe(true);
   }
   // 운영시간 미확인·예약 필요는 취향과 무관하게 그대로 제외된다.
-  const unconfirmed: FanEvent = { ...catalog[0], id: "no-hours", opens: null, closes: null };
+  const unconfirmed: FanEvent = { ...spot("hikr-ground"), id: "no-hours", opens: null, closes: null };
   expect(unavailableReason(unconfirmed, input.date)).toContain("unconfirmed");
-  const reservation: FanEvent = { ...catalog[0], id: "booked", reservation: true };
+  const reservation: FanEvent = { ...spot("hikr-ground"), id: "booked", reservation: true };
   expect(unavailableReason(reservation, input.date)).toContain("reservation");
 });
 
 test("categories only classify what the data actually says", () => {
   // 검증된 장소 3곳은 생일카페도 팝업도 촬영지도 아니다. 억지로 넣지 않는다.
-  expect(catalog.map(spotCategory)).toEqual(["landmark", "landmark", "landmark"]);
+  // PR #48이 수집한 팬 생일카페 3건은 실제로 생일카페라 그렇게 분류된다 — 분류는 데이터가 하고,
+  // 억지로 landmark에 밀어넣지 않는다. 순서에 기대지 않도록 id로 확인한다.
+  expect(["hikr-ground", "music-korea", "k-star-road"].map(id => spotCategory(spot(id))))
+    .toEqual(["landmark", "landmark", "landmark"]);
+  expect(catalog.filter(e => e.id.startsWith("BC-")).map(spotCategory))
+    .toEqual(["birthdayCafe", "birthdayCafe", "birthdayCafe"]);
   const counts = categoryCounts(catalog);
   expect(counts.landmark).toBe(3);
-  expect(counts.birthdayCafe).toBe(0);
+  expect(counts.birthdayCafe).toBe(3);
   expect(counts.popup).toBe(0);
   expect(counts.filming).toBe(0);
   expect(counts.food).toBe(0);
 
   // 모르는 kind는 other이며 어떤 필터에도 걸리지 않는다.
-  const odd: FanEvent = { ...catalog[0], id: "odd", kind: "Something new" };
+  const odd: FanEvent = { ...spot("hikr-ground"), id: "odd", kind: "Something new" };
   expect(spotCategory(odd)).toBe("other");
   for (const key of filterCategories) expect(matchesCategory(odd, key)).toBe(false);
   expect(matchesCategory(odd, null)).toBe(true);
 
   // 명시 필드가 kind 추측을 이긴다.
-  expect(spotCategory({ ...catalog[0], category: "birthdayCafe" })).toBe("birthdayCafe");
+  expect(spotCategory({ ...spot("hikr-ground"), category: "birthdayCafe" })).toBe("birthdayCafe");
 });

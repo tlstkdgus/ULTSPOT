@@ -44,3 +44,4 @@
 | [T-035](T-035/README.md) | Kiro 여정·현장 기록 통합과 홈 4단계 안내 | 리뷰 중 | `integrate/t029-journey` | PR 준비 |
 | [T-037](T-037/README.md) | 생일카페 수집 자료와 목업 카드 연결 | 리뷰 준비 | `feat/T-037-fan-cafe-catalog` | PR 준비 |
 | [T-038](T-038/README.md) | T-029 체크인·가계부·발자취를 최신 main에 통합 | 리뷰 중 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
+| [T-039](T-039/README.md) | 카탈로그 확장·날짜 경과로 깨져 있던 검증 복구 | 리뷰 중 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |

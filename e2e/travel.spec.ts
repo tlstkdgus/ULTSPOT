@@ -12,6 +12,10 @@ const gangnam = { lat: 37.5273, lng: 127.0389 };
 const from = { id: "a", name: "출발", address: "서울 중구 청계천로 40", coord: seoul };
 const to = { id: "b", name: "도착", address: "서울 강남구 압구정로 407", coord: gangnam };
 const now = () => "2026-09-20T05:00:00.000Z";
+// 카탈로그 순서를 인덱스로 쥐지 않는다. PR #48이 운영시간 미확인 생일카페 3건을 앞에 붙이면서
+// catalog[0]이 월요일 휴무·운영시간이 있는 hikr-ground에서 opens=null 행사로 바뀌어,
+// 휴무 판정과 이동시간 편성 사례가 전부 깨졌다.
+const spot = (id: string) => catalog.find(e => e.id === id)!;
 
 test("coordinates outside Korea are treated as unconfirmed, not as data", () => {
   expect(isKoreanCoord(seoul)).toBe(true);
@@ -102,7 +106,7 @@ test("address lookup rejects matches outside Korea", () => {
 });
 
 test("date overrides beat weekday closures and stay distinct from unconfirmed hours", () => {
-  const base = catalog[0];
+  const base = spot("hikr-ground");
   const holiday: FanEvent = { ...base, dateOverrides: [
     { date: "2026-09-23", closed: true, source: base.provenance.url, checked_on: "2026-09-20" },
     { date: "2026-09-24", opens: 660, closes: 900, lastEntry: 880, source: base.provenance.url, checked_on: "2026-09-20" },
@@ -122,8 +126,8 @@ test("date overrides beat weekday closures and stay distinct from unconfirmed ho
 
 test("known leg times replace the flat buffer and change how many stops fit", () => {
   const input = { date: "2026-09-22", start: 660, end: 1080, stay: 60, transfer: 45 };
-  const a: FanEvent = { ...catalog[0], id: "a", coord: { lat: 37.5709, lng: 126.9827, source: "test", checked_on: "2026-09-20" } };
-  const b: FanEvent = { ...catalog[1], id: "b", coord: { lat: 37.5613, lng: 126.9857, source: "test", checked_on: "2026-09-20" } };
+  const a: FanEvent = { ...spot("hikr-ground"), id: "a", coord: { lat: 37.5709, lng: 126.9827, source: "test", checked_on: "2026-09-20" } };
+  const b: FanEvent = { ...spot("music-korea"), id: "b", coord: { lat: 37.5613, lng: 126.9857, source: "test", checked_on: "2026-09-20" } };
   const known = (minutes: number): TravelEstimate => ({
     status: "known", mode: "transit", minutes, transfers: 0, fareKrw: 1_500,
     steps: [{ mode: "subway", minutes }], provider: "test", fetchedAt: now(), manualUrl: "https://map.kakao.com/",
@@ -150,7 +154,7 @@ test("known leg times replace the flat buffer and change how many stops fit", ()
 });
 
 test("start location adds the first leg and end location must fit before the day ends", () => {
-  const a: FanEvent = { ...catalog[1], id: "a", opens: 600, closes: 1_320 };
+  const a: FanEvent = { ...spot("music-korea"), id: "a", opens: 600, closes: 1_320 };
   const base = { date: "2026-09-22", start: 660, end: 780, stay: 60, transfer: 30 };
   // 출발 위치가 없으면 첫 장소에 11:00 도착으로 계산한다 (기존 동작).
   expect(planTrip([a], base).stops[0]).toMatchObject({ arrival: 660, travel: 0, travelEstimate: null });
@@ -195,7 +199,7 @@ test("saved drafts keep start, end and travel mode but reject bad coordinates an
   // 저장본이 없던 예전 형식도 그대로 읽힌다.
   expect(parseSavedTrip({ version: 1, selected: [], personal: [], input })?.input.origin).toBeUndefined();
   // 검수 전용 필드가 섞인 개인 행사는 거부한다.
-  expect(parseSavedTrip({ version: 1, selected: [], personal: [{ ...catalog[0], id: "personal-x", coord: { lat: 37.5, lng: 127 } }], input })).toBeNull();
+  expect(parseSavedTrip({ version: 1, selected: [], personal: [{ ...spot("hikr-ground"), id: "personal-x", coord: { lat: 37.5, lng: 127 } }], input })).toBeNull();
 });
 
 /**
