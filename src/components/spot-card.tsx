@@ -41,11 +41,16 @@ export function SpotCard({ event, date, selected, disabled, onToggle, required =
   const dataLocale: DataLocale = locale;
   const status = spotStatus(event, date);
   const personal = event.provenance.mode === "personal";
-  const kind = (locale === "ko" && t.kinds[event.kind]) || event.kind;
+  // 분류는 우리가 만든 라벨이지 수집한 원문이 아니라, 오역 위험 논리가 적용되지 않는다.
+  // 한국어에만 걸어두는 바람에 일본어·중국어 번역이 있는데도 화면에 닿지 않았다.
+  const kind = t.kinds[event.kind] || event.kind;
   const copy = eventCopy(event, dataLocale);
   // 한국어 원문이 있으면 그대로, 없으면 영어 원문이 나온다. 사용자가 쓴 개인 행사는 언어를 알 수 없다.
   // 영어 원문일 때만 lang을 붙여 스크린리더가 한국어로 읽지 않게 한다.
   const langOf = (korean?: string) => (personal || (locale === "ko" && korean) ? undefined : "en");
+  // 영어 원문을 남기는 것은 의도된 선택인데, 화면에서는 미완성 번역과 구분되지 않았다.
+  // 영어 화면에서는 설명할 것이 없고, 개인 행사는 사용자가 쓴 글이라 해당 없다.
+  const showsEnglishSource = !personal && locale !== "en" && langOf(event.do_ko) === "en";
   const closedDays = event.closedDays.length
     ? event.closedDays.map(day => t.spots.weekdays[day]).join(", ")
     : t.spots.openEveryDay;
@@ -112,6 +117,7 @@ export function SpotCard({ event, date, selected, disabled, onToggle, required =
               </dd>
             </>}
           </dl>
+          {showsEnglishSource && <p className="mt-3 text-caption text-text-muted">{t.spots.englishSource}</p>}
           <p className="mt-3 text-caption text-text-muted">
             {event.from && event.to ? t.spots.period(event.from, event.to) : t.spots.permanent}<br />
             <span lang="en">{event.address}</span><br />

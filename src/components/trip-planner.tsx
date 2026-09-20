@@ -256,7 +256,8 @@ export function TripPlanner({ today }: { today: string }) {
 
   return <main className="shell pb-16">
     <header className="flex items-center justify-between gap-4 border-b border-line py-4">
-      <Link href="/" aria-label={t.steps.home}><Wordmark /></Link>
+      {/* 글자 높이(25px)가 그대로 탭 영역이 되던 자리 — 페이지에서 유일하게 44px에 못 미쳤다. */}
+      <Link href="/" aria-label={t.steps.home} className="inline-flex min-h-11 items-center"><Wordmark /></Link>
       <LanguageToggle />
     </header>
 
@@ -344,7 +345,6 @@ export function TripPlanner({ today }: { today: string }) {
           <label className="mt-4 block text-label">{t.day.buffer}<select className={inputClass} value={transfer} onChange={e => { setTransfer(Number(e.target.value)); invalidate(); }}>{[15, 30, 45, 60, 90, 120].map(n => <option key={n} value={n}>{t.day.minutes(n)}</option>)}</select></label>
         </details>
         {validation && <p role="alert" className="mt-4 text-body-sm text-danger">{translateLib(t, validation)}</p>}
-        <p className="mt-5 text-caption text-text-muted">{t.day.noSignup}</p>
       </div>
       <aside aria-label={t.pass.title} className="relative flex flex-col justify-between overflow-hidden rounded-device border border-line-strong bg-bg-soft p-7 sm:p-8">
         <p className="text-label text-text-muted">{t.pass.title}</p>
@@ -354,10 +354,6 @@ export function TripPlanner({ today }: { today: string }) {
               <span className="text-title">서울</span><span className="mt-1 text-caption">SIDE : YOU</span>
             </div>
           </div>
-        </div>
-        <div>
-          <p className="text-heading whitespace-pre-line">{t.pass.headline}</p>
-          <p className="mt-3 max-w-sm text-body-sm text-text-muted">{t.pass.body}</p>
         </div>
         <div className="mt-6 grid grid-cols-3 gap-3 border-t border-dashed border-line-strong pt-5">
           <div><p className="text-caption text-text-muted">{t.pass.when}</p><p className="mt-1 text-label">{dayLabel}</p></div>
@@ -386,7 +382,6 @@ export function TripPlanner({ today }: { today: string }) {
         <h2 className="text-heading">{t.spots.listTitle(dayLabel)}</h2>
         <p role="status" className="text-caption text-text-muted">{t.spots.count(candidates.length)}</p>
       </div>
-      <p className="mt-2 max-w-[62ch] text-body-sm text-text-muted">{t.spots.thin}</p>
       {/* 필터마다 개수를 함께 보여준다. 0인 분류를 숨기면 "없다"는 사실이 가려진다. */}
       <fieldset className="mt-4">
         <legend className="sr-only">{t.categories.legend}</legend>

@@ -16,6 +16,17 @@ test.describe("screenshots", { tag: "@capture" }, () => {
 
   const routes = only?.length ? captureRoutes.filter((r) => only.includes(r.name)) : captureRoutes;
 
+  test("home-fallback", async ({ browser, baseURL, page: referencePage }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("home-fallback"), "fallback capture not requested");
+    const context = await browser.newContext({ baseURL, locale: "fr-FR", viewport: referencePage.viewportSize(), deviceScaleFactor: testInfo.project.use.deviceScaleFactor });
+    const page = await context.newPage();
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `home-fallback-${testInfo.project.name}.png`), fullPage: true });
+    await context.close();
+  });
+
   for (const route of routes) {
     test(route.name, async ({ page }, testInfo) => {
       await page.goto(route.path, { waitUntil: "networkidle" });

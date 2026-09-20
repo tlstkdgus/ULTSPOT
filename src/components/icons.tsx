@@ -15,6 +15,8 @@ function Icon({ children, ...props }: SVGProps<SVGSVGElement>) {
 
 export const CameraIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></Icon>;
 export const CheckIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="m5 12.5 4.5 4.5L19 7" /></Icon>;
+/** 언어 선택 옆. 한국어 화면에 처음 닿은 사람에게 "한국어"라는 글자만으로는 그게 언어 컨트롤인지 알 수 없다. */
+export const GlobeIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.2 2.3 3.4 5.3 3.4 8.5s-1.2 6.2-3.4 8.5c-2.2-2.3-3.4-5.3-3.4-8.5s1.2-6.2 3.4-8.5z" /></Icon>;
 export const PlusIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M12 5v14M5 12h14" /></Icon>;
 export const ArrowRightIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>;
 export const ArrowLeftIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></Icon>;

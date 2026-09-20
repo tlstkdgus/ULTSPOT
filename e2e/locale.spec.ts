@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { localeCookie } from "../src/i18n/config";
 import { browseAllSpots, goToStep } from "./flow";
 
-test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 유지된다", async ({ page }) => {
+test("한국어 브라우저에서 언어 선택이 이동·새로고침 뒤에도 유지된다", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   // 언어는 4개라 select로 고른다 (T-022).
@@ -104,7 +104,7 @@ for (const [browserLocale, lang, heading] of [
   ["ja-JP", "ja", "使い方"],
   ["zh-CN", "zh-Hans", "使用方式"],
   ["en-GB", "en", "How it works"],
-  ["fr-FR", "ko", "이렇게 만들어요"],
+  ["fr-FR", "en", "How it works"],
 ] as const) {
   test(`쿠키가 없으면 ${browserLocale} 브라우저는 ${lang} 화면을 받는다`, async ({ browser, baseURL }) => {
     // 브라우저 컨텍스트를 새로 여는 테스트라 병렬 실행에서는 기본 30초로 부족하다.

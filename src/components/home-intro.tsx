@@ -34,7 +34,6 @@ export function HomeIntro() {
         <Link href="/plan" className={buttonStyles({ size: "lg" })}>
           {t.home.cta} <ArrowRightIcon />
         </Link>
-        <span className="text-body-sm text-text-muted">{t.home.badge}</span>
       </div>
 
       {/* 기준 목업의 첫인상 — "서울 곳곳에 스팟이 흩어져 있다". 지역 이름과 개수는
@@ -53,7 +52,6 @@ export function HomeIntro() {
           </li>
         ))}
       </ol>
-      <p className="mt-8 max-w-[60ch] text-body-sm text-text-muted">{t.home.honesty}</p>
     </section>
   </>;
 }

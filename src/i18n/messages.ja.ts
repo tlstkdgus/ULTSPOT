@@ -8,12 +8,11 @@ export const ja: Messages = {
   lang: { group: "言語", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — ソウルのK-POP1日プラン",
-    description: "行きたいK-POPスポットやファンイベントを選ぶと、営業時間に合わせて1日のプランを組み立てます。登録不要。",
+    description: "行きたいK-POPスポットやファンイベントを選ぶと、営業時間に合わせて1日のプランを組み立てます。",
     plan: "1日プランを作る",
   },
   home: {
-    badge: "登録不要",
-    lead: "行きたいK-POPスポットやファンイベントを選んでください。営業時間・定休日・あなたのペースに合わせて1日にまとめます。",
+    lead: "K-POPスポットとファンイベントを、自分だけのソウル旅に。",
     howTitle: "使い方",
     how: [
       { title: "日程を決める", body: "日付、開始・終了時刻、そして誰に会いに行くか。" },
@@ -21,9 +20,10 @@ export const ja: Messages = {
       { title: "プランを受け取る", body: "時刻付きのプランと、入らなかった場所の理由。カレンダーに追加できます。" },
     ],
     cta: "プランを作る",
-    honesty: "現在は出典を確認したソウルのK-POPスポット3か所です。センイルカフェの一覧はまだ準備中のため、告知を見てご自身で追加できます。",
   },
-  steps: { nav: "プラン作成のステップ", labels: ["推しを選ぶ", "行き先を選ぶ", "日程を決める", "プランを見る"], home: "ULTSPOT ホーム" },
+  // 動詞つきのラベルは390pxの分割に収まらず、最後の1文字だけが次の行に落ちる(T-026)。
+  // 4ステップではさらに狭いので、英語(Your day)や中国語(4文字)と同じく名詞で置く。
+  steps: { nav: "プラン作成のステップ", labels: ["推し", "行き先", "日程", "プラン"], home: "ULTSPOT ホーム" },
   titles: ["誰を追いかけますか？", "どこへ行くか選びましょう。", "ソウルで過ごす日程を決めましょう。", "あなたのソウル・セットリスト。"],
   subtitles: [
     "推しを選ぶと関連スポットを表示します。全体を見て回ってもかまいません。",
@@ -48,7 +48,6 @@ export const ja: Messages = {
     minutes: (n: number) => `${n}分`,
     bufferSummary: (n: number) => `移動の余裕${n}分 — 移動時間を取得できなかった区間にのみ使います。`,
     cta: "行き先を見る",
-    noSignup: "登録不要です。クラウド保存を選ぶまで何もアップロードされません。",
   },
   pass: {
     title: "ファン・デイパス",
@@ -57,8 +56,6 @@ export const ja: Messages = {
     pace: "ペース",
     seoul: "ソウル",
     perStop: (n: number) => `1か所${n}分`,
-    headline: "探す時間を減らして、\n楽しむ時間を増やす。",
-    body: "CDショップに寄り道したり、ソウルの新しいお気に入りを見つけたりする余裕を残します。",
     note: "計画用のパスです — 入場券ではありません。",
   },
   artists: {
@@ -75,12 +72,10 @@ export const ja: Messages = {
     group: "グループ",
     profile: (name: string) => `${name} 公式プロフィール`,
     none: "まだ確認済みのアーティスト一覧にありません。別の名前で探すか、K-POP全体をご覧ください。",
-    scope: "グループ3組とStray Kidsのメンバーから始めています。選んでもイベントや出演が保証されるわけではありません。",
     birthday: (date: string) => `誕生日 ${date}`,
   },
   spots: {
     listTitle: (day: string) => `${day}に開いている場所`,
-    thin: "すべて出典を確認した場所です。まだ数か所だけで、センイルカフェの一覧は準備中のため、告知を見て追加できます。",
     count: (shown: number) => `${shown}か所`,
     search: "場所を検索",
     searchPlaceholder: "エリアまたは店名",
@@ -110,6 +105,7 @@ export const ja: Messages = {
     period: (from: string, to: string) => `${from} – ${to}`,
     source: (author: string, checked: string) => `出典: ${author}. ${checked} 確認。`,
     sourceLink: "原文を見る",
+    englishSource: "営業時間や参加条件の誤訳を避けるため、出典は英語の原文のまま表示しています。",
     maps: "地図で見る",
     naver: "NAVER地図",
     kakao: "カカオマップ",
@@ -127,7 +123,7 @@ export const ja: Messages = {
     back: "日程を選び直す",
     build: "プランを作る",
     picked: (n: number) => `${n} / 6か所`,
-    pickFirst: "1か所以上선택してください",
+    pickFirst: "1か所以上選んでください",
   },
   status: {
     open: "この日は営業",

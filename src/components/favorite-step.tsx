@@ -68,7 +68,6 @@ export function FavoriteStep({ selected, onChange, onNext }: {
           <Button block size="lg" onClick={onNext}>
             {picked.length ? t.favorite.cta : t.favorite.skip} <ArrowRightIcon />
           </Button>
-          <p className="mt-3 text-center text-caption text-text-muted">{t.day.noSignup}</p>
         </div>
       </aside>
     </section>

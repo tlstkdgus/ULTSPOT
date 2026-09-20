@@ -1,5 +1,7 @@
 # ULTSPOT
 
+지도 연동 검토: `node scripts/review/travel-contract.mjs <검사할-checkout-경로>`. 실제 API 호출 없이 서버 계약을 검사합니다. [수정·통합 기준](docs/handoff/kiro-integration-review.md)을 참고하세요.
+
 > **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
 
 <img src="docs/tasks/T-005/screenshots/home-desktop.png" alt="ULTSPOT 비회원 플래너 진입 (desktop)" width="720">
@@ -113,6 +115,9 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |
 
+### Jev 추천 평가
+
+합성 데이터 30건의 오프라인 검사: `node scripts/jev/evaluate.mjs`. 요청 생성·결과 채점과 실제 평가 전제는 [Jev 평가 계약](docs/specs/jev-evaluation.md)을 참고하세요. 기본 실행은 외부 API를 호출하지 않습니다.
 일본어·중국어 장소 데이터: [번역 계약](docs/specs/localized-place-data.md). 여러 날 여행 확장: [구현 계약 초안](docs/specs/multi-day-product-contract.md).
 
 여러 날 일정 저장 모듈과 DB 적용 순서: [journey-storage](docs/specs/journey-storage.md). 현재 UI 연결은 후속입니다.
