@@ -26,3 +26,4 @@
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
 | [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 완료·배포됨 | `design/T-021-korean-data-ui` | [#29](https://github.com/tlstkdgus/ULTSPOT/pull/29) |
 | [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 완료·배포됨 | `feat/T-022-multilingual` | [#30](https://github.com/tlstkdgus/ULTSPOT/pull/30) |
+| [T-025](T-025/README.md) | Codex 일본어·중국어 데이터 요청 인계 | 문서 완료 | `docs/T-025-codex-i18n-request` | PR 준비 |
