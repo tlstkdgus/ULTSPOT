@@ -14,7 +14,8 @@
     "data:check": "node scripts/catalog/cli.mjs check",
     "data:prepare": "node scripts/catalog/cli.mjs prepare",
     "test:data": "node --test scripts/catalog/*.test.mjs",
-    "data:audit": "node scripts/catalog/audit-cli.mjs"
+    "data:audit": "node scripts/catalog/audit-cli.mjs",
+    "data:geocode": "node scripts/catalog/geocode.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
