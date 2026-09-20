@@ -54,6 +54,11 @@ export type TripInput = {
   destination?: TripEndpoint;
   /** 조회할 이동수단. 기본 대중교통. */
   travelMode?: TravelMode;
+  /**
+   * 반드시 가야 하는 행사 id. 팬이 이 행사 때문에 여행을 가는 것이므로 방문 수보다 먼저 지킨다.
+   * 비어 있으면 모든 선택지를 동등하게 본다(기존 동작).
+   */
+  requiredIds?: string[];
 };
 
 export type Stop = {
@@ -79,6 +84,10 @@ export function validateTrip(input: TripInput): string | null {
   if (!Number.isInteger(input.transfer) || input.transfer < 5 || input.transfer > 120) return "Allow 5–120 minutes between spots.";
   if (input.travelMode !== undefined && input.travelMode !== "transit" && input.travelMode !== "walk")
     return "Choose public transport or walking.";
+  if (input.requiredIds !== undefined && (!Array.isArray(input.requiredIds) || input.requiredIds.length > 6 ||
+      new Set(input.requiredIds).size !== input.requiredIds.length ||
+      !input.requiredIds.every(id => typeof id === "string" && id.length > 0 && id.length <= 80)))
+    return "Choose up to 6 different must-visit events.";
   for (const endpoint of [input.origin, input.destination]) {
     if (endpoint === undefined) continue;
     if (!endpoint || typeof endpoint.label !== "string" || !endpoint.label.trim() || endpoint.label.length > 120)
@@ -141,10 +150,12 @@ export const DESTINATION_ID = "trip-destination";
 
 export type TripResult = {
   stops: Stop[];
-  omitted: { event: FanEvent; reason: string }[];
+  omitted: { event: FanEvent; reason: string; required: boolean }[];
   error: string | null;
   /** 마지막 장소에서 종료 위치로 돌아가는 구간. 종료 위치를 넣지 않으면 null. */
   returnLeg: { minutes: number; estimate: TravelEstimate | null } | null;
+  /** 필수로 지정했는데 넣지 못한 행사. 비어 있지 않으면 일정이 사용자의 목적을 못 지킨 것이다. */
+  missingRequired: FanEvent[];
 };
 
 /**
@@ -154,11 +165,14 @@ export type TripResult = {
  * 어느 쪽을 썼는지는 Stop.travelEstimate에 남는다. 조회 실패를 추정값으로 메우지 않는다.
  */
 export function planTrip(events: FanEvent[], input: TripInput, travel?: TravelTable): TripResult {
-  const empty = { stops: [] as Stop[], omitted: [] as { event: FanEvent; reason: string }[], returnLeg: null };
+  const empty = { stops: [] as Stop[], omitted: [] as TripResult["omitted"], returnLeg: null, missingRequired: [] as FanEvent[] };
   const error = validateTrip(input);
   if (error) return { ...empty, error };
   if (events.length > 6 || new Set(events.map(e => e.id)).size !== events.length)
     return { ...empty, error: "Choose up to 6 different events." };
+  const requiredIds = new Set((input.requiredIds ?? []).filter(id => events.some(e => e.id === id)));
+  const isRequired = (event: FanEvent) => requiredIds.has(event.id);
+  const requiredCount = (stops: Stop[]) => stops.reduce((n, s) => n + (isRequired(s.event) ? 1 : 0), 0);
 
   const mode: TravelMode = input.travelMode ?? "transit";
   const originPoint = input.origin ? endpointPoint(input.origin, ORIGIN_ID) : null;
@@ -181,13 +195,25 @@ export function planTrip(events: FanEvent[], input: TripInput, travel?: TravelTa
     return { minutes: travelMinutes(estimate, input.transfer), estimate };
   }
 
+  /**
+   * 더 나은 일정인가. 순서대로: 필수 방문지 수 → 총 방문 수 → 이른 종료.
+   * 필수를 먼저 보기 때문에, 필수 1곳만 있는 일정이 선택 6곳을 다 넣은 일정보다 우선한다.
+   */
+  function better(stops: Stop[], finish: number) {
+    if (!best.length) return true;
+    const bestFinish = best.at(-1)!.departure + (bestReturn?.minutes ?? 0);
+    const left = [-requiredCount(stops), -stops.length, finish];
+    const right = [-requiredCount(best), -best.length, bestFinish];
+    for (let i = 0; i < left.length; i++) if (left[i] !== right[i]) return left[i] < right[i];
+    return false;
+  }
+
   function search(stops: Stop[], remaining: FanEvent[]) {
     const back = returnLeg(stops.at(-1));
     const finish = (stops.at(-1)?.departure ?? input.start) + back.minutes;
-    if (finish <= input.end && (stops.length > best.length ||
-        (stops.length === best.length && stops.length > 0 && finish < (best.at(-1)!.departure + (bestReturn?.minutes ?? 0))))) {
+    if (stops.length && finish <= input.end && better(stops, finish)) {
       best = stops;
-      bestReturn = stops.length && destinationPoint ? back : null;
+      bestReturn = destinationPoint ? back : null;
     }
     for (const event of remaining) {
       const previous = stops.at(-1);
@@ -207,13 +233,20 @@ export function planTrip(events: FanEvent[], input: TripInput, travel?: TravelTa
   }
   search([], eligible);
 
+  const omitted = events.filter(e => !best.some(s => s.event.id === e.id)).map(event => ({
+    event,
+    required: isRequired(event),
+    reason: unavailableReason(event, input.date) ?? (isRequired(event)
+      // 필수 방문지를 못 넣었다면 다른 선택을 줄여야 한다는 뜻이다. 일반 제외와 다르게 말한다.
+      ? "This must-visit event does not fit. Remove other stops, widen your day, or shorten each visit."
+      : "Cannot fit within opening hours, your travel buffer and available time. Try a longer day or shorter visits."),
+  }));
+
   return {
     stops: best,
     error: null,
     returnLeg: bestReturn,
-    omitted: events.filter(e => !best.some(s => s.event.id === e.id)).map(event => ({
-      event,
-      reason: unavailableReason(event, input.date) ?? "Cannot fit within opening hours, your travel buffer and available time. Try a longer day or shorter visits.",
-    })),
+    omitted,
+    missingRequired: omitted.filter(o => o.required).map(o => o.event),
   };
 }
