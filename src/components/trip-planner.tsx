@@ -7,9 +7,12 @@ import { Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, CheckIcon, CloseIcon, ExternalIcon, FastIcon, SlowIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { SpotCard } from "@/components/spot-card";
-import { clock, eventPoint, minutes, planTrip, runsOn, validateTrip, type FanEvent, type TripInput } from "@/lib/trip/planner";
+import { clock, eventPoint, minutes, planTrip, runsOn, unavailableReason, validateTrip, type FanEvent, type TripInput } from "@/lib/trip/planner";
 import { catalog } from "@/lib/trip/catalog";
 import { fetchTravelTable, planningLegs } from "@/lib/trip/travel-client";
+import { FavoriteStep } from "@/components/favorite-step";
+import { categoryCounts, filterCategories, matchesCategory, type FilterCategory } from "@/lib/trip/categories";
+import { preferenceProfile } from "@/lib/recommend/preference";
 import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
@@ -17,10 +20,9 @@ import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
 import { cloudEnabled, cloudTrip } from "@/lib/trip/cloud";
-import { ArtistPicker } from "@/components/artist-picker";
 import { artists, matchesArtists } from "@/lib/trip/artists";
 import { buildCalendar } from "@/lib/calendar";
-import { eventCopy } from "@/lib/trip/event-copy";
+import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
 import { intlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
@@ -38,7 +40,8 @@ function saveFile(text: string, type: string, name: string) {
 export function TripPlanner({ today }: { today: string }) {
   const { locale, t } = useI18n();
   // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
-  const dataLocale = locale === "ko" ? "ko" : "en";
+  // T-027에서 장소 데이터가 ja·zh까지 늘었다. 화면 언어를 그대로 넘기고 eventCopy가 초안 번역을 걸러낸다.
+  const dataLocale: DataLocale = locale;
   const [step, setStep] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
@@ -59,6 +62,9 @@ export function TripPlanner({ today }: { today: string }) {
   const [required, setRequired] = useState<string[]>([]);
   const [travelMode, setTravelMode] = useState<TravelMode>("transit");
   const [artistIds, setArtistIds] = useState<string[]>([]);
+  const [category, setCategory] = useState<FilterCategory | null>(null);
+  /** 관심사 칩. 추천 순서에만 쓰고 운영시간·예약·이동시간 판정에는 쓰지 않는다. */
+  const [interests, setInterests] = useState<string[]>([]);
   const [result, setResult] = useState<ReturnType<typeof planTrip> | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,7 +79,25 @@ export function TripPlanner({ today }: { today: string }) {
     requiredIds: required.filter(id => selected.includes(id)) };
   const validation = validateTrip(input);
   const events = [...catalog, ...personal];
-  const candidates = events.filter(e => matchesArtists(e.artistIds, artistIds) && runsOn(e, date) && `${e.title} ${e.area} ${e.kind}`.toLowerCase().includes(query.toLowerCase()));
+  /**
+   * 탐색 후보. 날짜를 정하기 전(2단계)에는 날짜로 걸러내지 않는다 — 기간을 정한 뒤 다시 검사한다.
+   * 검색은 표시 언어의 문구까지 본다. 한국어로 쳤을 때 영어 원문만 보고 놓치지 않게 한다.
+   */
+  const candidates = events.filter(event => {
+    if (!matchesArtists(event.artistIds, artistIds)) return false;
+    if (!matchesCategory(event, category)) return false;
+    if (step > 1 && !runsOn(event, date)) return false;
+    if (!query.trim()) return true;
+    const copy = eventCopy(event, dataLocale);
+    const haystack = `${event.title} ${event.area} ${event.kind} ${copy.title} ${copy.area}`.toLowerCase();
+    return haystack.includes(query.trim().toLowerCase());
+  });
+  const counts = categoryCounts(events.filter(e => matchesArtists(e.artistIds, artistIds)));
+  /**
+   * 관심사 칩 + 속도 → 추천 입력. 추천 순서와 주변 후보 종류에만 쓴다.
+   * planTrip과 unavailableReason은 이 값을 받지 않는다 (구조로 보장).
+   */
+  const profile = preferenceProfile({ interests, stay });
   /** 결과를 버리고 진행 중인 조회 응답도 무효로 만든다. 알림은 건드리지 않는다. */
   function discardResult() { lookupId.current += 1; setResult(null); setLookingUp(false); }
   function invalidate() { discardResult(); setNotice(""); }
@@ -110,7 +134,7 @@ export function TripPlanner({ today }: { today: string }) {
     setArtistIds(saved.artistIds ?? []);
     // 과거 경로를 최신 조회값처럼 보여주지 않는다. 복원할 때 다시 조회한다.
     void plan([...catalog, ...saved.personal].filter(e => saved.selected.includes(e.id)), saved.input);
-    setStep(2);
+    setStep(3);
   }
   function device(action: "save" | "load" | "delete") {
     try {
@@ -142,16 +166,24 @@ export function TripPlanner({ today }: { today: string }) {
   function generate() {
     if (validation || !selected.length) return;
     setNotice("");
-    setStep(2);
+    setStep(3);
     void plan(events.filter(e => selected.includes(e.id)), input);
   }
   function changeDate(value: string) {
     setDate(value);
-    // 날짜가 바뀌면 그날 열지 않는 곳이 섞이므로 선택을 비운다(T-008 계약). 조용히 지우지는 않는다.
-    if (selected.length) setNotice(t.notices.dateCleared(selected.length));
-    else setNotice("");
-    setSelected([]);
-    setRequired([]);
+    /**
+     * 담은 곳을 지우지 않는다.
+     *
+     * T-008에서는 날짜가 1단계였기 때문에 날짜가 바뀌면 선택을 비웠다. T-029에서 날짜가 장소
+     * 뒤로 내려가면서 그 규칙이 반대로 동작했다 — 담은 뒤 날짜를 처음 넣는 순간 선택이 전부
+     * 사라졌다. 이제는 그날 열지 않는 곳을 **다시 검사해서 알려주고**, 일정 결과의 "넣지 못한 곳"에
+     * 사유를 남긴다. 사용자가 고른 것을 조용히 버리지 않는다.
+     */
+    const blocked = selected.filter(id => {
+      const event = events.find(e => e.id === id);
+      return event ? !!unavailableReason(event, value) : false;
+    });
+    setNotice(blocked.length ? t.notices.dateRechecked(blocked.length) : "");
     // 위에서 세운 안내를 지우지 않으려고 invalidate()를 쓰지 않는다.
     discardResult();
   }
@@ -231,7 +263,7 @@ export function TripPlanner({ today }: { today: string }) {
 
     <nav aria-label={t.steps.nav} className="my-6 grid grid-cols-3 gap-2 sm:gap-6">
       {t.steps.labels.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
-        disabled={busy || (index === 1 && !!validation) || (index === 2 && !result)} onClick={() => setStep(index)}
+        disabled={busy || (index === 3 && !result)} onClick={() => setStep(index)}
         className={cn("flex min-h-11 items-center gap-2 border-b-2 pb-3 text-left text-label transition-colors disabled:cursor-not-allowed disabled:text-text-faint",
           step === index ? "border-text text-text" : "border-line-strong text-text-muted")}>
         <span aria-hidden="true" className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-caption",
@@ -242,15 +274,25 @@ export function TripPlanner({ today }: { today: string }) {
     <div className="mb-6">
       <h1 ref={heading} tabIndex={-1} className="text-display outline-none">{t.titles[step]}</h1>
       <p className="mt-3 max-w-[46ch] text-body text-text-muted">{t.subtitles[step]}</p>
-      {step > 0 && <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-caption text-text-muted">
+      {step > 1 && <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-caption text-text-muted">
         <span className="rounded-full border border-line-strong px-3 py-1.5 text-text">{dayLabel}</span>
         <span>{start}–{end}</span>
         <span>{t.result.stayEach(stay)}</span>
         <span>{t.day.bufferSummary(transfer)}</span>
       </p>}
+      {step === 1 && artistIds.length > 0 && <p className="mt-4 text-caption text-text-muted">
+        {t.favorite.picked(artistNames)}
+      </p>}
     </div>
 
-    {step === 0 && <section aria-label={t.steps.labels[0]} className="grid gap-6 lg:grid-cols-2 lg:gap-10">
+    {step === 0 && <FavoriteStep selected={artistIds} onNext={() => setStep(1)} onChange={ids => {
+      setArtistIds(ids);
+      setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
+      setRequired(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
+      invalidate();
+    }} />}
+
+    {step === 2 && <section aria-label={t.steps.labels[2]} className="grid gap-6 lg:grid-cols-2 lg:gap-10">
       <div className="min-w-0 rounded-device border border-line-strong bg-surface p-6 sm:p-8">
         <label className="block text-subhead">{t.day.dateQuestion}<span className="sr-only"> {t.day.dateLabel}</span>
           <input className={`${inputClass} mt-4`} type="date" value={date} onChange={e => changeDate(e.target.value)} />
@@ -271,16 +313,20 @@ export function TripPlanner({ today }: { today: string }) {
           <p className="mt-3 text-caption text-text-muted">{t.day.custom(stay)}</p>}
         </fieldset>
 
-        <details className="mt-6 border-t border-line-strong pt-2">
-          <summary className="min-h-11 cursor-pointer py-2 text-label">
-            {t.artists.legend} <span className="text-text-muted">· {artistIds.length ? t.artists.pickedCount(artistIds.length) : t.artists.optional}</span>
-          </summary>
-          <ArtistPicker selected={artistIds} onChange={ids => {
-            setArtistIds(ids);
-            setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
-            invalidate();
-          }} />
-        </details>
+        {/* 관심사는 추천 순서에만 쓴다. 운영시간·예약·이동시간 판정은 코드와 카카오 API가 한다. */}
+        <fieldset className="mt-6 border-t border-line-strong pt-5">
+          <legend className="text-subhead">{t.interests.legend}</legend>
+          <p className="mt-2 text-caption text-text-muted">{t.interests.hint}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {t.interests.items.map(item => <button key={item.id} type="button" aria-pressed={interests.includes(item.id)}
+              onClick={() => setInterests(current => current.includes(item.id)
+                ? current.filter(id => id !== item.id) : [...current, item.id])}
+              className={cn("min-h-11 rounded-full border px-4 text-label transition-colors",
+                interests.includes(item.id) ? "border-text bg-surface-2" : "border-line-strong text-text-muted")}>
+              {item.label}
+            </button>)}
+          </div>
+        </fieldset>
 
         <fieldset className="mt-6"><legend className="text-label">{t.travel.modeLabel}</legend>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -319,7 +365,7 @@ export function TripPlanner({ today }: { today: string }) {
       <div className="sticky bottom-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong bg-bg/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8 lg:col-span-2"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <span className="text-caption text-text-muted">{dayLabel} · {start}–{end} · {t.result.stayEach(stay)}</span>
-        <Button disabled={!!validation || busy} onClick={() => setStep(1)}>{t.day.cta} <ArrowRightIcon /></Button>
+        <Button disabled={!!validation || !selected.length || busy} onClick={generate}>{t.spots.build} <ArrowRightIcon /></Button>
       </div>
     </section>}
 
@@ -336,6 +382,27 @@ export function TripPlanner({ today }: { today: string }) {
         <h2 className="text-heading">{t.spots.listTitle(dayLabel)}</h2>
         <p role="status" className="text-caption text-text-muted">{t.spots.count(candidates.length)}</p>
       </div>
+      {/* 필터마다 개수를 함께 보여준다. 0인 분류를 숨기면 "없다"는 사실이 가려진다. */}
+      <fieldset className="mt-4">
+        <legend className="sr-only">{t.categories.legend}</legend>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" aria-pressed={category === null} onClick={() => setCategory(null)}
+            className={cn("min-h-11 rounded-full border px-4 text-label transition-colors",
+              category === null ? "border-text bg-surface-2" : "border-line-strong text-text-muted")}>
+            {t.categories.all}
+          </button>
+          {filterCategories.map(key => <button key={key} type="button" aria-pressed={category === key}
+            onClick={() => setCategory(category === key ? null : key)}
+            className={cn("min-h-11 rounded-full border px-4 text-label transition-colors",
+              category === key ? "border-text bg-surface-2" : "border-line-strong text-text-muted")}>
+            {t.categories[key]} <span aria-hidden="true" className="text-text-faint">{counts[key]}</span>
+            <span className="sr-only"> {t.spots.count(counts[key])}</span>
+          </button>)}
+        </div>
+      </fieldset>
+      {category !== null && counts[category] === 0 &&
+        <p role="status" className="mt-3 text-body-sm text-warning">{t.categories.empty(t.categories[category])}</p>}
+
       <label className="mt-4 block w-full text-label sm:max-w-md">{t.spots.search}
         <input className={inputClass} value={query} onChange={e => setQuery(e.target.value)} placeholder={t.spots.searchPlaceholder} />
       </label>
@@ -380,15 +447,17 @@ export function TripPlanner({ today }: { today: string }) {
       {/* 모바일에서 고른 개수와 다음 행동이 늘 손 닿는 곳에 있도록 아래에 고정한다. */}
       <div className="sticky bottom-0 z-10 -mx-5 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong bg-bg/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-        <Button variant="ghost" size="sm" onClick={() => setStep(0)}><ArrowLeftIcon /> {t.spots.back}</Button>
+        {/* 갈 곳 단계의 뒤로는 최애 고르기로 간다. 단계 이름을 그대로 써서 어디로 가는지 분명히 한다. */}
+        <Button variant="ghost" size="sm" onClick={() => setStep(0)}><ArrowLeftIcon /> {t.steps.labels[0]}</Button>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-caption text-text-muted">{selected.length >= 6 ? t.spots.full : selected.length ? t.spots.picked(selected.length) : t.spots.pickFirst}</span>
-          <Button disabled={!selected.length || !!validation || busy} onClick={generate}>{t.spots.build} <ArrowRightIcon /></Button>
+          {/* 날짜는 다음 단계에서 정한다. 여기서 막지 않는다. */}
+          <Button disabled={!selected.length || busy} onClick={() => setStep(2)}>{t.steps.labels[2]} <ArrowRightIcon /></Button>
         </div>
       </div>
     </section>}
 
-    {step === 2 && result && <section aria-label={t.steps.labels[2]} className="grid items-start gap-6 lg:grid-cols-3">
+    {step === 3 && result && <section aria-label={t.steps.labels[3]} className="grid items-start gap-6 lg:grid-cols-3">
       <aside className="rounded-device border border-line-strong bg-surface p-6 lg:col-span-1">
         <p className="font-display text-title">{dayLabel}<br /><span className="text-text-muted">{t.pass.seoul}</span></p>
         <div className="my-5 border-t border-dashed border-line-strong" />
@@ -403,7 +472,7 @@ export function TripPlanner({ today }: { today: string }) {
           <Button size="sm" variant="ghost" disabled={!result.stops.length} onClick={download}>{t.result.txt}</Button>
         </div>
         <div className="mt-5 flex flex-wrap gap-2 border-t border-line-strong pt-5">
-          <Button size="sm" variant="ghost" onClick={() => setStep(0)}>{t.result.editDay}</Button>
+          <Button size="sm" variant="ghost" onClick={() => setStep(2)}>{t.result.editDay}</Button>
           <Button size="sm" variant="ghost" onClick={() => setStep(1)}>{t.result.editSpots}</Button>
         </div>
       </aside>
@@ -413,7 +482,7 @@ export function TripPlanner({ today }: { today: string }) {
           <h2 className="text-heading">{t.result.emptyTitle}</h2>
           <p className="mt-3 text-body-sm text-text-muted">{t.result.emptyBody}</p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={() => setStep(0)}>{t.result.editDay}</Button>
+            <Button variant="ghost" onClick={() => setStep(2)}>{t.result.editDay}</Button>
             <Button variant="ghost" onClick={() => setStep(1)}>{t.result.editSpots}</Button>
           </div>
         </div>}
@@ -452,6 +521,7 @@ export function TripPlanner({ today }: { today: string }) {
 
         <SuggestionPanel anchor={anchorPoint?.coord ?? null}
           anchorName={anchorPoint ? anchorPoint.name : ""}
+          profile={profile}
           onAdd={addSuggestion} />
         {lastStop && <div className="mt-5 rounded-xl border border-line-strong bg-bg-soft p-5">
           <h2 className="flex items-center gap-2 text-subhead"><CheckIcon />{t.result.encoreTitle(clock(lastStop.departure))}</h2>
@@ -460,7 +530,7 @@ export function TripPlanner({ today }: { today: string }) {
           </p>
           {freeMinutes >= 30 && <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" variant="ghost" onClick={askForEvent}>{t.result.encoreAdd}</Button>
-            <Button size="sm" variant="ghost" onClick={() => setStep(0)}>{t.result.encoreSlow}</Button>
+            <Button size="sm" variant="ghost" onClick={() => setStep(2)}>{t.result.encoreSlow}</Button>
           </div>}
         </div>}
 

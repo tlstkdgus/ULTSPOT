@@ -6,8 +6,21 @@ import { validateTrip, type FanEvent, type TripInput } from "./planner";
 export const storageKey = "ultspot.trip.v1";
 export type SavedTrip = { version: 1; input: TripInput; selected: string[]; personal: FanEvent[]; artistIds?: string[] };
 
-/** 검수 데이터에만 있어야 하는 필드. 개인 저장본에 섞여 오면 저장본 전체를 거부한다. */
-const reviewedOnlyKeys = ["title_ko", "do_ko", "get_ko", "area_ko", "image_asset_id", "transit", "participation", "coord", "dateOverrides"] as const;
+/**
+ * 검수 데이터에만 있어야 하는 필드. 개인 저장본에 섞여 오면 저장본 전체를 거부한다.
+ *
+ * 내보내는 이유: 테스트가 "검수 전용 메타데이터를 모두 지운 개인 초안"을 만들 때 이 목록을 써야
+ * 새 필드가 늘어도 fixture가 어긋나지 않는다. T-025의 coord를 추가했을 때 실제로 어긋났다.
+ */
+export const reviewedOnlyKeys = [
+  "title_ko", "do_ko", "get_ko", "area_ko",
+  // T-027: 일본어·중국어 번역과 번역 검수 메타데이터도 검수 데이터에만 있어야 한다.
+  "title_ja", "do_ja", "get_ja", "area_ja",
+  "title_zh", "do_zh", "get_zh", "area_zh", "translation_review",
+  "image_asset_id", "transit", "participation",
+  // T-025: 검수 좌표와 날짜별 운영 예외.
+  "coord", "dateOverrides",
+] as const;
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 const text = (value: unknown, max = 300): value is string => typeof value === "string" && value.trim().length > 0 && value.length <= max;
 export function safeSource(value: unknown): value is string {
@@ -18,8 +31,7 @@ export function safeSource(value: unknown): value is string {
 export function isPersonalEvent(value: unknown): value is FanEvent {
   if (!object(value) || !object(value.provenance)) return false;
   // Reviewed catalog metadata is never accepted from a private draft.
-  if (reviewedOnlyKeys.some(key => value[key] !== undefined) ||
-      ['title_ja', 'do_ja', 'get_ja', 'area_ja', 'title_zh', 'do_zh', 'get_zh', 'area_zh', 'translation_review'].some(key => value[key] !== undefined)) return false;
+  if (reviewedOnlyKeys.some(key => value[key] !== undefined)) return false;
   const p = value.provenance;
   /**
    * 운영시간은 둘 다 숫자이거나 둘 다 null이다.

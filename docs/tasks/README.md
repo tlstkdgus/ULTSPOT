@@ -29,8 +29,11 @@
 | [T-025](T-025/README.md) | 카카오 지도·경로 실연동, 필수 방문 우선 일정, Jev 취향 추천, 조사 배치 변환 | 구현·실연동 검증 (배포 전) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
 | [T-026](T-026/README.md) | critique 3회차 수정 — 일본어 한글·조판 범위·버려진 번역 | 리뷰 중 | `design/T-026-critique-round3` | PR 준비 |
 | [T-027](T-027/README.md) | 일본어·중국어 장소 데이터 계약 | 구현·검증, UI 연결 대기 | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
+| [T-028](T-028/README.md) | 여러 날 일정·저장 구조 | 구현·검증, UI/DB 적용 대기 | `feat/T-028-multi-day-storage` | [#35](https://github.com/tlstkdgus/ULTSPOT/pull/35) |
+| [T-029](T-029/README.md) | 전체 UX 통합 — 최애 선택·탐색·N박 N일 일정·커뮤니티·체크인·가계부·공유·발자취 | 진행 중 | `feat/T-029-full-ux` | PR 준비 |
 | [T-030](T-030/README.md) | 지원하지 않는 브라우저 언어와 감지 실패 시 영어 기본값 |
 | [T-031](T-031/README.md) | 가입 배지·중복 안내·홍보 문구 제거 (4개 언어) |
+| [T-032](T-032/README.md) | 기준 목업에 맞춘 홈 비주얼 정렬 | 리뷰 중 | `design/T-032-visual-alignment` | PR 준비 |
 
 작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
 

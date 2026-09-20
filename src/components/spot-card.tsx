@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
 import { clock, unavailableReason, type FanEvent } from "@/lib/trip/planner";
-import { eventCopy } from "@/lib/trip/event-copy";
+import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
 
 export type SpotStatus = "open" | "closed" | "unconfirmed" | "reservation";
 
@@ -37,8 +37,8 @@ export function SpotCard({ event, date, selected, disabled, onToggle, required =
   onToggleRequired?: () => void;
 }) {
   const { locale, t } = useI18n();
-  // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
-  const dataLocale = locale === "ko" ? "ko" : "en";
+  // T-027에서 장소 데이터가 ja·zh까지 늘었다. eventCopy가 초안 번역은 영어로 떨어뜨린다.
+  const dataLocale: DataLocale = locale;
   const status = spotStatus(event, date);
   const personal = event.provenance.mode === "personal";
   // 분류는 우리가 만든 라벨이지 수집한 원문이 아니라, 오역 위험 논리가 적용되지 않는다.

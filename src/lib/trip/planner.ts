@@ -1,6 +1,9 @@
 import type { CoordRecord, TripEndpoint, TravelPoint } from "./geo";
 import { legKey, travelMinutes, travelReasons, unconfirmed, type TravelEstimate, type TravelMode, type TravelTable } from "./travel";
 
+/** 번역 초안과 승인 번역을 구분한다. 미검수 번역을 운영 조건처럼 쓰지 않기 위한 메타데이터 (T-027). */
+export type TranslationReview = { author: string; source: string; status: 'draft' | 'reviewed'; checked_on?: string };
+
 /**
  * 특정 날짜의 운영 예외. 요일 휴무(`closedDays`)로는 표현할 수 없는 공휴일 휴관·단축 운영을 담는다.
  * `opens`/`closes`가 null이면 미확인이다 (24시간 운영이나 휴무를 뜻하지 않는다).
@@ -15,7 +18,6 @@ export type DateOverride = {
   source: string;
   checked_on: string;
 };
-export type TranslationReview = { author: string; source: string; status: 'draft' | 'reviewed'; checked_on?: string };
 
 export type FanEvent = {
   title_ja?: string;
@@ -32,12 +34,17 @@ export type FanEvent = {
   get_ko?: string;
   area_ko?: string;
   image_asset_id?: string;
-  transit?: { station_ja?: string; station_zh?: string; line_ja?: string; line_zh?: string; station_ko: string; station_en: string; line_ko: string; line_en: string; exit: string; walk_minutes: number; source: string; checked_on: string };
+  transit?: { station_ja?: string; line_ja?: string; station_zh?: string; line_zh?: string; station_ko: string; station_en: string; line_ko: string; line_en: string; exit: string; walk_minutes: number; source: string; checked_on: string };
   participation?: { price_ja?: string; price_zh?: string; price_ko: string; price_en: string; cash_required: boolean | null; first_come_quantity: number | null; lucky_draw: boolean | null; source: string; checked_on: string };
   /** 검수된 좌표만 넣는다. 없으면 이동시간을 확정할 수 없고 그 사실을 화면에 알린다. */
   coord?: CoordRecord;
   /** 날짜별 운영 예외. 요일 휴무보다 우선한다. */
   dateOverrides?: DateOverride[];
+  /**
+   * 탐색 필터용 분류. 없으면 categories.ts가 알려진 `kind`만 매핑하고 나머지는 other로 둔다.
+   * 검수 없이 생일카페·맛집으로 분류하지 않는다.
+   */
+  category?: "birthdayCafe" | "popup" | "filming" | "landmark" | "food" | "other";
   artistIds?: string[];
   id: string;
   title: string;

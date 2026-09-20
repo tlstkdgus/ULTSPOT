@@ -27,7 +27,11 @@ for (const loc of ["ko", "en", "ja", "zh"] as const) {
         const real = fams.filter(f => f !== "Unbounded");
         if (real.length > 1) {
           const txt = (await cdp.send("DOM.getOuterHTML", { nodeId })).outerHTML.replace(/<[^>]*>/g, "").trim().slice(0, 28);
-          mixed.push(`${loc}${route} "${txt}" -> ${real.join(" + ")}`);
+          // 아티스트·장소 이름은 번역하지 않으므로 일본어·중국어 화면에도 한글이 그대로 나온다
+          // ("스트레이 키즈 · 团体"). 문자체계가 진짜로 둘이면 글꼴이 갈리는 것이 맞다.
+          // 잡아야 하는 것은 같은 문자체계가 두 글꼴로 쪼개지는 경우다.
+          const hasHangul = /[가-힣]/.test(txt);
+          if (loc === "ko" || loc === "en" || !hasHangul) mixed.push(`${loc}${route} "${txt}" -> ${real.join(" + ")}`);
         }
       }
     }

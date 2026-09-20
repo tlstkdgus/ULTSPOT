@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Badge, Button } from "@/components/ui";
+import type { PreferenceProfile } from "@/lib/recommend/preference";
 import { ClockIcon, CloseIcon, ExternalIcon, PinIcon, PlusIcon } from "@/components/icons";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
@@ -21,14 +22,25 @@ const ALL_KINDS: SuggestionKind[] = ["meal", "cafe", "sightseeing"];
  *  - 아이돌 관련 근거가 있는 장소와 일반 주변 추천을 뱃지로 구분한다.
  *  - 취향 평가가 빠졌으면 그 사실과 사유를 보여준다. 거리순 기본 추천으로 계속 동작한다.
  */
-export function SuggestionPanel({ anchor, anchorName, onAdd }: {
+export function SuggestionPanel({ anchor, anchorName, onAdd, profile }: {
   anchor: Coord | null;
   anchorName: string;
   onAdd: (suggestion: RankedSuggestion) => void;
+  /** 일정 단계에서 고른 관심사·속도. 칩이 비면 문장도 비고 그때는 Jev를 부르지 않는다. */
+  profile: PreferenceProfile;
 }) {
   const { t } = useI18n();
-  const [preference, setPreference] = useState("");
-  const [kinds, setKinds] = useState<SuggestionKind[]>(ALL_KINDS);
+  /**
+   * 칩에서 만든 값을 기본으로 쓰고, 사용자가 손대면 그때부터 그 값을 쓴다.
+   * effect로 state를 동기화하면 칩을 바꿀 때 사용자가 고쳐 쓴 문장을 덮거나 타이핑이 되돌아간다.
+   * 그래서 "덮어쓴 값"만 state로 두고 나머지는 계산한다 (null = 칩을 따라간다).
+   */
+  const [preferenceOverride, setPreferenceOverride] = useState<string | null>(null);
+  const [kindsOverride, setKindsOverride] = useState<SuggestionKind[] | null>(null);
+  const preference = preferenceOverride ?? profile.sentence;
+  const kinds = kindsOverride ?? (profile.kinds.length ? profile.kinds : ALL_KINDS);
+  const setPreference = (value: string) => setPreferenceOverride(value);
+  const setKinds = (update: (current: SuggestionKind[]) => SuggestionKind[]) => setKindsOverride(update(kinds));
   const [excluded, setExcluded] = useState<string[]>([]);
   const [result, setResult] = useState<SuggestionResult | null>(null);
   const [busy, setBusy] = useState(false);
