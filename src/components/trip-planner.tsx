@@ -135,7 +135,7 @@ export function TripPlanner({ today }: { today: string }) {
 
   return <main className="shell pb-16">
     <header className="flex items-center justify-between gap-4 border-b border-line py-4">
-      <Link href="/" aria-label="ULTSPOT home"><Wordmark /></Link>
+      <Link href="/" aria-label={t.steps.home}><Wordmark /></Link>
       <LanguageToggle />
     </header>
 
@@ -163,7 +163,7 @@ export function TripPlanner({ today }: { today: string }) {
     {step === 0 && <section aria-label={t.steps.labels[0]} className="grid gap-6 lg:grid-cols-2 lg:gap-10">
       <div className="min-w-0 rounded-device border border-line-strong bg-surface p-6 sm:p-8">
         <label className="block text-subhead">{t.day.dateQuestion}<span className="sr-only"> {t.day.dateLabel}</span>
-          <input aria-label={t.day.dateLabel} className={`${inputClass} mt-4`} type="date" value={date} onChange={e => changeDate(e.target.value)} />
+          <input className={`${inputClass} mt-4`} type="date" value={date} onChange={e => changeDate(e.target.value)} />
         </label>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <label className="min-w-0 text-label">{t.day.start}<input className={inputClass} type="time" value={start} onChange={e => { setStart(e.target.value); invalidate(); }} /></label>
@@ -176,13 +176,21 @@ export function TripPlanner({ today }: { today: string }) {
             <span className="mt-3 block text-label">{pace.name}</span>
             <span className="mt-1 block text-caption text-text-muted">{pace.note}</span>
           </button>)}
-        </div></fieldset>
+        </div>
+        {!t.day.paces.some(pace => pace.value === stay) &&
+          <p className="mt-3 text-caption text-text-muted">{t.day.custom(stay)}</p>}
+        </fieldset>
 
-        <ArtistPicker selected={artistIds} onChange={ids => {
-          setArtistIds(ids);
-          setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
-          invalidate();
-        }} />
+        <details className="mt-6 border-t border-line-strong pt-2">
+          <summary className="min-h-11 cursor-pointer py-2 text-label">
+            {t.artists.legend} <span className="text-text-muted">· {artistIds.length ? t.artists.pickedCount(artistIds.length) : t.artists.optional}</span>
+          </summary>
+          <ArtistPicker selected={artistIds} onChange={ids => {
+            setArtistIds(ids);
+            setSelected(current => current.filter(id => events.some(e => e.id === id && matchesArtists(e.artistIds, ids))));
+            invalidate();
+          }} />
+        </details>
 
         <p className="mt-6 text-caption text-text-muted">{t.day.bufferSummary(transfer)}</p>
         <details className="mt-2 text-body-sm text-text-muted"><summary className="min-h-11 cursor-pointer py-2">{t.day.fineTune}</summary>
@@ -190,8 +198,7 @@ export function TripPlanner({ today }: { today: string }) {
           <label className="mt-4 block text-label">{t.day.buffer}<select className={inputClass} value={transfer} onChange={e => { setTransfer(Number(e.target.value)); invalidate(); }}>{[15, 30, 45, 60, 90, 120].map(n => <option key={n} value={n}>{t.day.minutes(n)}</option>)}</select></label>
         </details>
         {validation && <p role="alert" className="mt-4 text-body-sm text-danger">{translateLib(t, validation)}</p>}
-        <Button className="mt-5" size="lg" block disabled={!!validation || busy} onClick={() => setStep(1)}>{t.day.cta} <ArrowRightIcon /></Button>
-        <p className="mt-3 text-center text-caption text-text-muted">{t.day.noSignup}</p>
+        <p className="mt-5 text-caption text-text-muted">{t.day.noSignup}</p>
       </div>
       <aside aria-label={t.pass.title} className="relative flex flex-col justify-between overflow-hidden rounded-device border border-line-strong bg-bg-soft p-7 sm:p-8">
         <p className="text-label text-text-muted">{t.pass.title}</p>
@@ -213,6 +220,11 @@ export function TripPlanner({ today }: { today: string }) {
         </div>
         <p className="mt-5 text-caption text-text-muted">{t.pass.note}</p>
       </aside>
+      <div className="sticky bottom-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong bg-bg/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8 lg:col-span-2"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+        <span className="text-caption text-text-muted">{dayLabel} · {start}–{end} · {t.result.stayEach(stay)}</span>
+        <Button disabled={!!validation || busy} onClick={() => setStep(1)}>{t.day.cta} <ArrowRightIcon /></Button>
+      </div>
     </section>}
 
     {step === 1 && <section aria-label={t.steps.labels[1]}>
@@ -226,8 +238,9 @@ export function TripPlanner({ today }: { today: string }) {
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h2 className="text-heading">{t.spots.listTitle(dayLabel)}</h2>
-        <p className="text-caption text-text-muted">{t.spots.count(candidates.length)}</p>
+        <p role="status" className="text-caption text-text-muted">{t.spots.count(candidates.length)}</p>
       </div>
+      <p className="mt-2 max-w-[62ch] text-body-sm text-text-muted">{t.spots.thin}</p>
       <label className="mt-4 block w-full text-label sm:max-w-md">{t.spots.search}
         <input className={inputClass} value={query} onChange={e => setQuery(e.target.value)} placeholder={t.spots.searchPlaceholder} />
       </label>
@@ -312,7 +325,7 @@ export function TripPlanner({ today }: { today: string }) {
               <span className="rounded-full border border-line-strong px-3 py-1 text-caption">{t.result.track(index + 1)}</span>
               <span className="font-mono text-label">{clock(stop.arrival)}–{clock(stop.departure)}</span>
             </div>
-            <h2 className="mt-4 text-heading">{stop.event.title}</h2>
+            <h2 className="mt-4 text-heading" lang="en">{stop.event.title}</h2>
             <p className="mt-3 text-body-sm text-text-muted" lang="en">{stop.event.do}</p>
             <a className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-body-sm underline underline-offset-4"
               href={`https://map.naver.com/p/search/${encodeURIComponent(stop.event.address)}`} target="_blank" rel="noopener noreferrer">
@@ -322,6 +335,12 @@ export function TripPlanner({ today }: { today: string }) {
           </article>
         </li>)}</ol>
 
+        {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
+          <h2 className="text-label">{t.result.omitted}</h2>
+          <ul className="mt-3 space-y-3">{result.omitted.map(item => <li key={item.event.id} className="text-body-sm">
+            <b>{item.event.title}</b><p className="text-text-muted">{translateLib(t, item.reason)}</p>
+          </li>)}</ul>
+        </div>}
         {lastStop && <div className="mt-5 rounded-xl border border-line-strong bg-bg-soft p-5">
           <h2 className="flex items-center gap-2 text-subhead"><CheckIcon />{t.result.encoreTitle(clock(lastStop.departure))}</h2>
           <p className="mt-2 text-body-sm text-text-muted">
@@ -333,16 +352,10 @@ export function TripPlanner({ today }: { today: string }) {
           </div>}
         </div>}
 
-        {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
-          <h2 className="text-label">{t.result.omitted}</h2>
-          <ul className="mt-3 space-y-3">{result.omitted.map(item => <li key={item.event.id} className="text-body-sm">
-            <b>{item.event.title}</b><p className="text-text-muted">{translateLib(t, item.reason)}</p>
-          </li>)}</ul>
-        </div>}
       </div>
     </section>}
 
-    <p className="mt-8 text-caption text-text-muted">{t.footer(transfer)}</p>
+    <p className="mt-8 max-w-[70ch] text-caption text-text-muted">{t.footer(transfer)}</p>
 
     <details className="mt-6 border-t border-line-strong pt-4"><summary className="min-h-11 cursor-pointer py-2 text-label">{t.storage.title}</summary>
       <div className="mt-4 flex flex-wrap gap-2">

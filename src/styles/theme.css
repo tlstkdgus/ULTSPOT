@@ -90,6 +90,11 @@
   --text-caption--letter-spacing: 0.04em;
   --text-caption--font-weight: 500;
 
+  /* 상태 뱃지 전용. 이전 임의값 0.65625rem(10.5px)은 토큰도 아니고 가독 하한도 밑돌았다. */
+  --text-badge: 0.6875rem;
+  --text-badge--line-height: 1;
+  --text-badge--font-weight: 700;
+
   --text-eyebrow: 0.78125rem;
   --text-eyebrow--line-height: 1;
   --text-eyebrow--letter-spacing: 0.14em;

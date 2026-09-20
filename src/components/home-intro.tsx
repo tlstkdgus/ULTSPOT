@@ -17,7 +17,8 @@ export function HomeIntro() {
 
     <section className="relative shell flex flex-1 flex-col justify-center pt-8 pb-12">
       {/* 슬로건은 브랜드 표기라 두 언어 모두 영어로 둔다. */}
-      <h1 lang="en" className="text-hero text-text">
+      {/* 줄바꿈 때문에 접근성 이름이 "FINDYOUR SPOT."으로 붙어 읽히던 것을 aria-label로 고정한다. */}
+      <h1 lang="en" aria-label="Find your spot." className="text-hero text-text">
         FIND
         <br />
         YOUR <em className="text-lime not-italic">SPOT</em>.
