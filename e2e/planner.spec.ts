@@ -7,6 +7,10 @@ import { englishLocale } from "./locale";
 
 englishLocale();
 
+// 카탈로그 순서·건수를 인덱스로 쥐지 않는다. PR #48이 운영시간 미확인 생일카페 3건을 앞에
+// 붙이면서 catalog[0]이 opens=null 행사로 바뀌어, 그것을 토대로 만든 편성 사례가 전부 깨졌다.
+const spot = (id: string) => catalog.find(e => e.id === id)!;
+
 test("onboarding keeps choices when moving back and guides focus", async ({ page }) => {
   await page.goto("/plan");
   // 첫 단계는 최애 고르기다. 갈 곳 단계는 아직 열리지 않았다 (T-029).
@@ -43,7 +47,8 @@ test("guest can inspect sources, plan, save, restore, adjust and download", asyn
   await page.getByLabel("Travel date").fill("2026-09-22");
   await page.getByRole("button", { name: "Build my itinerary" }).click();
   await expect(page.getByText("2 visits ·", { exact: false })).toBeVisible();
-  await expect(page.getByText("Opening hours are unconfirmed.", { exact: false })).toBeVisible();
+  // 미확인 안내는 여러 장소에 붙는다 (수집한 생일카페 3건 + k-star-road). 하나라도 보이면 된다.
+  await expect(page.getByText("Opening hours are unconfirmed.", { exact: false }).first()).toBeVisible();
   await page.getByText("Saved plans & storage", { exact: true }).click();
   await page.getByRole("button", { name: "Save on device", exact: true }).click();
   await page.reload();
@@ -95,19 +100,21 @@ test("engine enforces dates, hours, closures, reservations and non-greedy orderi
   const input = { date: "2026-09-22", start: 660, end: 1080, stay: 60, transfer: 45 };
   const result = planTrip(catalog, input);
   expect(result.stops).toHaveLength(2);
-  expect(result.omitted[0].event.id).toBe("k-star-road");
+  // 순서가 아니라 사유로 확인한다. 제외 목록의 선두는 카탈로그 순서를 따라가므로 데이터가
+  // 늘면 바뀐다.
+  expect(result.omitted.find(o => o.event.id === "k-star-road")?.reason).toContain("unconfirmed");
   for (let i = 0; i < result.stops.length; i++) {
     const stop = result.stops[i];
     expect(stop.arrival).toBeGreaterThanOrEqual(stop.event.opens!);
     expect(stop.departure).toBeLessThanOrEqual(Math.min(stop.event.closes!, input.end));
     if (i) expect(stop.arrival).toBeGreaterThanOrEqual(result.stops[i - 1].departure + input.transfer);
   }
-  const tight: FanEvent[] = [{ ...catalog[0], id: "late", opens: 780 }, { ...catalog[0], id: "early", closes: 720 }];
+  const tight: FanEvent[] = [{ ...spot("hikr-ground"), id: "late", opens: 780 }, { ...spot("hikr-ground"), id: "early", closes: 720 }];
   expect(planTrip(tight, input).stops.map(s => s.event.id)).toEqual(["early", "late"]);
-  expect(planTrip([catalog[0]], { ...input, date: "2026-09-21" }).stops).toHaveLength(0);
-  expect(planTrip([{ ...catalog[0], reservation: true }], input).stops).toHaveLength(0);
-  expect(planTrip([{ ...catalog[0], lastEntry: 650 }], input).stops).toHaveLength(0);
-  expect(planTrip([{ ...catalog[0], from: "2026-09-23", to: "2026-09-24" }], input).stops).toHaveLength(0);
+  expect(planTrip([spot("hikr-ground")], { ...input, date: "2026-09-21" }).stops).toHaveLength(0);
+  expect(planTrip([{ ...spot("hikr-ground"), reservation: true }], input).stops).toHaveLength(0);
+  expect(planTrip([{ ...spot("hikr-ground"), lastEntry: 650 }], input).stops).toHaveLength(0);
+  expect(planTrip([{ ...spot("hikr-ground"), from: "2026-09-23", to: "2026-09-24" }], input).stops).toHaveLength(0);
   expect(planTrip(catalog, { ...input, date: "2026-02-30" }).error).toBeTruthy();
   expect(planTrip(catalog, { ...input, stay: NaN }).error).toBeTruthy();
   expect(planTrip(catalog, { ...input, transfer: -1 }).error).toBeTruthy();

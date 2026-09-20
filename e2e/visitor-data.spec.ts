@@ -4,8 +4,12 @@ import { eventCopy } from '../src/lib/trip/event-copy';
 import { artists } from '../src/lib/trip/artists';
 import { isPersonalEvent } from '../src/lib/trip/storage';
 
+// 카탈로그 순서를 인덱스로 쥐지 않는다. 팬 생일카페 3건이 앞에 붙으면서 catalog[0]이
+// hikr-ground에서 BC-SEUNGMIN-AUTUMN-BREAK로 바뀌어 이 스펙이 통째로 깨진 적이 있다 (PR #48).
+const spot = (id: string) => catalog.find(e => e.id === id)!;
+
 test('reviewed copy switches languages without changing scheduling or personal text', () => {
-  const event = catalog[0];
+  const event = spot('hikr-ground');
   const before = JSON.stringify(event);
   expect(eventCopy(event, 'ko').area).toBe('중구');
   expect(eventCopy(event, 'en').title).toBe(event.title);
@@ -19,9 +23,9 @@ test('reviewed copy switches languages without changing scheduling or personal t
 
 test('visitor facts keep missing conditions distinct from free or unavailable', () => {
   expect(catalog.every(e => e.title_ko && e.do_ko && e.get_ko && e.area_ko)).toBe(true);
-  expect(catalog[0].transit?.walk_minutes).toBe(2);
-  expect(catalog[0].participation?.cash_required).toBeNull();
-  expect(catalog[1].transit).toBeUndefined();
+  expect(spot('hikr-ground').transit?.walk_minutes).toBe(2);
+  expect(spot('hikr-ground').participation?.cash_required).toBeNull();
+  expect(spot('music-korea').transit).toBeUndefined();
   expect(catalog.every(e => e.image_asset_id === undefined)).toBe(true);
   expect(artists.filter(a => a.birthday_mm_dd)).toHaveLength(8);
   expect(artists.filter(a => a.kind === 'group').every(a => !a.birthday_mm_dd)).toBe(true);

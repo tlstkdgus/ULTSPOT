@@ -32,3 +32,39 @@ export async function browseAllSpots(page: Page, locale: FlowLocale = "en") {
   const label = locale === "ko" ? "K팝 장소 전체 둘러보기" : "Browse all K-pop spots";
   await page.getByRole("button", { name: label }).click();
 }
+
+/**
+ * /api/travel 응답을 고정한다. 화면을 검사하는 스펙이 실제 카카오 호출을 일으키면
+ * 뷰포트마다 무료 쿼터를 태우고, 그 요청이 IP별 분당 상한을 밀어 올려 200·400을 기대하는
+ * travel.spec.ts를 429로 깨뜨린다. 서버 라우트 자체는 travel.spec.ts가, UI에서 실제 API까지
+ * 가는 경로는 planner.spec.ts가 검사한다. 여기서는 응답 형태만 지킨다.
+ */
+export const FIXED_TRAVEL_MINUTES = 20;
+export async function fixTravelLookups(page: Page) {
+  await page.route("**/api/travel", async route => {
+    const body = route.request().postDataJSON() as {
+      mode?: "transit" | "walk";
+      legs?: { from: { id: string }; to: { id: string } }[];
+    };
+    const mode = body.mode ?? "transit";
+    const estimates = Object.fromEntries((body.legs ?? []).map(leg => [`${leg.from.id}>${leg.to.id}:${mode}`, {
+      status: "known", mode, minutes: FIXED_TRAVEL_MINUTES, transfers: 0, fareKrw: 1_550,
+      steps: [{ mode: "subway", minutes: FIXED_TRAVEL_MINUTES, name: "2호선" }],
+      provider: "test-fixture", fetchedAt: new Date().toISOString(),
+      manualUrl: `https://map.kakao.com/link/by/traffic/${leg.from.id},${leg.to.id}`,
+    }]));
+    await route.fulfill({ json: { configured: true, estimates, budgetExhausted: false } });
+  });
+}
+
+/** 2박 3일 여정 화면까지 간다. 담은 곳은 Day 1에 고른 순서대로 들어간다. */
+export async function twoNightJourney(page: Page, spots: string[]) {
+  await fixTravelLookups(page);
+  await page.goto("/plan");
+  await browseAllSpots(page);
+  for (const name of spots) await page.getByRole("button", { name: `Add ${name}`, exact: true }).click();
+  await goToStep(page, 2);
+  await page.getByLabel("Travel date").fill("2026-09-22");
+  await page.getByLabel("Last day").fill("2026-09-24");
+  await page.getByRole("button", { name: "Build my itinerary" }).click();
+}

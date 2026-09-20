@@ -73,7 +73,10 @@ test('checking in pays once a day, and deleting the check-in does not reopen the
   const db = await database();
   await as(db, ALICE);
   const first = (await rows(db, 'select * from public.record_checkin($1, $2)', ['hikr-ground', 'manual']))[0];
-  assert.equal(first.checked_in_on.toISOString().slice(0, 10), new Date().toISOString().slice(0, 10));
+  // current_date in the session timezone, not the runner's UTC date: KST is UTC+9, so between
+  // 00:00 and 09:00 KST a `new Date().toISOString()` comparison here reports yesterday and fails.
+  const today = (await rows(db, 'select current_date as d'))[0].d;
+  assert.equal(first.checked_in_on.toISOString().slice(0, 10), today.toISOString().slice(0, 10));
   assert.equal(first.points_awarded, 10);
   assert.equal(first.balance, 10);
   // Same place, same day: the visit is already recorded and nothing more is paid.

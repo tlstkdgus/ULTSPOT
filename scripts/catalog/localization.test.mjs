@@ -44,10 +44,12 @@ test('personal draft rejects all eight locale fields and review metadata', () =>
 });
 test('AI drafts remain unpublished and fall back even if accidentally combined', () => {
   for (const e of catalog) {
+    // 초안이 없는 행사도 있다 (팬 주최 생일카페 3건). 없는 번역을 지어내지 않으므로 이는 정상이고,
+    // 계약은 그대로다 — ja/zh는 영어로 떨어지고 카탈로그 행에는 번역 필드가 실리지 않는다.
     const draft = catalogTranslationDrafts[e.id];
     for (const locale of ['ja','zh']) {
       assert.equal(eventCopy({ ...e, ...draft },locale).title,e.title);
-      assert.equal(draft.translation_review[locale].title.status,'draft');
+      if (draft) assert.equal(draft.translation_review[locale].title.status,'draft');
       assert.equal(e['title_' + locale],undefined);
     }
   }

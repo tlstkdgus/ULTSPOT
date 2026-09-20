@@ -54,13 +54,17 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
   // 운영시간 미확인(K-Star Road)은 담기 전에 자동 일정 제외 사유가 보인다.
   await expect(page.getByText("운영시간 미확인").first()).toBeVisible();
   await expect(page.getByText("자동 일정에는 들어가지 않아요").first()).toBeVisible();
-  await expect(page.getByText("사진 준비 중").first()).toBeVisible();
+  // PR #48로 카탈로그 6곳이 모두 이미지를 갖게 돼 "사진 준비 중" 자리표시자는 더 이상 나오지
+  // 않는다. 자리표시자 대신 실제 사진이 붙었는지를 본다 (자리표시자 자체는 개인 행사에 남아 있다).
+  await expect(page.getByRole("img", { name: "하이커 그라운드 · K팝 체험 공간" })).toBeVisible();
 
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await goToStep(page, 2, "ko");
   await page.getByLabel("여행 날짜").fill("2026-09-22");
   await page.getByRole("button", { name: "일정 만들기" }).click();
-  await expect(page.getByText("1곳 방문", { exact: false })).toBeVisible();
+  // T-036이 요약 타일을 넣으면서 "1곳 방문"이 타일과 요약 줄 두 곳에 나온다. 여기서 보는 것은
+  // 편성 결과가 한 곳이라는 사실이므로 첫 번째면 충분하다.
+  await expect(page.getByText("1곳 방문", { exact: false }).first()).toBeVisible();
 
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "캘린더에 추가 (.ics)" }).click();
@@ -81,20 +85,22 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
 test("날짜를 바꾸면 그날 열지 않는 곳을 알려주되 담아둔 것을 지우지 않는다", async ({ page }) => {
   await page.goto("/plan");
   await browseAllSpots(page, "ko");
-  // 하이커 그라운드는 월요일 휴관이다. 2026-09-21이 월요일.
+  // 하이커 그라운드는 월요일 휴관이다. 2026-09-28이 월요일.
+  // 오늘 날짜를 쓰지 않는다: 여행 날짜 입력의 기본값이 오늘이라 같은 값을 fill하면 change가
+  // 일어나지 않고 changeDate()가 돌지 않는다. 2026-09-21을 쓰던 이 검사는 그날이 오자 깨졌다.
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await goToStep(page, 2, "ko");
-  await page.getByLabel("여행 날짜").fill("2026-09-21");
+  await page.getByLabel("여행 날짜").fill("2026-09-28");
   await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toBeVisible();
   // 담은 것은 그대로 남아 있다 (T-029: 날짜가 장소 뒤로 내려가서 조용히 지우면 안 된다).
   await goToStep(page, 1, "ko");
   await expect(page.getByRole("button", { name: "빼기 하이커 그라운드 · K팝 체험 공간", exact: true })).toBeVisible();
   // 여는 날짜로 바꾸면 안내가 사라진다.
   await goToStep(page, 2, "ko");
-  await page.getByLabel("여행 날짜").fill("2026-09-22");
+  await page.getByLabel("여행 날짜").fill("2026-09-29");
   await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toHaveCount(0);
   // 일정에서는 제외 사유로 설명한다.
-  await page.getByLabel("여행 날짜").fill("2026-09-21");
+  await page.getByLabel("여행 날짜").fill("2026-09-28");
   await page.getByRole("button", { name: "일정 만들기" }).click();
   await expect(page.getByText("이 요일은 휴무예요", { exact: false })).toBeVisible();
 });
