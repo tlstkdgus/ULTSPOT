@@ -548,7 +548,7 @@ export function TripPlanner({ today }: { today: string }) {
           </div>
           <div className="rounded-lg border border-line bg-bg-soft px-4 py-3">
             <p className="font-display text-heading">{t.result.duration(lastStop.departure - result.stops[0].arrival)}</p>
-            <p className="mt-1 text-caption text-text-muted">{clock(result.stops[0].arrival)}–{clock(lastStop.departure)}</p>
+            {/* 시간 범위는 적지 않는다 — 정류장이 하나면 그 카드의 시간과 똑같아져 화면에 같은 글자가 둘이 된다. */}
           </div>
         </div>}
         {/* 문구 순서는 그대로 둔다 — e2e가 "N visits ·"로 이 줄을 찾는다. */}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MapBanner, Wordmark } from "@/components/brand";
-import { ArrowDownIcon, ArrowRightIcon } from "@/components/icons";
+import { ArrowRightIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { buttonStyles } from "@/components/ui";
 import { useI18n } from "@/i18n/locale";
@@ -22,12 +22,9 @@ export function HomeIntro() {
     </header>
 
     <section className="relative shell flex flex-1 flex-col pb-12">
-      {/* 첫 화면은 슬로건과 시작 버튼까지만 보이게 한다. 이 블록이 남은 높이를 채우므로
-          지도 배너는 항상 접힌 자리 아래에서 시작한다. 이전에는 배너가 화면 하단에
-          반쯤 걸려 잘린 채로 보였다. */}
-      {/* flex-1만으로는 늘어나지 않는다 — 페이지 전체가 이미 뷰포트보다 길어 남는 공간이 없다.
-          넓은 화면에서만 높이를 명시해 배너를 접힌 자리 아래로 민다. 모바일은 그대로 둔다. */}
-      <div className="flex flex-1 flex-col justify-center pt-8 md:min-h-[calc(100dvh-4rem)]">
+      {/* 히어로 높이를 강제하지 않는다. 사용자 요청으로 "이렇게 만들어요"가 첫 화면에
+          같이 보인다. 지도 배너는 그 아래라 대표 이미지(1280×720)에는 여전히 안 들어온다. */}
+      <div className="flex flex-col pt-8">
         {/* 슬로건은 브랜드 표기라 어느 언어에서도 영어로 둔다. */}
         {/* 줄바꿈 때문에 접근성 이름이 "FINDYOUR SPOT."으로 붙어 읽히던 것을 aria-label로 고정한다. */}
         <h1 lang="en" aria-label="Find your spot." className="text-hero text-text">
@@ -40,12 +37,6 @@ export function HomeIntro() {
           <Link href="/plan" className={buttonStyles({ size: "lg" })}>
             {t.home.cta} <ArrowRightIcon />
           </Link>
-        </div>
-        {/* 넓은 화면에서 히어로가 첫 화면을 다 차지하면 아래에 더 있다는 걸 알 길이 없다.
-            배너를 살짝 보이게 하는 대안은 대표 이미지에 지도가 다시 들어와서 버렸다.
-            장식이라 스크린리더에는 숨긴다 — 스크롤은 원래 되는 동작이다. */}
-        <div aria-hidden="true" className="mt-auto hidden justify-start pt-10 text-text-faint md:flex">
-          <ArrowDownIcon className="animate-dot-pulse text-subhead" />
         </div>
       </div>
 
