@@ -13,6 +13,10 @@ import { fetchTravelTable, planningLegs } from "@/lib/trip/travel-client";
 import { FavoriteStep } from "@/components/favorite-step";
 import { categoryCounts, filterCategories, matchesCategory, type FilterCategory } from "@/lib/trip/categories";
 import { preferenceProfile } from "@/lib/recommend/preference";
+import { JourneyPlanner } from "@/components/journey-planner";
+import {
+  addVisit, createJourney, journeyStorageKey, loadJourneyLocally, saveJourneyLocally, type Journey,
+} from "@/lib/trip/journey";
 import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
@@ -65,6 +69,10 @@ export function TripPlanner({ today }: { today: string }) {
   const [category, setCategory] = useState<FilterCategory | null>(null);
   /** 관심사 칩. 추천 순서에만 쓰고 운영시간·예약·이동시간 판정에는 쓰지 않는다. */
   const [interests, setInterests] = useState<string[]>([]);
+  /** 마지막날. 시작날과 같으면 당일이고, 다르면 다일 일정 화면으로 간다. */
+  const [endDate, setEndDate] = useState("");
+  /** 다일 일정. null이면 아직 만들지 않았다. */
+  const [journey, setJourney] = useState<Journey | null>(null);
   const [result, setResult] = useState<ReturnType<typeof planTrip> | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -98,6 +106,9 @@ export function TripPlanner({ today }: { today: string }) {
    * planTrip과 unavailableReason은 이 값을 받지 않는다 (구조로 보장).
    */
   const profile = preferenceProfile({ interests, stay });
+  /** 밤 수. 날짜가 올바르지 않으면 0이고 당일로 취급한다. */
+  const nightCount = endDate && endDate > date && !Number.isNaN(Date.parse(endDate)) && !Number.isNaN(Date.parse(date))
+    ? Math.round((Date.parse(endDate) - Date.parse(date)) / 86_400_000) : 0;
   /** 결과를 버리고 진행 중인 조회 응답도 무효로 만든다. 알림은 건드리지 않는다. */
   function discardResult() { lookupId.current += 1; setResult(null); setLookingUp(false); }
   function invalidate() { discardResult(); setNotice(""); }
@@ -136,22 +147,48 @@ export function TripPlanner({ today }: { today: string }) {
     void plan([...catalog, ...saved.personal].filter(e => saved.selected.includes(e.id)), saved.input);
     setStep(3);
   }
+  /**
+   * 기기 저장. 다일 여정이면 journey v2로, 당일이면 기존 v1로 저장한다.
+   *
+   * 불러오기는 v2를 먼저 보고 없으면 v1을 읽는다(`loadJourneyLocally`가 v1→v2 변환을 한다).
+   * 당일 저장본을 여정으로 강제 변환하지 않는다 — 기존 당일 화면이 계속 동작해야 한다.
+   */
   function device(action: "save" | "load" | "delete") {
     try {
       if (action === "save") {
+        if (journey) { saveJourneyLocally(localStorage, journey); setNotice(t.journey.saved); return; }
         if (validation) { setNotice(translateLib(t, validation)); return; }
         localStorage.setItem(storageKey, JSON.stringify(snapshot()));
         setNotice(t.notices.saved);
       } else if (action === "load") {
+        const savedJourney = localStorage.getItem(journeyStorageKey) ? loadJourneyLocally(localStorage) : null;
+        if (savedJourney && savedJourney.days.length > 1) {
+          // 다일 여정 복원. 이동시간은 JourneyPlanner가 다시 조회한다.
+          setJourney(savedJourney);
+          setPersonal(savedJourney.personal);
+          setArtistIds(savedJourney.artistIds);
+          setDate(savedJourney.startDate);
+          setEndDate(savedJourney.endDate);
+          setResult(null);
+          setStep(3);
+          setNotice(t.journey.restored);
+          return;
+        }
         const raw = localStorage.getItem(storageKey);
         if (!raw) { setNotice(t.notices.noDraft); return; }
         const saved = parseSavedTrip(JSON.parse(raw));
         if (!saved) { setNotice(t.notices.unreadable); return; }
+        setJourney(null);
         restore(saved); setNotice(t.notices.restored);
       } else {
-        localStorage.removeItem(storageKey); setNotice(t.notices.deleted);
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(journeyStorageKey);
+        setNotice(t.notices.deleted);
       }
-    } catch { setNotice(t.notices.storageUnavailable); }
+    } catch (error) {
+      // 저장본 형식 오류는 이유를 알려 준다. 그 밖에는 저장소를 쓸 수 없는 경우다.
+      setNotice(error instanceof Error && error.message ? translateLib(t, error.message) : t.notices.storageUnavailable);
+    }
   }
   async function cloud(action: "save" | "load" | "delete") {
     if (action === "save" && validation) { setNotice(translateLib(t, validation)); return; }
@@ -163,11 +200,36 @@ export function TripPlanner({ today }: { today: string }) {
     } catch (e) { setNotice(e instanceof Error ? translateLib(t, e.message) : t.notices.cloudUnavailable); }
     finally { setBusy(false); }
   }
+  /**
+   * 일정 만들기.
+   *
+   * 마지막날을 비웠거나 첫날과 같으면 당일 일정(planTrip)으로 간다. 기존에 검증된 경로다.
+   * 다르면 N박 N일 여정을 만든다. 담은 곳을 첫날에 고른 순서대로 넣고, 그 뒤로는 사용자가
+   * Day 탭에서 날짜·순서·시각을 정한다. **자동으로 날짜를 흩뿌리지 않는다** — 어떤 날에
+   * 무엇을 넣을지는 운영시간만으로 정할 수 없고, 잘못 흩뿌리면 사용자가 되돌리기 더 어렵다.
+   */
   function generate() {
     if (validation || !selected.length) return;
     setNotice("");
     setStep(3);
-    void plan(events.filter(e => selected.includes(e.id)), input);
+    const last = endDate && endDate > date ? endDate : date;
+    if (last === date) {
+      setJourney(null);
+      void plan(events.filter(e => selected.includes(e.id)), input);
+      return;
+    }
+    try {
+      let next = createJourney(date, last);
+      next.personal = personal;
+      next.artistIds = artistIds;
+      selected.forEach((placeId, index) => {
+        next = addVisit(next, { id: `v-${placeId}-${index}`, placeId, stay }, date);
+      });
+      setJourney(next);
+      setResult(null);
+    } catch (error) {
+      setNotice(error instanceof Error ? translateLib(t, error.message) : String(error));
+    }
   }
   function changeDate(value: string) {
     setDate(value);
@@ -296,6 +358,15 @@ export function TripPlanner({ today }: { today: string }) {
         <label className="block text-subhead">{t.day.dateQuestion}<span className="sr-only"> {t.day.dateLabel}</span>
           <input className={`${inputClass} mt-4`} type="date" value={date} onChange={e => changeDate(e.target.value)} />
         </label>
+        {/* 마지막날. 비우거나 첫날과 같으면 당일 일정이다. */}
+        <label className="mt-4 block text-label">{t.journey.to}
+          <input className={inputClass} type="date" value={endDate} min={date}
+            onChange={e => { setEndDate(e.target.value); invalidate(); }} />
+        </label>
+        {endDate && endDate > date && <p className="mt-2 text-caption text-text-muted">
+          {t.journey.length(nightCount, nightCount + 1)}
+        </p>}
+
         <div className="mt-5 grid grid-cols-2 gap-3">
           <label className="min-w-0 text-label">{t.day.start}<input className={inputClass} type="time" value={start} onChange={e => { setStart(e.target.value); invalidate(); }} /></label>
           <label className="min-w-0 text-label">{t.day.end}<input className={inputClass} type="time" value={end} onChange={e => { setEnd(e.target.value); invalidate(); }} /></label>
@@ -462,7 +533,10 @@ export function TripPlanner({ today }: { today: string }) {
       </div>
     </section>}
 
-    {step === 3 && result && <section aria-label={t.steps.labels[3]} className="grid items-start gap-6 lg:grid-cols-3">
+    {step === 3 && journey && <JourneyPlanner journey={journey} locale={dataLocale}
+      onChange={setJourney} notice={setNotice} />}
+
+    {step === 3 && !journey && result && <section aria-label={t.steps.labels[3]} className="grid items-start gap-6 lg:grid-cols-3">
       <aside className="rounded-device border border-line-strong bg-surface p-6 lg:col-span-1">
         <p className="font-display text-title">{dayLabel}<br /><span className="text-text-muted">{t.pass.seoul}</span></p>
         <div className="my-5 border-t border-dashed border-line-strong" />
