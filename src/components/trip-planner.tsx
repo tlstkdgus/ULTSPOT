@@ -20,6 +20,7 @@ import {
 import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
+import { KakaoMap } from "@/components/kakao-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
@@ -580,6 +581,9 @@ export function TripPlanner({ today }: { today: string }) {
           {lookingUp ? t.travel.lookingUp
             : unconfirmedLegs > 0 ? t.travel.someUnconfirmed(unconfirmedLegs) : t.travel.allChecked}
         </p>}
+        {/* 좌표가 있는 정류장만 핀으로. NEXT_PUBLIC_KAKAO_JS_KEY가 없으면 렌더되지 않는다. */}
+        <KakaoMap className="mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong"
+          points={result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; })} />
         <ol className="space-y-4">{result.stops.map((stop, index) => <li key={stop.event.id}>
           <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />
           <article className="rounded-xl border border-line-strong bg-surface p-5 sm:p-6">
