@@ -10,8 +10,8 @@ import type { Page } from "@playwright/test";
 export const stepNavLabel = { ko: "일정 만들기 단계", en: "Trip steps" } as const;
 
 export const stepLabels = {
-  ko: ["최애 고르기", "갈 곳 고르기", "기간 정하기", "일정 받기"],
-  en: ["Your artist", "Your spots", "Your days", "Your setlist"],
+  ko: ["최애 선택", "SPOT 고르기", "기간 정하기", "일정 받기"],
+  en: ["Your ULT", "Your SPOTs", "Your dates", "Your itinerary"],
 } as const;
 
 export type FlowLocale = keyof typeof stepLabels;

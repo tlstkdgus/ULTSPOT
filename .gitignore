@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Unreviewed collection files and generated intake SQL
 /.local-data/
+
+# 커밋 메시지 임시 파일 (PowerShell에 heredoc이 없어 git commit -F로 넘긴다)
+/.git-commit-msg.txt
