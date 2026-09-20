@@ -10,6 +10,29 @@ englishLocale();
  * 고정한다 (이유는 flow.ts의 fixTravelLookups 주석 참조).
  */
 
+test("moving the last travel leg away clears a pending lookup", async ({ page }) => {
+  await twoNightTrip(page);
+  await page.unroute("**/api/travel");
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/travel", async route => {
+    await held;
+    await route.fulfill({ json: { configured: true, estimates: {} } }).catch(() => {});
+  });
+  try {
+    const first = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "HiKR Ground · K-pop floors" }) });
+    const request = page.waitForRequest("**/api/travel");
+    await first.getByLabel("Time here").selectOption("120");
+    await request;
+    await expect(page.getByText("Checking travel times…", { exact: true })).toBeVisible();
+    const second = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Music Korea · Myeongdong 2" }) });
+    await second.getByRole("button", { name: "Move to Day 2" }).click();
+    await expect(page.getByText("Checking travel times…", { exact: true })).toHaveCount(0);
+  } finally {
+    release();
+  }
+});
+
 /** 2박 3일 여정을 만들고 Day 1에 검수 장소 2곳을 담은 상태까지 간다. */
 async function twoNightTrip(page: Page) {
   await fixTravelLookups(page);

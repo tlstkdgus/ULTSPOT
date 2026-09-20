@@ -1,10 +1,19 @@
 import { expect, test, type Page } from "@playwright/test";
 import { journeyStorageKey } from "../src/lib/trip/journey";
 import { twoNightJourney } from "./flow";
+import { stat } from "node:fs/promises";
 import { englishLocale } from "./locale";
 
 englishLocale();
 
+async function saveDevice(page: Page) {
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Save on device", exact: true }).click();
+}
+async function restoreDevice(page: Page) {
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Restore device draft", exact: true }).click();
+}
 const HIKR = "HiKR Ground · K-pop floors";
 const MUSIC = "Music Korea · Myeongdong 2";
 
@@ -31,6 +40,7 @@ test("marking a place as visited needs no account and records the day, not the t
   await expect(page.getByText("1 of 2 places visited")).toBeVisible();
 
   // 저장된 기록에 시각이 없다. 날짜만 남는다.
+  await saveDevice(page);
   const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? "{}"), journeyStorageKey);
   expect(saved.visited).toEqual([{ visitId: expect.any(String), on: "2026-09-22" }]);
 
@@ -43,7 +53,9 @@ test("marking a place as visited needs no account and records the day, not the t
 test("a visit record survives a reload without any sign-in", async ({ page }) => {
   await journey(page);
   await markDone(page, HIKR);
+  await saveDevice(page);
   await page.reload();
+  await restoreDevice(page);
   // 로그인 화면이 끼어들지 않고, 기록이 그대로 돌아온다.
   await expect(page.getByRole("button", { name: /Sign in|Log in/ })).toHaveCount(0);
   await expect(page.getByText("1 of 2 places visited")).toBeVisible();
@@ -68,10 +80,11 @@ test("spending is recorded in whole won and totalled per day and per place", asy
   await expect(panel.getByRole("status")).toContainText("1 entry");
 
   // 장소를 고르지 않은 지출은 "장소 없음"으로 남고 아무 장소에 붙지 않는다.
+  await panel.getByLabel("By place").selectOption("");
   await panel.getByLabel("Amount in won").fill("1350");
   await panel.getByRole("button", { name: "Add spending" }).click();
   await expect(panel.getByRole("status")).toContainText("₩9,850 for the whole trip");
-  await expect(panel.getByText("Not tied to a place").first()).toBeVisible();
+  await expect(panel.locator("li").filter({ hasText: "Not tied to a place" }).first()).toBeVisible();
 
   await expect(panel.getByRole("heading", { name: "By day" })).toBeVisible();
   await expect(panel.getByRole("heading", { name: "By place" })).toBeVisible();
@@ -107,7 +120,7 @@ test("the footprint is empty until you mark a place, and never shows a distance"
   await expect(panel.getByRole("button", { name: "Download card" })).toHaveCount(0);
 
   await markDone(page, HIKR);
-  await expect(panel.getByText("1 place", { exact: true })).toBeVisible();
+  await expect(panel.getByRole("listitem").filter({ hasText: /^1 place$/ })).toBeVisible();
   await expect(panel.getByText("1 visit", { exact: true })).toBeVisible();
   // 거리 문구가 없고, 없는 이유를 화면이 직접 말한다.
   await expect(panel).toContainText("No distance here.");
@@ -120,11 +133,11 @@ test("the footprint counts what you marked, not what you planned", async ({ page
   await markDone(page, HIKR);
   await markDone(page, MUSIC);
   const panel = page.getByRole("region", { name: "Your footprint" });
-  await expect(panel.getByText("2 places", { exact: true })).toBeVisible();
+  await expect(panel.getByRole("listitem").filter({ hasText: /^2 places$/ })).toBeVisible();
   await expect(panel.getByText("2 visits", { exact: true })).toBeVisible();
   await expect(panel.getByText("1 day", { exact: true })).toBeVisible();
   // 다녀온 순서대로 번호가 붙는다.
-  const rows = panel.getByRole("listitem");
+  const rows = panel.locator("ol").getByRole("listitem");
   await expect(rows.first()).toContainText("2026-09-22");
 });
 
@@ -155,8 +168,7 @@ test("the share card is drawn in the browser and downloaded, with no server and 
 
   const path = await file.path();
   expect(path).toBeTruthy();
-  const bytes = await page.evaluate(async () => 1); // 파일 존재 확인은 아래 크기 검사로 한다.
-  expect(bytes).toBe(1);
+  expect((await stat(path!)).size).toBeGreaterThan(100);
   expect(calls).toEqual([]);
 });
 
@@ -169,7 +181,9 @@ test("everything on this screen works with cloud storage switched off", async ({
   // 익명 로그인을 포함해 어떤 인증 요청도 일어나지 않는다.
   const auth: string[] = [];
   page.on("request", request => { if (request.url().includes("/auth/")) auth.push(request.url()); });
+  await saveDevice(page);
   await page.reload();
+  await restoreDevice(page);
   await expect(page.getByText("1 of 2 places visited")).toBeVisible();
   await expect(page.getByRole("region", { name: "Money spent" }).getByRole("status")).toContainText("₩5,000");
   expect(auth).toEqual([]);
