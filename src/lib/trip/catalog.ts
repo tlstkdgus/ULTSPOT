@@ -1,7 +1,9 @@
 import type { FanEvent } from "./planner";
+import { fanCafes } from './fan-cafes';
 
-// Individually reviewed factual records. No copied descriptions, photos, or competitor listings.
+// Each record carries its review status; collector reports are not confirmed schedules.
 export const catalog: FanEvent[] = [
+  ...fanCafes,
   {
     id: "hikr-ground", title: "HiKR Ground · K-pop floors", area: "Jung-gu", kind: "K-pop experience",
     title_ko: "하이커 그라운드 · K팝 체험 공간", area_ko: "중구",

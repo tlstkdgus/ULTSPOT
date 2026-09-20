@@ -35,7 +35,8 @@ export function relatedArtistIds(selected: string[]) {
   }
   return result;
 }
-export function matchesArtists(ids: string[] | undefined, selected: string[]) {
+export function matchesArtists(ids: string[] | undefined, selected: string[], artistSpecific = false) {
+  if (selected.length && artistSpecific && !ids?.length) return false;
   if (!selected.length || !ids?.length) return true;
   const related = relatedArtistIds(selected);
   return ids.some(id => related.has(id));

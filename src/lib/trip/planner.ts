@@ -60,7 +60,7 @@ export type FanEvent = {
   reservation: boolean;
   do: string;
   get: string;
-  provenance: { mode: "reviewed" | "personal"; author: string; checkedOn: string; url: string };
+  provenance: { mode: "reviewed" | "reported" | "personal"; author: string; checkedOn: string; url: string };
 };
 
 export type TripInput = {
