@@ -19,4 +19,4 @@
 | [T-013](T-013/README.md) | 원문 행사 조건·부가 CSV 수용 | 구현·검증 | `feat/T-013-intake-conditions` | [#14](https://github.com/tlstkdgus/ULTSPOT/pull/14) |
 | [T-014](T-014/README.md) | Claude UI 분담·이미지 데이터 계약 | 구현·검증 | `feat/T-014-image-data-contract` | PR 준비 |
 | T-015 | Claude 한국어 기본·온보딩 개편 (별도 worktree 기록) | 별도 PR | `design/T-015-planner-polish` | [#16](https://github.com/tlstkdgus/ULTSPOT/pull/16) |
-| [T-016](T-016/README.md) | 방문 데이터·유사 서비스 검토 | 데이터 구현·UI 연결 대기 | `feat/T-016-visitor-data` | PR 준비 |
+| [T-016](T-016/README.md) | 방문 데이터·유사 서비스 검토 | 데이터 구현·UI 연결 대기 | `feat/T-016-visitor-data` | [#19](https://github.com/tlstkdgus/ULTSPOT/pull/19) |
