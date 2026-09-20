@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn";
 import { locales, type Locale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
-import { GlobeIcon } from "@/components/icons";
+import { ChevronDownIcon, GlobeIcon } from "@/components/icons";
 
 /**
  * 언어 선택. 4개 언어라 칩을 나열하면 390px에서 두 줄로 접히고 터치 영역도 좁아져서 select를 쓴다.
@@ -18,15 +18,18 @@ export function LanguageToggle({ className }: { className?: string }) {
       {/* 한국어를 못 읽는 사람에게 "한국어"라고 적힌 알약은 아무 단서가 아니다.
           기본 화살표 하나에 기대지 않도록 지구본을 붙인다. */}
       <GlobeIcon className="pointer-events-none absolute left-3.5 text-body-sm text-text-muted" />
+      {/* 브라우저 기본 화살표는 테두리에 붙어 그려져 오른쪽 여백을 줄 수 없었다.
+          appearance-none으로 끄고 직접 그려서 양쪽 여백을 맞춘다. */}
       <select
         value={locale}
         onChange={event => setLocale(event.target.value as Locale)}
-        className="min-h-11 rounded-full border border-line-strong bg-surface py-2 pl-9 pr-4 text-label text-text"
+        className="min-h-11 appearance-none rounded-full border border-line-strong bg-surface py-2 pl-9 pr-10 text-label text-text"
       >
         {locales.map(value => (
           <option key={value} value={value} lang={value}>{t.lang[value]}</option>
         ))}
       </select>
+      <ChevronDownIcon className="pointer-events-none absolute right-3.5 text-body-sm text-text-muted" />
     </label>
   );
 }

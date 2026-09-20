@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MapBanner, Wordmark } from "@/components/brand";
-import { ArrowRightIcon } from "@/components/icons";
+import { ArrowDownIcon, ArrowRightIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { buttonStyles } from "@/components/ui";
 import { useI18n } from "@/i18n/locale";
@@ -40,6 +40,12 @@ export function HomeIntro() {
           <Link href="/plan" className={buttonStyles({ size: "lg" })}>
             {t.home.cta} <ArrowRightIcon />
           </Link>
+        </div>
+        {/* 넓은 화면에서 히어로가 첫 화면을 다 차지하면 아래에 더 있다는 걸 알 길이 없다.
+            배너를 살짝 보이게 하는 대안은 대표 이미지에 지도가 다시 들어와서 버렸다.
+            장식이라 스크린리더에는 숨긴다 — 스크롤은 원래 되는 동작이다. */}
+        <div aria-hidden="true" className="mt-auto hidden justify-start pt-10 text-text-faint md:flex">
+          <ArrowDownIcon className="animate-dot-pulse text-subhead" />
         </div>
       </div>
 

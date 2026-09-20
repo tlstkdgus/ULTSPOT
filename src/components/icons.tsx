@@ -20,6 +20,8 @@ export const GlobeIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><circle cx
 export const PlusIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M12 5v14M5 12h14" /></Icon>;
 export const ArrowRightIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Icon>;
 export const ArrowLeftIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></Icon>;
+export const ArrowDownIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M12 5v14M6 13l6 6 6-6" /></Icon>;
+export const ChevronDownIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="m6 9 6 6 6-6" /></Icon>;
 export const ExternalIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M14 5h5v5M19 5l-8 8M18 14v5H5V6h5" /></Icon>;
 export const CalendarIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></Icon>;
 export const PinIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" /><circle cx="12" cy="10" r="2.2" /></Icon>;
