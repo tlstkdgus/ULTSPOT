@@ -268,7 +268,7 @@ export function TripPlanner({ today }: { today: string }) {
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <Button variant="ghost" size="sm" onClick={() => setStep(0)}><ArrowLeftIcon /> {t.spots.back}</Button>
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-caption text-text-muted">{selected.length ? t.spots.picked(selected.length) : t.spots.pickFirst}</span>
+          <span className="text-caption text-text-muted">{selected.length >= 6 ? t.spots.full : selected.length ? t.spots.picked(selected.length) : t.spots.pickFirst}</span>
           <Button disabled={!selected.length || !!validation || busy} onClick={generate}>{t.spots.build} <ArrowRightIcon /></Button>
         </div>
       </div>
