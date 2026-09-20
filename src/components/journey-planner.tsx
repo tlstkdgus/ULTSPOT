@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge, Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, CloseIcon, ExternalIcon, PinIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
+import { JourneyCalendarButton } from "@/components/journey-calendar-button";
 import { useI18n } from "@/i18n/locale";
 import { intlLocale } from "@/i18n/config";
 import { translateLib } from "@/i18n/messages";
@@ -190,6 +191,7 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
   return (
     <section aria-label={t.steps.labels[3]} className="grid items-start gap-6 lg:grid-cols-3">
       <aside className="rounded-device border border-line-strong bg-surface p-5 lg:col-span-1 sm:p-6">
+        <JourneyCalendarButton journey={journey} table={table} mode={travelMode} dataLocale={locale} pending={lookingUp} notice={notice} />
         <fieldset>
           <legend className="text-subhead">{t.journey.rangeLegend}</legend>
           <p className="mt-2 text-caption text-text-muted">{t.journey.length(nights, dates.length)}</p>
