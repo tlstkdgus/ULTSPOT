@@ -35,7 +35,7 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.goto("/plan", { waitUntil: "networkidle" });
     await page.getByLabel("여행 날짜").fill("2026-09-22");
     await page.getByRole("button", { name: "갈 곳 보기" }).click();
-    for (const name of ["HiKR Ground · K-pop floors", "Music Korea · Myeongdong 2", "K-Star Road"])
+    for (const name of ["하이커 그라운드 · K팝 체험 공간", "뮤직코리아 · 명동 2호점", "한류스타거리 K-STAR ROAD"])
       await page.getByRole("button", { name: `담기 ${name}`, exact: true }).click();
     await page.getByRole("button", { name: "일정 만들기" }).click();
     await page.evaluate(() => document.fonts.ready);
@@ -46,7 +46,7 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.goto("/plan", { waitUntil: "networkidle" });
     await page.getByLabel("여행 날짜").fill("2026-09-22");
     await page.getByRole("button", { name: "갈 곳 보기" }).click();
-    await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
+    await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-spots"), fullPage: true, animations: "disabled" });
   });
