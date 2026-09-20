@@ -19,4 +19,4 @@
 | [T-013](T-013/README.md) | 원문 행사 조건·부가 CSV 수용 | 구현·검증 | `feat/T-013-intake-conditions` | [#14](https://github.com/tlstkdgus/ULTSPOT/pull/14) |
 | [T-014](T-014/README.md) | Claude UI 분담·이미지 데이터 계약 | 구현·검증 | `feat/T-014-image-data-contract` | PR 준비 |
 | [T-015](T-015/README.md) | 한국어 기본 전환·`/plan` 온보딩 개편 | 완료·배포됨 | `design/T-015-planner-polish` | [#16](https://github.com/tlstkdgus/ULTSPOT/pull/16) |
-| [T-016](T-016/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 리뷰 중 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
+| [T-016](T-016/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |

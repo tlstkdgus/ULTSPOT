@@ -12,7 +12,9 @@ test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 
 
   // 다른 페이지로 이동해도, 새로고침해도 영어가 유지된다 (쿠키를 서버가 읽는다).
   await page.getByRole("link", { name: "Plan my trip" }).click();
-  await expect(page.getByLabel("Travel date")).toBeVisible();
+  // 배포 직후 첫 요청은 콜드 스타트로 느리다(프로덕션에서 17.8초를 봤다). 이동을 먼저 기다린다.
+  await page.waitForURL("**/plan");
+  await expect(page.getByLabel("Travel date")).toBeVisible({ timeout: 30_000 });
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByLabel("Travel date")).toBeVisible();
