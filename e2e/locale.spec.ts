@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { localeCookie } from "../src/i18n/config";
+import { browseAllSpots, goToStep } from "./flow";
 
 test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 유지된다", async ({ page }) => {
   await page.goto("/");
@@ -16,37 +17,39 @@ test("한국어가 기본이고 언어 선택이 이동·새로고침 뒤에도 
   await page.getByRole("link", { name: "Plan my trip" }).click();
   // 배포 직후 첫 요청은 콜드 스타트로 느리다(프로덕션에서 17.8초를 봤다). 이동을 먼저 기다린다.
   await page.waitForURL("**/plan");
-  await expect(page.getByLabel("Travel date")).toBeVisible({ timeout: 30_000 });
+  // 첫 단계는 최애 고르기다 (T-029). 언어가 유지되는지는 이 단계의 문구로 확인한다.
+  await expect(page.getByRole("button", { name: "Browse all K-pop spots" })).toBeVisible({ timeout: 30_000 });
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByLabel("Travel date")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Browse all K-pop spots" })).toBeVisible();
   expect(await page.context().cookies().then(all => all.find(c => c.name === localeCookie)?.value)).toBe("en");
 });
 
 test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 남는다", async ({ page }) => {
   await page.goto("/plan");
-  await page.getByLabel("여행 날짜").fill("2026-09-22");
-  await page.locator("summary").filter({ hasText: "누구를 보러 가요?" }).click();
+  // 1단계: 최애 고르기. 아티스트 선택이 언어를 바꿔도 유지되어야 한다.
   await page.getByRole("list", { name: "검색 결과" }).getByRole("button", { name: "블랙핑크" }).click();
-  await page.getByRole("button", { name: "갈 곳 보기" }).click();
+  await page.getByRole("button", { name: "이 최애의 장소 보기" }).click();
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await expect(page.getByText("1 / 6곳 담음")).toBeVisible();
+  // 3단계에서 날짜를 넣는다.
+  await goToStep(page, 2, "ko");
+  await page.getByLabel("여행 날짜").fill("2026-09-22");
 
   await page.getByLabel("언어").selectOption("en");
-  // 같은 단계, 같은 선택 상태가 유지되어야 한다.
+  // 같은 단계, 같은 입력이 유지되어야 한다.
+  await expect(page.getByLabel("Travel date")).toHaveValue("2026-09-22");
+  await goToStep(page, 1, "en");
   await expect(page.getByText("1 / 6 added")).toBeVisible();
   await expect(page.getByRole("button", { name: "Remove HiKR Ground · K-pop floors", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Back to day" }).click();
-  await expect(page.getByLabel("Travel date")).toHaveValue("2026-09-22");
-  await page.locator("summary").filter({ hasText: "Who are you going for?" }).click();
+  await goToStep(page, 0, "en");
   await expect(page.getByRole("list", { name: "Search results" }).getByRole("button", { name: "BLACKPINK" }))
     .toHaveAttribute("aria-pressed", "true");
 });
 
 test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로 받을 수 있다", async ({ page }) => {
   await page.goto("/plan");
-  await page.getByLabel("여행 날짜").fill("2026-09-22");
-  await page.getByRole("button", { name: "갈 곳 보기" }).click();
+  await browseAllSpots(page, "ko");
 
   // 운영시간 미확인(K-Star Road)은 담기 전에 자동 일정 제외 사유가 보인다.
   await expect(page.getByText("운영시간 미확인").first()).toBeVisible();
@@ -54,6 +57,8 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
   await expect(page.getByText("사진 준비 중").first()).toBeVisible();
 
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
+  await goToStep(page, 2, "ko");
+  await page.getByLabel("여행 날짜").fill("2026-09-22");
   await page.getByRole("button", { name: "일정 만들기" }).click();
   await expect(page.getByText("1곳 방문", { exact: false })).toBeVisible();
 
@@ -73,14 +78,25 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
   expect(ics).toContain("END:VCALENDAR");
 });
 
-test("날짜를 바꾸면 담아둔 장소가 비워지는 것을 알려준다", async ({ page }) => {
+test("날짜를 바꾸면 그날 열지 않는 곳을 알려주되 담아둔 것을 지우지 않는다", async ({ page }) => {
   await page.goto("/plan");
-  await page.getByLabel("여행 날짜").fill("2026-09-22");
-  await page.getByRole("button", { name: "갈 곳 보기" }).click();
+  await browseAllSpots(page, "ko");
+  // 하이커 그라운드는 월요일 휴관이다. 2026-09-21이 월요일.
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
-  await page.getByRole("button", { name: "하루 다시 정하기" }).click();
-  await page.getByLabel("여행 날짜").fill("2026-09-23");
-  await expect(page.getByRole("status").filter({ hasText: "1곳을 비웠어요" })).toBeVisible();
+  await goToStep(page, 2, "ko");
+  await page.getByLabel("여행 날짜").fill("2026-09-21");
+  await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toBeVisible();
+  // 담은 것은 그대로 남아 있다 (T-029: 날짜가 장소 뒤로 내려가서 조용히 지우면 안 된다).
+  await goToStep(page, 1, "ko");
+  await expect(page.getByRole("button", { name: "빼기 하이커 그라운드 · K팝 체험 공간", exact: true })).toBeVisible();
+  // 여는 날짜로 바꾸면 안내가 사라진다.
+  await goToStep(page, 2, "ko");
+  await page.getByLabel("여행 날짜").fill("2026-09-22");
+  await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toHaveCount(0);
+  // 일정에서는 제외 사유로 설명한다.
+  await page.getByLabel("여행 날짜").fill("2026-09-21");
+  await page.getByRole("button", { name: "일정 만들기" }).click();
+  await expect(page.getByText("이 요일은 휴무예요", { exact: false })).toBeVisible();
 });
 
 // 언어마다 새 컨텍스트를 열어야 해서 테스트를 나눈다. 한 테스트에서 4번 열면 30초 제한에 걸린다.

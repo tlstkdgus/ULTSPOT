@@ -40,6 +40,11 @@ export type FanEvent = {
   coord?: CoordRecord;
   /** 날짜별 운영 예외. 요일 휴무보다 우선한다. */
   dateOverrides?: DateOverride[];
+  /**
+   * 탐색 필터용 분류. 없으면 categories.ts가 알려진 `kind`만 매핑하고 나머지는 other로 둔다.
+   * 검수 없이 생일카페·맛집으로 분류하지 않는다.
+   */
+  category?: "birthdayCafe" | "popup" | "filming" | "landmark" | "food" | "other";
   artistIds?: string[];
   id: string;
   title: string;

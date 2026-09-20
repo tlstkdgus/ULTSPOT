@@ -2,39 +2,45 @@ import { expect, test } from "@playwright/test";
 import { planTrip, type FanEvent } from "../src/lib/trip/planner";
 import { catalog } from "../src/lib/trip/catalog";
 import { parseSavedTrip, storageKey } from "../src/lib/trip/storage";
+import { browseAllSpots, goToStep } from "./flow";
 import { englishLocale } from "./locale";
 
 englishLocale();
 
 test("onboarding keeps choices when moving back and guides focus", async ({ page }) => {
   await page.goto("/plan");
+  // 첫 단계는 최애 고르기다. 갈 곳 단계는 아직 열리지 않았다 (T-029).
   await expect(page.getByRole("region", { name: "Your spots" })).toHaveCount(0);
+  await browseAllSpots(page);
+  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+  await page.getByRole("button", { name: "Add HiKR Ground · K-pop floors", exact: true }).click();
+
+  await goToStep(page, 2);
   await page.getByLabel("Travel date").fill("2026-09-22");
   await page.getByRole("button", { name: "Take it slow" }).click();
-  await page.getByRole("button", { name: "Find my spots" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
-  await expect(page.getByRole("button", { name: "Build my itinerary" })).toBeDisabled();
-  await page.getByRole("button", { name: "Add HiKR Ground · K-pop floors", exact: true }).click();
-  await page.getByRole("button", { name: "Back to day" }).click();
-  await expect(page.getByRole("button", { name: "Take it slow" })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Find my spots" }).click();
-  // 담은 곳은 버튼 문구가 Remove로 바뀐다. 보이는 문구와 접근성 이름이 같은 동작을 가리킨다 (T-015).
+  // 담은 곳과 속도가 단계를 오가도 남는다.
+  await goToStep(page, 1);
   await expect(page.getByRole("button", { name: "Remove HiKR Ground · K-pop floors", exact: true })).toBeVisible();
+  await goToStep(page, 2);
+  await expect(page.getByRole("button", { name: "Take it slow" })).toHaveAttribute("aria-pressed", "true");
+
   await page.getByRole("button", { name: "Build my itinerary" }).click();
   await expect(page.getByText("11:00–12:30", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Edit day", exact: true }).click();
+  // 날짜를 비우면 일정을 만들 수 없다.
   await page.getByLabel("Travel date").fill("");
-  await expect(page.getByRole("button", { name: "Find my spots" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Build my itinerary" })).toBeDisabled();
 });
 
 test("guest can inspect sources, plan, save, restore, adjust and download", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Plan my trip" }).click();
-  await page.getByLabel("Travel date").fill("2026-09-22");
-  await page.getByRole("button", { name: "Find my spots" }).click();
+  await browseAllSpots(page);
   await page.getByText("Source & visit details", { exact: true }).first().click();
   await expect(page.getByRole("link", { name: "Source notice" }).first()).toHaveAttribute("href", catalog[0].provenance.url);
   for (const event of catalog) await page.getByRole("button", { name: `Add ${event.title}`, exact: true }).click();
+  await goToStep(page, 2);
+  await page.getByLabel("Travel date").fill("2026-09-22");
   await page.getByRole("button", { name: "Build my itinerary" }).click();
   await expect(page.getByText("2 visits ·", { exact: false })).toBeVisible();
   await expect(page.getByText("Opening hours are unconfirmed.", { exact: false })).toBeVisible();
@@ -50,7 +56,6 @@ test("guest can inspect sources, plan, save, restore, adjust and download", asyn
   await page.getByRole("button", { name: "Edit day", exact: true }).click();
   await page.getByLabel("End time", { exact: true }).fill("12:00");
   await expect(page.getByText("2 visits ·", { exact: false })).toHaveCount(0);
-  await page.getByRole("button", { name: "Find my spots" }).click();
   await page.getByRole("button", { name: "Build my itinerary" }).click();
   await expect(page.getByText("1 visit ·", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "Edit day", exact: true }).click();
@@ -62,13 +67,16 @@ test("guest can inspect sources, plan, save, restore, adjust and download", asyn
 
 test("personal event can be added and restored without publishing", async ({ page }) => {
   await page.goto("/plan");
+  await browseAllSpots(page);
+  await goToStep(page, 2);
   await page.getByLabel("Travel date").fill("2026-09-22");
-  await page.getByRole("button", { name: "Find my spots" }).click();
+  await goToStep(page, 1);
   await page.getByText("Add an event from its notice", { exact: true }).click();
   const fields = { "Event name": "My birthday café visit", "Neighborhood": "Hongdae", "Venue address": "Test address for automated validation only", "Organizer notice URL": "https://example.com/event", "Opens": "13:00", "Closes": "16:00", "What to do": "Order a drink", "What you get": "Cup sleeve while available" };
   for (const [label, value] of Object.entries(fields)) await page.getByLabel(label, { exact: true }).fill(value);
   await page.getByRole("button", { name: "Add to my places" }).click();
   await page.getByRole("button", { name: "Add My birthday café visit", exact: true }).click();
+  await goToStep(page, 2);
   await page.getByRole("button", { name: "Build my itinerary" }).click();
   await expect(page.getByText("13:00–14:00", { exact: true })).toBeVisible();
   await page.getByText("Saved plans & storage", { exact: true }).click();

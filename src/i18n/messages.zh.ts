@@ -23,11 +23,12 @@ export const zh: Messages = {
     cta: "制定行程",
     honesty: "目前有 3 个已核对来源的首尔 K-pop 地点。生日咖啡厅名单还在准备中，你可以根据公告自己添加。",
   },
-  steps: { nav: "行程制定步骤", labels: ["定下日期", "选择地点", "查看行程"], home: "ULTSPOT 首页" },
-  titles: ["定下在首尔的一天", "选择要去的地方", "你的首尔歌单行程"],
+  steps: { nav: "行程制定步骤", labels: ["选择本命", "选择地点", "定下日期", "查看行程"], home: "ULTSPOT 首页" },
+  titles: ["你要追谁？", "选择要去的地方", "定下在首尔的日期", "你的首尔歌单行程"],
   subtitles: [
-    "选好日期和节奏，我们只显示当天开放的地点。",
-    "最多 6 个地点。我们会按营业时间安排顺序。",
+    "选择本命后我们会标出相关地点。也可以直接浏览全部。",
+    "可以先不定日期浏览。定下日期后我们会重新确认是否开放。",
+    "选好日期和节奏，我们只把那期间开放的地点放进行程。",
     "按顺序列出要去的地方和停留时间。",
   ],
   day: {
@@ -219,6 +220,7 @@ export const zh: Messages = {
     cloudNone: "这个浏览器会话没有云端存档。",
     cloudUnavailable: "云端存储不可用。",
     dateCleared: (n: number) => `更换日期后，清空了此前为旧日期选择的 ${n} 处地点。`,
+    dateRechecked: (n: number) => `已选的 ${n} 处在这个日期不开放。我们没有从列表中删除，会在行程中说明原因。`,
     dismiss: "关闭",
   },
   travel: {
@@ -235,6 +237,33 @@ export const zh: Messages = {
     lookingUp: "正在查询交通时间…",
     someUnconfirmed: (n: number) => `有 ${n} 段无法查询，行程仍为估算。`,
     allChecked: "每一段都使用了查询到的交通时间。",
+  },
+  favorite: {
+    cta: "查看这位本命的地点",
+    skip: "浏览全部 K-pop 地点",
+    picked: (names: string) => `跟着 ${names} 的旅程`,
+    none: "未选择本命 — 显示全部已核实地点。",
+  },
+  categories: {
+    legend: "地点类型",
+    all: "全部",
+    birthdayCafe: "生日咖啡",
+    popup: "快闪店",
+    filming: "取景地",
+    landmark: "地标·门店",
+    food: "美食·咖啡",
+    empty: (kind: string) => `暂时还没有已核实的${kind}地点。`,
+  },
+  interests: {
+    legend: "最想做什么？",
+    hint: "只用于推荐排序。不会因此忽略营业时间、休息日、预约或交通时间。",
+    items: [
+      { id: "goods", label: "周边·专辑" },
+      { id: "photo", label: "拍照打卡" },
+      { id: "meal", label: "正经吃饭" },
+      { id: "cafe", label: "咖啡休息" },
+      { id: "quiet", label: "慢节奏" },
+    ],
   },
   musts: {
     badge: "必去",
