@@ -88,7 +88,6 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
         </ul>
       )}
       {!results.length && <p role="status" className="mt-3 text-body-sm text-text-muted">{t.artists.none}</p>}
-      <p className="mt-3 text-caption text-text-muted">{t.artists.scope}</p>
     </fieldset>
   );
 }

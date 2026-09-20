@@ -28,7 +28,6 @@ export function HomeIntro() {
         <Link href="/plan" className={buttonStyles({ size: "lg" })}>
           {t.home.cta} <ArrowRightIcon />
         </Link>
-        <span className="text-body-sm text-text-muted">{t.home.badge}</span>
       </div>
 
       <h2 className="mt-14 text-label text-text-muted">{t.home.howTitle}</h2>
@@ -43,7 +42,6 @@ export function HomeIntro() {
           </li>
         ))}
       </ol>
-      <p className="mt-8 max-w-[60ch] text-body-sm text-text-muted">{t.home.honesty}</p>
     </section>
   </>;
 }

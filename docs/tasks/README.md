@@ -3,6 +3,7 @@
 | 신규 태스크 | 내용 |
 |---|---|
 | [T-030](T-030/README.md) | 지원하지 않는 브라우저 언어와 감지 실패 시 영어 기본값 |
+| [T-031](T-031/README.md) | 가입 배지·중복 안내·홍보 문구 제거 (4개 언어) |
 
 작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
 

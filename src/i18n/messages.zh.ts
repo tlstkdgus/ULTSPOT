@@ -8,12 +8,11 @@ export const zh: Messages = {
   lang: { group: "语言", ko: "한국어", en: "English", ja: "日本語", zh: "中文" },
   meta: {
     title: "ULTSPOT — 首尔 K-pop 一日行程",
-    description: "选择想去的 K-pop 地点和粉丝活动，我们会按营业时间排出一天的行程。无需注册。",
+    description: "选择想去的 K-pop 地点和粉丝活动，我们会按营业时间排出一天的行程。",
     plan: "制定一日行程",
   },
   home: {
-    badge: "无需注册",
-    lead: "选择想去的 K-pop 地点和粉丝活动。我们会按营业时间、休息日和你的节奏，把它们排进一天里。",
+    lead: "把 K-pop 地点和粉丝活动加入你的首尔行程。",
     howTitle: "使用方式",
     how: [
       { title: "定下日期", body: "日期、开始和结束时间，以及你要去见谁。" },
@@ -21,7 +20,6 @@ export const zh: Messages = {
       { title: "拿到行程", body: "带时间的行程，以及没能排进去的原因。可以加入日历。" },
     ],
     cta: "制定行程",
-    honesty: "目前有 3 个已核对来源的首尔 K-pop 地点。生日咖啡厅名单还在准备中，你可以根据公告自己添加。",
   },
   steps: { nav: "行程制定步骤", labels: ["定下日期", "选择地点", "查看行程"], home: "ULTSPOT 首页" },
   titles: ["定下在首尔的一天", "选择要去的地方", "你的首尔歌单行程"],
@@ -47,7 +45,6 @@ export const zh: Messages = {
     minutes: (n: number) => `${n} 分钟`,
     bufferSummary: (n: number) => `预留 ${n} 分钟 — 仅用于无法查询交通时间的路段。`,
     cta: "查看地点",
-    noSignup: "无需注册。在你选择云端保存之前，不会上传任何内容。",
   },
   pass: {
     title: "粉丝一日通行证",
@@ -56,8 +53,6 @@ export const zh: Messages = {
     pace: "节奏",
     seoul: "首尔",
     perStop: (n: number) => `每处 ${n} 分钟`,
-    headline: "少花时间找，\n多花时间逛。",
-    body: "留出时间顺路去趟唱片店，遇见首尔的新角落。",
     note: "这是计划用的通行证 — 不是门票。",
   },
   artists: {
@@ -74,12 +69,10 @@ export const zh: Messages = {
     group: "团体",
     profile: (name: string) => `${name} 官方简介`,
     none: "这位艺人还不在已核实的名单中。换个名字搜索，或浏览全部 K-pop。",
-    scope: "目前从 3 个团体和 Stray Kids 成员开始。选择艺人并不保证有活动或本人出席。",
     birthday: (date: string) => `生日 ${date}`,
   },
   spots: {
     listTitle: (day: string) => `${day}开放的地点`,
-    thin: "这里的每个地点都核对过来源。目前只有几个，生日咖啡厅名单还在准备中，你可以根据公告自己添加。",
     count: (shown: number) => `${shown} 处`,
     search: "搜索地点",
     searchPlaceholder: "区域或店名",
