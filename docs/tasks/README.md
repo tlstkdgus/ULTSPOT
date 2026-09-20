@@ -24,7 +24,7 @@
 | [T-018](T-018/README.md) | T-016 방문 데이터를 최신 main에 통합 | 구현·검증 (UI 연결 대기) | `feat/T-018-visitor-data-integration` | [#24](https://github.com/tlstkdgus/ULTSPOT/pull/24) |
 | [T-019](T-019/README.md) | 필수 행사·구간 이동시간 경로 검증 | 모듈 구현·연동 대기 | `feat/T-019-route-feasibility` | [#23](https://github.com/tlstkdgus/ULTSPOT/pull/23) |
 | [T-020](T-020/README.md) | critique 재실행 수정 — 대비·터치 영역·1단계 CTA·휴무 정보 | 완료·배포됨 | `design/T-016-critique-fixes` | [#22](https://github.com/tlstkdgus/ULTSPOT/pull/22) |
-| [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 완료·배포됨 | `design/T-021-korean-data-ui` | [#29](https://github.com/tlstkdgus/ULTSPOT/pull/29) |
-| [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 완료·배포됨 | `feat/T-022-multilingual` | [#30](https://github.com/tlstkdgus/ULTSPOT/pull/30) |
-| [T-027](T-027/README.md) | 일본어·중국어 장소 데이터 계약 | 구현·검증, UI 연결 대기 | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
-| [T-025](T-025/README.md) | Codex 일본어·중국어 데이터 요청 인계 | 문서 완료 | `docs/T-025-codex-i18n-request` | PR 준비 |
+| [T-021](T-021/README.md) | 한국어 장소 데이터·교통·생일을 화면에 연결 | 리뷰 중 | `design/T-021-korean-data-ui` | PR 준비 |
+| [T-022](T-022/README.md) | 4개 언어 UI·브라우저 언어 자동 감지 | 리뷰 중 | `feat/T-022-multilingual` | PR 준비 |
+| [T-025](T-025/README.md) | 카카오 지도·경로 실연동, 필수 방문 우선 일정, Jev 취향 추천, 조사 배치 변환 | 구현·실연동 검증 (배포 전) | `feat/T-025-live-routing-and-recommendations` | [#36](https://github.com/tlstkdgus/ULTSPOT/pull/36) |
+| [T-027](T-027/README.md) | �Ϻ���߱��� ��� ������ ��� | ����������, UI ���� ��� | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
