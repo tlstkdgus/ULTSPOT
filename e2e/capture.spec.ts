@@ -26,35 +26,49 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     });
   }
 
+  // 캡처는 제품 기본값인 한국어 화면으로 찍는다. 영어 화면은 plan-en에서 따로 남긴다.
+  const shot = (testInfo: { project: { name: string } }, name: string) =>
+    path.join("docs", "tasks", taskId!, "screenshots", `${name}-${testInfo.project.name}.png`);
+
   test("plan-itinerary", async ({ page }, testInfo) => {
     test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
     await page.goto("/plan", { waitUntil: "networkidle" });
-    await page.getByLabel("Travel date").fill("2026-09-22");
-    await page.getByRole("button", { name: "Find my spots" }).click();
+    await page.getByLabel("여행 날짜").fill("2026-09-22");
+    await page.getByRole("button", { name: "갈 곳 보기" }).click();
     for (const name of ["HiKR Ground · K-pop floors", "Music Korea · Myeongdong 2", "K-Star Road"])
-      await page.getByRole("button", { name: `Select ${name}`, exact: true }).click();
-    await page.getByRole("button", { name: "Build my itinerary" }).click();
+      await page.getByRole("button", { name: `담기 ${name}`, exact: true }).click();
+    await page.getByRole("button", { name: "일정 만들기" }).click();
     await page.evaluate(() => document.fonts.ready);
-    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-itinerary-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });
   test("plan-spots", async ({ page }, testInfo) => {
     test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
     await page.goto("/plan", { waitUntil: "networkidle" });
-    await page.getByLabel("Travel date").fill("2026-09-22");
-    await page.getByRole("button", { name: "Find my spots" }).click();
-    await page.getByRole("button", { name: "Select HiKR Ground · K-pop floors", exact: true }).click();
+    await page.getByLabel("여행 날짜").fill("2026-09-22");
+    await page.getByRole("button", { name: "갈 곳 보기" }).click();
+    await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
     await page.evaluate(() => document.fonts.ready);
-    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-spots-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: shot(testInfo, "plan-spots"), fullPage: true, animations: "disabled" });
   });
   test("plan-artists", async ({ page }, testInfo) => {
     test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
     await page.goto("/plan", { waitUntil: "networkidle" });
+    const results = page.getByRole("list", { name: "검색 결과" });
+    await page.getByLabel("여행 날짜").fill("2026-09-22");
+    await page.locator("summary").filter({ hasText: "누구를 보러 가요?" }).click();
+    await results.getByRole("button", { name: "블랙핑크" }).click();
+    await page.getByLabel("아티스트 검색", { exact: true }).fill("필릭스");
+    await results.getByRole("button", { name: "필릭스" }).click();
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: shot(testInfo, "plan-artists"), fullPage: true, animations: "disabled" });
+  });
+  test("plan-en", async ({ page, context, baseURL }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("plan"), "plan capture not requested");
+    await context.addCookies([{ name: "ultspot-locale", value: "en", url: baseURL! }]);
+    await page.goto("/plan", { waitUntil: "networkidle" });
     await page.getByLabel("Travel date").fill("2026-09-22");
     await page.getByRole("button", { name: "Find my spots" }).click();
-    await page.getByRole("button", { name: "Choose artist BLACKPINK", exact: true }).click();
-    await page.getByLabel("Search artists", { exact: true }).fill("필릭스");
-    await page.getByRole("button", { name: "Choose artist Felix", exact: true }).click();
     await page.evaluate(() => document.fonts.ready);
-    await page.screenshot({ path: path.join("docs", "tasks", taskId!, "screenshots", `plan-artists-${testInfo.project.name}.png`), fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: shot(testInfo, "plan-en"), fullPage: true, animations: "disabled" });
   });
 });

@@ -4,6 +4,9 @@ import { Unbounded } from "next/font/google";
 // unicode-range로 쪼갠 dynamic subset CSS를 써서 화면에 나온 글자 조각만 받게 한다.
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import { color } from "@/design-system/tokens";
+import { LocaleProvider } from "@/i18n/locale";
+import { messages } from "@/i18n/messages";
+import { getLocale } from "@/i18n/server";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -12,13 +15,15 @@ const unbounded = Unbounded({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "ULTSPOT — Find your spot",
-    template: "%s · ULTSPOT",
-  },
-  description: "여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너",
-};
+// 언어 쿠키를 읽으므로 요청마다 렌더된다. 첫 화면부터 고른 언어로 그려서 깜빡임이 없다.
+// 이전 설명의 "AI 덕질 여행 플래너·매칭"은 아직 없는 기능이라 현재 동작만 적는다.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = messages[await getLocale()];
+  return {
+    title: { default: t.meta.title, template: "%s · ULTSPOT" },
+    description: t.meta.description,
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: color.ink900,
@@ -28,10 +33,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   return (
-    <html lang="ko" className={unbounded.variable}>
-      <body>{children}</body>
+    <html lang={locale} className={unbounded.variable}>
+      <body>
+        <LocaleProvider initial={locale}>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }
