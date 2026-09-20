@@ -10,3 +10,4 @@
 - 하지 않은 것: Kiro/Claude 코드 변경, 실제 키 읽기, 서비스 배포, UI 변경. UI 캡처는 해당하지 않는다.
 - 후속: 수정 후 동일 검사 재실행, 무응답 timeout 검사, 실제 행사·식당과 브라우저 흐름 검증.
 - 도구 품질 검사: ESLint 0 오류, Next route typegen 성공, tsc --noEmit 성공. 최초 lint의 module 변수명 오류를 loaded로 수정 후 재검증했다.
+- PR: [#32](https://github.com/tlstkdgus/ULTSPOT/pull/32), 전체 diff 셀프 리뷰 완료.
