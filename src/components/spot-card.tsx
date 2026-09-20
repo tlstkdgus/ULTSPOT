@@ -1,11 +1,12 @@
 "use client";
 
 import { Badge, Button, type BadgeTone } from "@/components/ui";
-import { CameraIcon, CheckIcon, ClockIcon, ExternalIcon, PinIcon, PlusIcon } from "@/components/icons";
+import { CameraIcon, CheckIcon, ClockIcon, ExternalIcon, PinIcon, PlusIcon, TrainIcon } from "@/components/icons";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
 import { clock, unavailableReason, type FanEvent } from "@/lib/trip/planner";
+import { eventCopy } from "@/lib/trip/event-copy";
 
 export type SpotStatus = "open" | "closed" | "unconfirmed" | "reservation";
 
@@ -29,13 +30,22 @@ const mapLinks = (address: string) => [
   { key: "google" as const, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` },
 ];
 
-export function SpotCard({ event, date, selected, disabled, onToggle }: {
+export function SpotCard({ event, date, selected, disabled, onToggle, required = false, onToggleRequired }: {
   event: FanEvent; date: string; selected: boolean; disabled: boolean; onToggle: () => void;
+  /** 필수 방문 지정 여부. 담은 곳에만 쓸 수 있다. */
+  required?: boolean;
+  onToggleRequired?: () => void;
 }) {
   const { locale, t } = useI18n();
+  // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
+  const dataLocale = locale === "ko" ? "ko" : "en";
   const status = spotStatus(event, date);
   const personal = event.provenance.mode === "personal";
   const kind = (locale === "ko" && t.kinds[event.kind]) || event.kind;
+  const copy = eventCopy(event, dataLocale);
+  // 한국어 원문이 있으면 그대로, 없으면 영어 원문이 나온다. 사용자가 쓴 개인 행사는 언어를 알 수 없다.
+  // 영어 원문일 때만 lang을 붙여 스크린리더가 한국어로 읽지 않게 한다.
+  const langOf = (korean?: string) => (personal || (locale === "ko" && korean) ? undefined : "en");
   const closedDays = event.closedDays.length
     ? event.closedDays.map(day => t.spots.weekdays[day]).join(", ")
     : t.spots.openEveryDay;
@@ -53,14 +63,24 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={tone[status]}>{t.status[status]}</Badge>
           {personal && <Badge tone="accent">{t.status.personal}</Badge>}
+          {required && <Badge tone="accent">{t.musts.badge}</Badge>}
           {selected && <span className="inline-flex items-center gap-1 text-caption text-text"><CheckIcon />{t.spots.added}</span>}
         </div>
-        <h3 className="mt-3 text-subhead" lang="en">{event.title}</h3>
+        <h3 className="mt-3 text-subhead" lang={langOf(event.title_ko)}>{copy.title}</h3>
         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm text-text-muted">
           <span className="inline-flex items-center gap-1.5"><ClockIcon />{hours}</span>
           {event.lastEntry !== undefined && <span>{t.spots.lastEntry(clock(event.lastEntry))}</span>}
-          <span className="inline-flex items-center gap-1.5"><PinIcon /><span lang="en">{event.area}</span> · {kind}</span>
+          <span className="inline-flex items-center gap-1.5"><PinIcon /><span lang={langOf(event.area_ko)}>{copy.area}</span> · {kind}</span>
         </p>
+        {event.transit && (
+          <p className="mt-2 flex items-start gap-1.5 text-body-sm text-text-muted">
+            <TrainIcon className="mt-0.5 shrink-0" />
+            {t.spots.transit(
+              locale === "ko" ? event.transit.station_ko : event.transit.station_en,
+              locale === "ko" ? event.transit.line_ko : event.transit.line_en,
+              event.transit.exit, event.transit.walk_minutes)}
+          </p>
+        )}
         {status !== "open" && (
           <p className="mt-2 text-caption text-warning">
             {translateLib(t, unavailableReason(event, date) ?? "")} {t.spots.notScheduled}
@@ -71,9 +91,26 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
           <summary className="min-h-11 cursor-pointer py-2 text-label underline underline-offset-4">{t.spots.details}</summary>
           {/* 장소 설명·주소·출처명은 데이터 원문 그대로 둔다 (임의 번역 금지). */}
           <dl className="mt-2 space-y-2 text-text-muted">
-            <dt className="text-text">{t.spots.doLabel}</dt><dd lang="en">{event.do}</dd>
-            <dt className="text-text">{t.spots.getLabel}</dt><dd lang="en">{event.get}</dd>
+            <dt className="text-text">{t.spots.doLabel}</dt><dd lang={langOf(event.do_ko)}>{copy.do}</dd>
+            <dt className="text-text">{t.spots.getLabel}</dt><dd lang={langOf(event.get_ko)}>{copy.get}</dd>
             <dt className="text-text">{t.spots.closedLabel}</dt><dd>{closedDays}</dd>
+            {event.transit && <>
+              <dt className="text-text">{t.spots.transitLabel}</dt>
+              <dd>{t.spots.transit(
+                locale === "ko" ? event.transit.station_ko : event.transit.station_en,
+                locale === "ko" ? event.transit.line_ko : event.transit.line_en,
+                event.transit.exit, event.transit.walk_minutes)} · {t.spots.source("", event.transit.checked_on)}</dd>
+            </>}
+            {event.participation && <>
+              <dt className="text-text">{t.spots.participationLabel}</dt>
+              <dd>
+                {locale === "ko" ? event.participation.price_ko : event.participation.price_en}
+                {/* 미확인을 "없음"이나 "무료"로 바꾸지 않는다 (이미지·방문 조건 계약). */}
+                <br />{event.participation.cash_required === null ? t.spots.cashUnknown : event.participation.cash_required ? t.spots.cashRequired : ""}
+                {event.participation.first_come_quantity !== null && <> · {t.spots.firstCome(event.participation.first_come_quantity)}</>}
+                {event.participation.lucky_draw && <> · {t.spots.luckyDraw}</>}
+              </dd>
+            </>}
           </dl>
           <p className="mt-3 text-caption text-text-muted">
             {event.from && event.to ? t.spots.period(event.from, event.to) : t.spots.permanent}<br />
@@ -95,11 +132,20 @@ export function SpotCard({ event, date, selected, disabled, onToggle }: {
           </div>
         </details>
 
-        <Button className="mt-auto" variant="ghost" onClick={onToggle} disabled={disabled}>
-          {selected ? <CheckIcon /> : <PlusIcon />}
-          {selected ? t.spots.remove : t.spots.add}
-          <span className="sr-only"> {event.title}</span>
-        </Button>
+        <div className="mt-auto">
+          {/* 담은 곳만 필수 방문으로 지정할 수 있다. 필수는 방문 수보다 먼저 지켜진다. */}
+          {selected && onToggleRequired && <label className="flex min-h-11 cursor-pointer items-center gap-2 text-label">
+            <input type="checkbox" checked={required} onChange={onToggleRequired}
+              className="size-4 accent-[var(--color-text)]" />
+            <span>{t.musts.badge}</span>
+            <span className="sr-only">{required ? t.musts.off(copy.title) : t.musts.on(copy.title)}</span>
+          </label>}
+          <Button className="mt-1" variant="ghost" block onClick={onToggle} disabled={disabled}>
+            {selected ? <CheckIcon /> : <PlusIcon />}
+            {selected ? t.spots.remove : t.spots.add}
+            <span className="sr-only"> {copy.title}</span>
+          </Button>
+        </div>
       </div>
     </article>
   );

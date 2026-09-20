@@ -7,14 +7,21 @@ import { Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, CheckIcon, CloseIcon, ExternalIcon, FastIcon, SlowIcon } from "@/components/icons";
 import { LanguageToggle } from "@/components/language-toggle";
 import { SpotCard } from "@/components/spot-card";
-import { clock, minutes, planTrip, runsOn, validateTrip, type FanEvent } from "@/lib/trip/planner";
+import { clock, eventPoint, minutes, planTrip, runsOn, validateTrip, type FanEvent, type TripInput } from "@/lib/trip/planner";
 import { catalog } from "@/lib/trip/catalog";
+import { fetchTravelTable, planningLegs } from "@/lib/trip/travel-client";
+import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
+import { TravelLeg } from "@/components/travel-leg";
+import { SuggestionPanel } from "@/components/suggestion-panel";
+import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
 import { cloudEnabled, cloudTrip } from "@/lib/trip/cloud";
 import { ArtistPicker } from "@/components/artist-picker";
 import { artists, matchesArtists } from "@/lib/trip/artists";
 import { buildCalendar } from "@/lib/calendar";
+import { eventCopy } from "@/lib/trip/event-copy";
+import { intlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
@@ -30,6 +37,8 @@ function saveFile(text: string, type: string, name: string) {
 
 export function TripPlanner({ today }: { today: string }) {
   const { locale, t } = useI18n();
+  // 장소 데이터에는 한국어와 영어만 있다. 그 외 언어에서는 영어 원문을 보여준다.
+  const dataLocale = locale === "ko" ? "ko" : "en";
   const [step, setStep] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
@@ -46,23 +55,61 @@ export function TripPlanner({ today }: { today: string }) {
   const [personal, setPersonal] = useState<FanEvent[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  // 팬이 그 행사 때문에 여행을 가는 것이므로, 필수 방문은 방문 수보다 먼저 지킨다.
+  const [required, setRequired] = useState<string[]>([]);
+  const [travelMode, setTravelMode] = useState<TravelMode>("transit");
   const [artistIds, setArtistIds] = useState<string[]>([]);
   const [result, setResult] = useState<ReturnType<typeof planTrip> | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
   const [openForm, setOpenForm] = useState(0);
-  const input = { date, start: minutes(start), end: minutes(end), stay, transfer };
+  /**
+   * 조회 요청 번호. 날짜·선택·이동수단을 바꾸면 늘어난다.
+   * 늦게 도착한 이전 응답이 최신 결과를 덮지 않도록 응답마다 번호를 대조한다.
+   */
+  const lookupId = useRef(0);
+  const input: TripInput = { date, start: minutes(start), end: minutes(end), stay, transfer, travelMode,
+    requiredIds: required.filter(id => selected.includes(id)) };
   const validation = validateTrip(input);
   const events = [...catalog, ...personal];
   const candidates = events.filter(e => matchesArtists(e.artistIds, artistIds) && runsOn(e, date) && `${e.title} ${e.area} ${e.kind}`.toLowerCase().includes(query.toLowerCase()));
-  function invalidate() { setResult(null); setNotice(""); }
+  /** 결과를 버리고 진행 중인 조회 응답도 무효로 만든다. 알림은 건드리지 않는다. */
+  function discardResult() { lookupId.current += 1; setResult(null); setLookingUp(false); }
+  function invalidate() { discardResult(); setNotice(""); }
   function snapshot(): SavedTrip { return { version: 1, input, selected, personal, artistIds }; }
+
+  /**
+   * 구간별 이동시간을 조회한 뒤 일정을 계산한다.
+   *
+   * 조회가 실패하거나 키가 없어도 멈추지 않는다. 그 구간은 미확인으로 남고 계획용 여유 시간으로
+   * 계산되며, 화면이 두 상태를 구분해 보여준다. 늦게 온 응답은 번호가 다르면 버린다.
+   */
+  async function plan(chosen: FanEvent[], tripInput: TripInput) {
+    const id = ++lookupId.current;
+    // 조회를 기다리는 동안에도 볼 수 있게, 먼저 여유 시간 기준 일정을 보여준다.
+    setResult(planTrip(chosen, tripInput));
+    if (!chosen.length) return;
+    setLookingUp(true);
+    try {
+      const legs = planningLegs(chosen, tripInput);
+      const { table } = await fetchTravelTable(legs, tripInput.travelMode ?? "transit", tripInput.transfer);
+      if (id !== lookupId.current) return; // 그 사이 입력이 바뀌었다. 예전 답을 쓰지 않는다.
+      setResult(planTrip(chosen, tripInput, table as TravelTable));
+    } finally {
+      if (id === lookupId.current) setLookingUp(false);
+    }
+  }
+
   function restore(saved: SavedTrip) {
     setDate(saved.input.date); setStart(clock(saved.input.start)); setEnd(clock(saved.input.end));
     setStay(saved.input.stay); setTransfer(saved.input.transfer); setPersonal(saved.personal);
     setSelected(saved.selected); setQuery("");
+    setRequired(saved.input.requiredIds ?? []);
+    setTravelMode(saved.input.travelMode ?? "transit");
     setArtistIds(saved.artistIds ?? []);
-    setResult(planTrip([...catalog, ...saved.personal].filter(e => saved.selected.includes(e.id)), saved.input));
+    // 과거 경로를 최신 조회값처럼 보여주지 않는다. 복원할 때 다시 조회한다.
+    void plan([...catalog, ...saved.personal].filter(e => saved.selected.includes(e.id)), saved.input);
     setStep(2);
   }
   function device(action: "save" | "load" | "delete") {
@@ -94,9 +141,9 @@ export function TripPlanner({ today }: { today: string }) {
   }
   function generate() {
     if (validation || !selected.length) return;
-    setResult(planTrip(events.filter(e => selected.includes(e.id)), input));
     setNotice("");
     setStep(2);
+    void plan(events.filter(e => selected.includes(e.id)), input);
   }
   function changeDate(value: string) {
     setDate(value);
@@ -104,14 +151,37 @@ export function TripPlanner({ today }: { today: string }) {
     if (selected.length) setNotice(t.notices.dateCleared(selected.length));
     else setNotice("");
     setSelected([]);
-    setResult(null);
+    setRequired([]);
+    // 위에서 세운 안내를 지우지 않으려고 invalidate()를 쓰지 않는다.
+    discardResult();
+  }
+  function toggleSelected(id: string) {
+    setSelected(ids => ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]);
+    // 목록에서 뺀 곳은 필수 방문에서도 빠진다. 없는 곳을 필수로 두지 않는다.
+    setRequired(ids => ids.filter(x => x !== id));
+    invalidate();
+  }
+  /** 추천 후보를 개인 장소로 담는다. 영업시간이 미확인이라 자동 편성 대상이 아니다. */
+  function addSuggestion(suggestion: RankedSuggestion) {
+    const id = `personal-${suggestion.id}`;
+    discardResult();
+    if (personal.some(p => p.id === id)) { setNotice(t.event.added); return; }
+    setPersonal(items => [...items, {
+      id, title: suggestion.name, area: suggestion.category || t.suggest.kinds[suggestion.kind],
+      kind: "Personal event", address: suggestion.address || suggestion.name,
+      from: date, to: date, opens: null, closes: null, closedDays: [], reservation: false,
+      do: t.suggest.hoursUnknown, get: t.suggest.provider(suggestion.provider),
+      provenance: { mode: "personal", author: suggestion.provider, checkedOn: date, url: suggestion.placeUrl },
+    }]);
+    setNotice(t.event.added);
   }
   function askForEvent() { setStep(1); setOpenForm(value => value + 1); }
   function download() {
     if (!result?.stops.length) return;
     const text = [t.file.header(date), t.file.disclaimer(transfer),
-      ...result.stops.map(s => `${clock(s.arrival)}–${clock(s.departure)} ${s.event.title}\n${s.event.address}\n${t.spots.doLabel}: ${s.event.do}\n${t.spots.getLabel}: ${s.event.get}\n${t.spots.source(s.event.provenance.author, s.event.provenance.checkedOn)} ${s.event.provenance.url}`),
-      ...result.omitted.map(o => t.file.notScheduled(o.event.title, translateLib(t, o.reason)))].join("\n\n");
+      // 파일 안 문구도 화면 언어를 따른다. 주소·출처는 데이터 원문이라 그대로 둔다.
+      ...result.stops.map(s => { const c = eventCopy(s.event, dataLocale); return `${clock(s.arrival)}–${clock(s.departure)} ${c.title}\n${s.event.address}\n${t.spots.doLabel}: ${c.do}\n${t.spots.getLabel}: ${c.get}\n${t.spots.source(s.event.provenance.author, s.event.provenance.checkedOn)} ${s.event.provenance.url}`; }),
+      ...result.omitted.map(o => t.file.notScheduled(eventCopy(o.event, dataLocale).title, translateLib(t, o.reason)))].join("\n\n");
     saveFile(text, "text/plain;charset=utf-8", `ultspot-${date}.txt`);
     setNotice(t.result.downloaded);
   }
@@ -119,19 +189,38 @@ export function TripPlanner({ today }: { today: string }) {
     if (!result?.stops.length) return;
     const ics = buildCalendar(result.stops.map(stop => ({
       uid: `${stop.event.id}-${date}@ultspot.vercel.app`, date, start: stop.arrival, end: stop.departure,
-      title: stop.event.title, location: stop.event.address,
-      description: `${stop.event.do}\n${stop.event.provenance.url}\n${t.file.calendarNote}`,
+      title: eventCopy(stop.event, dataLocale).title, location: stop.event.address,
+      description: `${eventCopy(stop.event, dataLocale).do}\n${stop.event.provenance.url}\n${t.file.calendarNote}`,
     })));
     saveFile(ics, "text/calendar;charset=utf-8", `ultspot-${date}.ics`);
     setNotice(t.result.calendarDone);
   }
   const dayLabel = date && !Number.isNaN(Date.parse(date))
-    ? new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en", { month: "short", day: "numeric", weekday: "short", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`))
+    ? new Intl.DateTimeFormat(intlLocale[locale], { month: "short", day: "numeric", weekday: "short", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`))
     : "—";
   const artistNames = artists.filter(a => artistIds.includes(a.id)).map(a => (locale === "ko" ? a.korean || a.name : a.name)).join(" + ");
   const hasArtistSpots = candidates.some(e => e.artistIds?.length);
+  // 한국어 원문이 있으면 lang을 붙이지 않는다. 개인 행사는 사용자가 쓴 글이라 언어를 단정하지 않는다.
+  const stopLang = (event: FanEvent, korean?: string) =>
+    (event.provenance.mode === "personal" || (locale === "ko" && korean) ? undefined : "en");
   const lastStop = result?.stops.at(-1);
   const freeMinutes = lastStop ? input.end - lastStop.departure : 0;
+  // 첫 구간(travelEstimate === null)은 출발 위치를 넣지 않아 세지 않은 것이므로 미확인에 넣지 않는다.
+  const unconfirmedLegs = result
+    ? hasUnconfirmedTravel(result.stops.slice(1).map(s => s.travelEstimate))
+      ? result.stops.slice(1).filter(s => s.travelEstimate?.status !== "known").length : 0
+    : 0;
+  /**
+   * 주변 추천의 기준 좌표. 필수 방문지가 있으면 그곳, 없으면 일정의 첫 장소.
+   * 좌표가 검수되지 않은 장소는 기준이 될 수 없다 (패널이 그 사실을 알린다).
+   */
+  const anchorPoint = (() => {
+    const ordered = result?.stops.map(s => s.event) ?? [];
+    const requiredFirst = ordered.find(e => required.includes(e.id)) ?? ordered[0];
+    if (!requiredFirst) return null;
+    const point = eventPoint(requiredFirst);
+    return point.coord ? point : null;
+  })();
 
   return <main className="shell pb-16">
     <header className="flex items-center justify-between gap-4 border-b border-line py-4">
@@ -192,6 +281,17 @@ export function TripPlanner({ today }: { today: string }) {
           }} />
         </details>
 
+        <fieldset className="mt-6"><legend className="text-label">{t.travel.modeLabel}</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(["transit", "walk"] as const).map(mode => <button key={mode} type="button" aria-pressed={travelMode === mode}
+              onClick={() => { setTravelMode(mode); invalidate(); }}
+              className={cn("min-h-11 rounded-full border px-4 text-label transition-colors",
+                travelMode === mode ? "border-text bg-surface-2" : "border-line-strong text-text-muted")}>
+              {mode === "transit" ? t.travel.transit : t.travel.walk}
+            </button>)}
+          </div>
+        </fieldset>
+
         <p className="mt-6 text-caption text-text-muted">{t.day.bufferSummary(transfer)}</p>
         <details className="mt-2 text-body-sm text-text-muted"><summary className="min-h-11 cursor-pointer py-2">{t.day.fineTune}</summary>
           <label className="mt-3 block text-label">{t.day.stay}<select className={inputClass} value={stay} onChange={e => { setStay(Number(e.target.value)); invalidate(); }}>{[30, 60, 90, 120].map(n => <option key={n} value={n}>{t.day.minutes(n)}</option>)}</select></label>
@@ -248,7 +348,13 @@ export function TripPlanner({ today }: { today: string }) {
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {candidates.map(event => <SpotCard key={event.id} event={event} date={date} selected={selected.includes(event.id)}
           disabled={!selected.includes(event.id) && selected.length >= 6}
-          onToggle={() => { setSelected(ids => ids.includes(event.id) ? ids.filter(id => id !== event.id) : [...ids, event.id]); invalidate(); }} />)}
+          required={required.includes(event.id)}
+          onToggleRequired={() => setRequired(ids => {
+            const next = ids.includes(event.id) ? ids.filter(id => id !== event.id) : [...ids, event.id];
+            invalidate();
+            return next;
+          })}
+          onToggle={() => toggleSelected(event.id)} />)}
       </div>
       {!candidates.length && <div className="my-6 rounded-xl border border-dashed border-line-strong p-8 text-center">
         <p className="text-subhead">{t.spots.empty}</p>
@@ -261,8 +367,8 @@ export function TripPlanner({ today }: { today: string }) {
 
       {personal.length > 0 && <details className="mt-5 text-body-sm"><summary className="min-h-11 cursor-pointer py-2">{t.spots.manage(personal.length)}</summary>
         <ul className="mt-3 space-y-2">{personal.map(event => <li className="flex flex-wrap items-center justify-between gap-2" key={event.id}>
-          <span>{event.title} · {event.from}</span>
-          <Button size="sm" variant="ghost" onClick={() => { setPersonal(items => items.filter(item => item.id !== event.id)); setSelected(ids => ids.filter(id => id !== event.id)); invalidate(); }}>{t.spots.deleteEvent(event.title)}</Button>
+          <span>{eventCopy(event, dataLocale).title} · {event.from}</span>
+          <Button size="sm" variant="ghost" onClick={() => { setPersonal(items => items.filter(item => item.id !== event.id)); setSelected(ids => ids.filter(id => id !== event.id)); invalidate(); }}>{t.spots.deleteEvent(eventCopy(event, dataLocale).title)}</Button>
         </li>)}</ul>
         <p className="mt-2">{t.spots.saveAgain}</p>
       </details>}
@@ -316,17 +422,22 @@ export function TripPlanner({ today }: { today: string }) {
             <Button variant="ghost" onClick={() => setStep(1)}>{t.result.editSpots}</Button>
           </div>
         </div>}
+        {result.missingRequired.length > 0 && <p role="alert" className="mb-5 rounded-xl border border-warning/60 bg-surface p-5 text-body-sm">
+          {t.musts.missing(result.missingRequired.length)}
+        </p>}
+        {result.stops.length > 0 && <p role="status" className="mb-5 text-caption text-text-muted">
+          {lookingUp ? t.travel.lookingUp
+            : unconfirmedLegs > 0 ? t.travel.someUnconfirmed(unconfirmedLegs) : t.travel.allChecked}
+        </p>}
         <ol className="space-y-4">{result.stops.map((stop, index) => <li key={stop.event.id}>
-          {index > 0 && <p className="mb-4 flex items-center gap-2 pl-1 text-caption text-text-muted">
-            <span aria-hidden="true" className="h-4 w-px bg-line-strong" />{t.result.buffer(stop.travel)}
-          </p>}
+          <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />
           <article className="rounded-xl border border-line-strong bg-surface p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <span className="rounded-full border border-line-strong px-3 py-1 text-caption">{t.result.track(index + 1)}</span>
               <span className="font-mono text-label">{clock(stop.arrival)}–{clock(stop.departure)}</span>
             </div>
-            <h2 className="mt-4 text-heading" lang="en">{stop.event.title}</h2>
-            <p className="mt-3 text-body-sm text-text-muted" lang="en">{stop.event.do}</p>
+            <h2 className="mt-4 text-heading" lang={stopLang(stop.event, stop.event.title_ko)}>{eventCopy(stop.event, dataLocale).title}</h2>
+            <p className="mt-3 text-body-sm text-text-muted" lang={stopLang(stop.event, stop.event.do_ko)}>{eventCopy(stop.event, dataLocale).do}</p>
             <a className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-body-sm underline underline-offset-4"
               href={`https://map.naver.com/p/search/${encodeURIComponent(stop.event.address)}`} target="_blank" rel="noopener noreferrer">
               <span lang="en">{stop.event.address}</span> <ExternalIcon />
@@ -338,9 +449,15 @@ export function TripPlanner({ today }: { today: string }) {
         {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
           <h2 className="text-label">{t.result.omitted}</h2>
           <ul className="mt-3 space-y-3">{result.omitted.map(item => <li key={item.event.id} className="text-body-sm">
-            <b>{item.event.title}</b><p className="text-text-muted">{translateLib(t, item.reason)}</p>
+            <b>{eventCopy(item.event, dataLocale).title}</b>
+            {item.required && <> <span className="text-warning">({t.musts.badge})</span></>}
+            <p className="text-text-muted">{translateLib(t, item.reason)}</p>
           </li>)}</ul>
         </div>}
+
+        <SuggestionPanel anchor={anchorPoint?.coord ?? null}
+          anchorName={anchorPoint ? anchorPoint.name : ""}
+          onAdd={addSuggestion} />
         {lastStop && <div className="mt-5 rounded-xl border border-line-strong bg-bg-soft p-5">
           <h2 className="flex items-center gap-2 text-subhead"><CheckIcon />{t.result.encoreTitle(clock(lastStop.departure))}</h2>
           <p className="mt-2 text-body-sm text-text-muted">

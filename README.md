@@ -116,3 +116,4 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 ### Jev 추천 평가
 
 합성 데이터 30건의 오프라인 검사: `node scripts/jev/evaluate.mjs`. 요청 생성·결과 채점과 실제 평가 전제는 [Jev 평가 계약](docs/specs/jev-evaluation.md)을 참고하세요. 기본 실행은 외부 API를 호출하지 않습니다.
+일본어·중국어 장소 데이터: [번역 계약](docs/specs/localized-place-data.md). 여러 날 여행 확장: [구현 계약 초안](docs/specs/multi-day-product-contract.md).
