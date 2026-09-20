@@ -99,7 +99,7 @@ scripts/
 
 T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이 가능합니다. 현재 공개 범위와 부분 날짜/회차별 예매 데이터 규칙은 [카탈로그 조건](docs/data/catalog-conditions.md)에 정리했습니다. 별도 API 키·migration 추가는 없습니다.
 
-새 수집 CSV의 접수·보완 검토는 `pnpm data:audit <CSV 폴더> <접수-ID> <YYYY-MM-DD>`로 수행합니다. 원본 해시·변환 후보·추가 메모·오류 보고서를 Git 제외 폴더에 보관하며 업로드하지 않습니다. [첫 수집 검토·수집팀 보완 요청](docs/data/first-collection-review.md)을 참고하세요.
+새 수집 CSV의 접수·보완 검토는 `pnpm data:audit <CSV 폴더> <접수-ID> <YYYY-MM-DD>`로 수행합니다. 원본 해시·변환 후보·추가 메모·오류 보고서를 Git 제외 폴더에 보관하며 업로드하지 않습니다. `event_conditions`는 선택 탭이며 원문 조건을 보존합니다. 미지원 CSV(예: changelog)는 audit의 sidecar에 원본 바이트로 보관하고, strict check/prepare는 누락 방지를 위해 해당 CSV가 있는 폴더를 거부합니다. 검수한 candidate JSON을 사용하세요. [두 번째 수집 검토](docs/data/second-collection-review.md)를 참고하세요.
 
 수집 원본은 `.local-data/incoming/`에 넣습니다(Git 제외). `pnpm data:check <CSV 폴더 또는 JSON>`으로 검증하고 `pnpm data:prepare <경로> <batch-id>`로 비공개 적재 SQL을 생성합니다. 테스트는 `pnpm test:data`. [적재 안내](docs/data/intake.md)에 DB 적용·검수 절차가 있습니다. 엑셀·문서는 별도 변환이 필요합니다.
 

@@ -19,6 +19,24 @@ test('valid bundle preserves Korean, unknown facts and source arrays', () => {
   assert.deepEqual(result.bundle, b);
   assert.equal(result.warnings.length, 1);
 });
+
+test('verbatim conditions preserve evidence and reject broken event/source links', () => {
+  const b = fixture();
+  b.artists[0].agency_label = '수집된 표기';
+  b.sources[0].supported_fields.push('agency_label');
+  b.events.push({ event_id: 'ev', title_ko: '검증 행사', title_en: 'Test', event_type: 'concert', place_id: 'p', organizer_name: 'Test', organizer_type: 'official', start_date: '2026-10-01', end_date: '2026-10-01', timezone: 'Asia/Seoul', status: 'scheduled', reservation_status: 'unknown', admission_condition: '미확인', source_ids: ['test-source'] });
+  b.places.push({ place_id: 'p', name_ko: '검증', name_en: 'Test', category: 'arena', city: 'Seoul', district: 'Test', address_ko: '미확인', floor: '미확인', operating_status: '미확인', source_ids: ['test-source'] });
+  b.event_conditions.push({ condition_id: 'c', event_id: 'ev', condition_type: 'price', applies_to: 'VIP', value: '198,000원 / 회차별 2매', source_ids: ['s2'], row_note: '원문 미열람' });
+  b.sources.push({ ...b.sources[0], source_id: 's2', target_type: 'event_condition', target_id: 'c', supported_fields: ['value', 'applies_to'] });
+  assert.deepEqual(validate(b).errors, []);
+  assert.equal(validate(b).bundle.event_conditions[0].value, b.event_conditions[0].value);
+  const digest = prepare(b, 'conditions').digest;
+  b.event_conditions[0].value += ' 변경';
+  assert.notEqual(prepare(b, 'conditions').digest, digest);
+  b.event_conditions[0].event_id = 'missing';
+  b.event_conditions[0].source_ids = ['missing'];
+  assert.equal(validate(b).errors.filter((e) => e.code === 'unresolved_reference').length, 2);
+});
 test('missing tabs, unexpected fields, duplicate IDs and unresolved refs fail', () => {
   const b = fixture(); delete b.hours;
   b.artists.push({ ...b.artists[0], source_ids: ['absent'], private_phone: 'do not print' });
