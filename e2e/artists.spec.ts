@@ -24,7 +24,7 @@ test('artist favorites search, save and restore with an honest general-place fal
   const results = page.getByRole('list', { name: 'Search results' });
   // 최애 고르기가 첫 단계다 (T-029). 펼치는 동작 없이 바로 보인다.
   await results.getByRole('button', { name: /^BLACKPINK / }).click();
-  await page.getByLabel('Search artists', { exact: true }).fill('필릭스');
+  await page.getByRole('textbox', { name: 'Search artists', exact: true }).fill('필릭스');
   await results.getByRole('button', { name: 'Felix' }).click();
   await page.getByRole('button', { name: 'Find their spots' }).click();
   await expect(page.getByText('No verified spots for', { exact: false })).toBeVisible();
@@ -43,7 +43,7 @@ test('artist favorites search, save and restore with an honest general-place fal
   await expect(page.getByRole('button', { name: 'Remove Felix', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Clear selection' }).click();
   await expect(page.getByRole('button', { name: 'Remove Felix', exact: true })).toHaveCount(0);
-  await page.getByLabel('Search artists', { exact: true }).fill('unlisted-name');
+  await page.getByRole('textbox', { name: 'Search artists', exact: true }).fill('unlisted-name');
   await expect(page.getByRole('status').filter({ hasText: 'verified selection' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

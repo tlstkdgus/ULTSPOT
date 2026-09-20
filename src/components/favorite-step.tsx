@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { directoryCopy } from "@/i18n/artist-directory";
 import { Button } from "@/components/ui";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
 import { ArtistPicker } from "@/components/artist-picker";
@@ -21,6 +23,8 @@ export function FavoriteStep({ selected, onChange, onNext }: {
   onNext: () => void;
 }) {
   const { locale, t } = useI18n();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const copy = directoryCopy[locale];
   const picked = artists.filter(a => selected.includes(a.id));
   const name = (id: string) => {
     const artist = artists.find(a => a.id === id);
@@ -36,6 +40,14 @@ export function FavoriteStep({ selected, onChange, onNext }: {
   return (
     <section aria-label={t.steps.labels[0]} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
       <div className="min-w-0 rounded-device border border-line-strong bg-surface p-6 sm:p-8">
+        <Button block size="lg" onClick={() => dialog.current?.showModal()}>{copy.browse} · {artists.length}</Button>
+        <dialog ref={dialog} aria-label={copy.browse} className="fixed inset-0 m-auto max-h-screen w-full max-w-3xl overflow-y-auto rounded-device border border-line-strong bg-surface p-6 text-text backdrop:bg-bg/80 sm:p-8">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface pb-4">
+            <h2 className="text-subhead">{copy.browse}</h2>
+            <Button onClick={() => dialog.current?.close()}>{copy.done} · {selected.length}/5</Button>
+          </div>
+          <ArtistPicker selected={selected} onChange={onChange} />
+        </dialog>
         <ArtistPicker selected={selected} onChange={onChange} />
       </div>
 

@@ -18,3 +18,22 @@ test('browse artists without searching and keep selection across filters', async
  await nav.getByRole('button', { name: 'All', exact: true }).click();
  await expect(list.getByRole('listitem')).toHaveCount(artists.length);
 });
+
+test('artist modal lists entries, preserves picks and closes with Escape', async ({ page }, info) => {
+ await page.goto('/plan');
+ const open = page.getByRole('button', { name: /Browse artists/ });
+ await open.click();
+ const modal = page.getByRole('dialog', { name: 'Browse artists' });
+ await expect(modal).toBeVisible();
+ await expect(modal.getByRole('listitem')).toHaveCount(artists.length);
+ await modal.getByRole('button', { name: /^Seungmin / }).click();
+ await expect(modal.getByRole('button', { name: 'Done · 1/5' })).toBeVisible();
+ if (process.env.CAPTURE_TASK === 'T-041') await page.screenshot({ path: `docs/tasks/T-041/screenshots/modal-${info.project.name}.png` });
+ await page.keyboard.press('Escape');
+ await expect(modal).not.toBeVisible();
+ await expect(open).toBeFocused();
+ await open.click();
+ await expect(modal.getByRole('button', { name: /^Seungmin / })).toHaveAttribute('aria-pressed', 'true');
+ await modal.getByRole('button', { name: 'Done · 1/5' }).click();
+ await expect(modal).not.toBeVisible();
+});
