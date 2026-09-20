@@ -15,6 +15,7 @@ import { cloudEnabled, cloudTrip } from "@/lib/trip/cloud";
 import { ArtistPicker } from "@/components/artist-picker";
 import { artists, matchesArtists } from "@/lib/trip/artists";
 import { buildCalendar } from "@/lib/calendar";
+import { eventCopy } from "@/lib/trip/event-copy";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
@@ -110,8 +111,9 @@ export function TripPlanner({ today }: { today: string }) {
   function download() {
     if (!result?.stops.length) return;
     const text = [t.file.header(date), t.file.disclaimer(transfer),
-      ...result.stops.map(s => `${clock(s.arrival)}–${clock(s.departure)} ${s.event.title}\n${s.event.address}\n${t.spots.doLabel}: ${s.event.do}\n${t.spots.getLabel}: ${s.event.get}\n${t.spots.source(s.event.provenance.author, s.event.provenance.checkedOn)} ${s.event.provenance.url}`),
-      ...result.omitted.map(o => t.file.notScheduled(o.event.title, translateLib(t, o.reason)))].join("\n\n");
+      // 파일 안 문구도 화면 언어를 따른다. 주소·출처는 데이터 원문이라 그대로 둔다.
+      ...result.stops.map(s => { const c = eventCopy(s.event, locale); return `${clock(s.arrival)}–${clock(s.departure)} ${c.title}\n${s.event.address}\n${t.spots.doLabel}: ${c.do}\n${t.spots.getLabel}: ${c.get}\n${t.spots.source(s.event.provenance.author, s.event.provenance.checkedOn)} ${s.event.provenance.url}`; }),
+      ...result.omitted.map(o => t.file.notScheduled(eventCopy(o.event, locale).title, translateLib(t, o.reason)))].join("\n\n");
     saveFile(text, "text/plain;charset=utf-8", `ultspot-${date}.txt`);
     setNotice(t.result.downloaded);
   }
@@ -119,8 +121,8 @@ export function TripPlanner({ today }: { today: string }) {
     if (!result?.stops.length) return;
     const ics = buildCalendar(result.stops.map(stop => ({
       uid: `${stop.event.id}-${date}@ultspot.vercel.app`, date, start: stop.arrival, end: stop.departure,
-      title: stop.event.title, location: stop.event.address,
-      description: `${stop.event.do}\n${stop.event.provenance.url}\n${t.file.calendarNote}`,
+      title: eventCopy(stop.event, locale).title, location: stop.event.address,
+      description: `${eventCopy(stop.event, locale).do}\n${stop.event.provenance.url}\n${t.file.calendarNote}`,
     })));
     saveFile(ics, "text/calendar;charset=utf-8", `ultspot-${date}.ics`);
     setNotice(t.result.calendarDone);
@@ -130,6 +132,9 @@ export function TripPlanner({ today }: { today: string }) {
     : "—";
   const artistNames = artists.filter(a => artistIds.includes(a.id)).map(a => (locale === "ko" ? a.korean || a.name : a.name)).join(" + ");
   const hasArtistSpots = candidates.some(e => e.artistIds?.length);
+  // 한국어 원문이 있으면 lang을 붙이지 않는다. 개인 행사는 사용자가 쓴 글이라 언어를 단정하지 않는다.
+  const stopLang = (event: FanEvent, korean?: string) =>
+    (event.provenance.mode === "personal" || (locale === "ko" && korean) ? undefined : "en");
   const lastStop = result?.stops.at(-1);
   const freeMinutes = lastStop ? input.end - lastStop.departure : 0;
 
@@ -261,8 +266,8 @@ export function TripPlanner({ today }: { today: string }) {
 
       {personal.length > 0 && <details className="mt-5 text-body-sm"><summary className="min-h-11 cursor-pointer py-2">{t.spots.manage(personal.length)}</summary>
         <ul className="mt-3 space-y-2">{personal.map(event => <li className="flex flex-wrap items-center justify-between gap-2" key={event.id}>
-          <span>{event.title} · {event.from}</span>
-          <Button size="sm" variant="ghost" onClick={() => { setPersonal(items => items.filter(item => item.id !== event.id)); setSelected(ids => ids.filter(id => id !== event.id)); invalidate(); }}>{t.spots.deleteEvent(event.title)}</Button>
+          <span>{eventCopy(event, locale).title} · {event.from}</span>
+          <Button size="sm" variant="ghost" onClick={() => { setPersonal(items => items.filter(item => item.id !== event.id)); setSelected(ids => ids.filter(id => id !== event.id)); invalidate(); }}>{t.spots.deleteEvent(eventCopy(event, locale).title)}</Button>
         </li>)}</ul>
         <p className="mt-2">{t.spots.saveAgain}</p>
       </details>}
@@ -325,8 +330,8 @@ export function TripPlanner({ today }: { today: string }) {
               <span className="rounded-full border border-line-strong px-3 py-1 text-caption">{t.result.track(index + 1)}</span>
               <span className="font-mono text-label">{clock(stop.arrival)}–{clock(stop.departure)}</span>
             </div>
-            <h2 className="mt-4 text-heading" lang="en">{stop.event.title}</h2>
-            <p className="mt-3 text-body-sm text-text-muted" lang="en">{stop.event.do}</p>
+            <h2 className="mt-4 text-heading" lang={stopLang(stop.event, stop.event.title_ko)}>{eventCopy(stop.event, locale).title}</h2>
+            <p className="mt-3 text-body-sm text-text-muted" lang={stopLang(stop.event, stop.event.do_ko)}>{eventCopy(stop.event, locale).do}</p>
             <a className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-body-sm underline underline-offset-4"
               href={`https://map.naver.com/p/search/${encodeURIComponent(stop.event.address)}`} target="_blank" rel="noopener noreferrer">
               <span lang="en">{stop.event.address}</span> <ExternalIcon />
@@ -338,7 +343,7 @@ export function TripPlanner({ today }: { today: string }) {
         {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
           <h2 className="text-label">{t.result.omitted}</h2>
           <ul className="mt-3 space-y-3">{result.omitted.map(item => <li key={item.event.id} className="text-body-sm">
-            <b>{item.event.title}</b><p className="text-text-muted">{translateLib(t, item.reason)}</p>
+            <b>{eventCopy(item.event, locale).title}</b><p className="text-text-muted">{translateLib(t, item.reason)}</p>
           </li>)}</ul>
         </div>}
         {lastStop && <div className="mt-5 rounded-xl border border-line-strong bg-bg-soft p-5">

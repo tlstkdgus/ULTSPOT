@@ -27,7 +27,7 @@ test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 �
   await page.locator("summary").filter({ hasText: "누구를 보러 가요?" }).click();
   await page.getByRole("list", { name: "검색 결과" }).getByRole("button", { name: "블랙핑크" }).click();
   await page.getByRole("button", { name: "갈 곳 보기" }).click();
-  await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
+  await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await expect(page.getByText("1 / 6곳 담음")).toBeVisible();
 
   await page.getByRole("button", { name: "English" }).click();
@@ -51,7 +51,7 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
   await expect(page.getByText("자동 일정에는 들어가지 않아요").first()).toBeVisible();
   await expect(page.getByText("사진 준비 중").first()).toBeVisible();
 
-  await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
+  await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await page.getByRole("button", { name: "일정 만들기" }).click();
   await expect(page.getByText("1곳 방문", { exact: false })).toBeVisible();
 
@@ -75,7 +75,7 @@ test("날짜를 바꾸면 담아둔 장소가 비워지는 것을 알려준다",
   await page.goto("/plan");
   await page.getByLabel("여행 날짜").fill("2026-09-22");
   await page.getByRole("button", { name: "갈 곳 보기" }).click();
-  await page.getByRole("button", { name: "담기 HiKR Ground · K-pop floors", exact: true }).click();
+  await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await page.getByRole("button", { name: "하루 다시 정하기" }).click();
   await page.getByLabel("여행 날짜").fill("2026-09-23");
   await expect(page.getByRole("status").filter({ hasText: "1곳을 비웠어요" })).toBeVisible();
