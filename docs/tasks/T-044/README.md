@@ -69,3 +69,24 @@
 | `pnpm check:prod` | **312건 통과 · 3 skip · 0 실패** |
 
 동의 흐름과 포인트는 이미 정상이었고, 이 태스크는 집계 표시만 고친다.
+
+## 머지 후 프로덕션 확인 (2026-09-21)
+
+새 게스트로 Music Korea에 현황을 남기고, 여러 답이 쌓여 있던 hikr-ground를 서버 체크인으로 열었다.
+
+```
+HiKR Ground · K-pop floors
+  Queue: Medium · Gifts left: Plenty · 3 reports in the last 2 days
+  Open because you recorded a visit here.
+잔액: 30 points  (현황 +20, 체크인 +10)
+```
+
+수정 전 같은 장소는 `Long / All gone · 1 report`로 보였다. 다수 답이 대표가 되고 보고 수가 합산된다.
+
+| | mobile | tablet | desktop |
+|---|---|---|---|
+| 프로덕션 현장 현황 (게스트 있음) | `live-summary-mobile.png` | `live-summary-tablet.png` | `live-summary-desktop.png` |
+
+캡처를 직접 열어 확인했다. 390px에서 `+10 points` 알림이 패널 하단 안내문 위에 잠시 겹친다 — 알림은
+몇 초 뒤 사라지는 토스트라 고치지 않았다. 캡처마다 익명 게스트가 하나씩 생겼다(3개).
+
