@@ -5,12 +5,15 @@ import path from 'node:path';
 import vm from 'node:vm';
 import ts from 'typescript';
 const cache = new Map();
+// JSON import(artists.ts → collected-artists.json)는 .ts를 붙이지 않고 데이터로 읽는다.
+// BOM은 벗긴다. collected-artists.json이 BOM으로 들어와 Turbopack 빌드까지 깨뜨린 적이 있다(T-045).
+// `import x from '*.json'`은 CommonJS로 옮기면 `.default`를 읽으므로 번들러처럼 default로 감싼다.
 function load(file) {
   file = path.resolve(file);
   if (cache.has(file)) return cache.get(file).exports;
   const loaded = { exports: {} }; cache.set(file, loaded);
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { module: loaded, exports: loaded.exports, URL, TextEncoder, require: id => load(path.resolve(path.dirname(file), id + '.ts')) });
+  vm.runInNewContext(code, { module: loaded, exports: loaded.exports, URL, TextEncoder, require: id => id.endsWith('.json') ? { default: JSON.parse(fs.readFileSync(path.resolve(path.dirname(file), id), 'utf8').replace(/^﻿/, '')) } : load(path.resolve(path.dirname(file), id + '.ts')) });
   return loaded.exports;
 }
 

@@ -28,7 +28,9 @@ test("한국어 브라우저에서 언어 선택이 이동·새로고침 뒤에�
 test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 남는다", async ({ page }) => {
   await page.goto("/plan");
   // 1단계: 최애 고르기. 아티스트 선택이 언어를 바꿔도 유지되어야 한다.
-  await page.getByRole("list", { name: "검색 결과" }).getByRole("button", { name: "블랙핑크" }).click();
+  // 228명이 들어오면서 "지수 Jisoo · 블랙핑크 멤버" 같은 멤버 버튼 4개도 "블랙핑크"를 품는다.
+  // 그룹 버튼은 이름이 그룹명으로 시작한다 (artist-directory.spec.ts와 같은 방식, T-045).
+  await page.getByRole("list", { name: "검색 결과" }).getByRole("button", { name: /^블랙핑크 / }).click();
   await page.getByRole("button", { name: "이 최애의 장소 보기" }).click();
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await expect(page.getByText("1 / 6곳 담음")).toBeVisible();
@@ -43,7 +45,7 @@ test("언어를 바꿔도 입력한 날짜·고른 장소·단계가 그대로 �
   await expect(page.getByText("1 / 6 added")).toBeVisible();
   await expect(page.getByRole("button", { name: "Remove HiKR Ground · K-pop floors", exact: true })).toBeVisible();
   await goToStep(page, 0, "en");
-  await expect(page.getByRole("list", { name: "Search results" }).getByRole("button", { name: "BLACKPINK" }))
+  await expect(page.getByRole("list", { name: "Search results" }).getByRole("button", { name: /^BLACKPINK / }))
     .toHaveAttribute("aria-pressed", "true");
 });
 

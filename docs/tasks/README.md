@@ -46,7 +46,8 @@
 | [T-038](T-038/README.md) | T-029 체크인·가계부·발자취를 최신 main에 통합 | 완료 — 배포·프로덕션 검증됨 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
 | [T-039](T-039/README.md) | 카탈로그 확장·날짜 경과로 깨져 있던 검증 복구 | 완료 — 배포·프로덕션 검증됨 | `integrate/t029-final` | [#50](https://github.com/tlstkdgus/ULTSPOT/pull/50) |
 | [T-040](T-040/README.md) | 배포 검증 기록과 카카오 지도 키 이름 고정 | 리뷰 중 | `docs/T-040-deploy-record` | PR 준비 |
-| [T-041](T-041/README.md) | 생일카페 3건 좌표와 지오코딩 확인일 KST 교정 | 리뷰 중 | `feat/T-041-fan-cafe-coords` | PR 준비 |
-| [T-042](T-042/README.md) | 현장 현황·포인트 UI와 게스트 동의 모달 | 리뷰 중 — 운영 DB 적용 대기 | `feat/T-042-place-status` | PR 준비 |
-| [T-043](T-043/README.md) | 운영 적용 후 드러난 현장 기록 결함 두 건 | 리뷰 중 — 운영 SQL 적용 대기 | `feat/T-042-place-status` | [#54](https://github.com/tlstkdgus/ULTSPOT/pull/54) |
-| [T-044](T-044/README.md) | 한 장소에 여러 답이 올라오면 화면이 한 건만 보여주던 문제 | 리뷰 중 | `fix/T-043-place-status-fixes` | [#56](https://github.com/tlstkdgus/ULTSPOT/pull/56) |
+| [T-041](T-041/README.md) | 생일카페 3건 좌표와 지오코딩 확인일 KST 교정 | 완료 — 배포됨 | `feat/T-041-fan-cafe-coords` | [#53](https://github.com/tlstkdgus/ULTSPOT/pull/53) |
+| [T-042](T-042/README.md) | 현장 현황·포인트 UI와 게스트 동의 모달 | 완료 — 배포·프로덕션 확인 | `feat/T-042-place-status` | [#54](https://github.com/tlstkdgus/ULTSPOT/pull/54) |
+| [T-043](T-043/README.md) | 운영 적용 후 드러난 현장 기록 결함 두 건 | 완료 — 운영 DB 적용·28건 실측 | `fix/T-043-place-status-fixes` | [#56](https://github.com/tlstkdgus/ULTSPOT/pull/56) |
+| [T-044](T-044/README.md) | 한 장소에 여러 답이 올라오면 화면이 한 건만 보여주던 문제 | 완료 — 배포·프로덕션 확인 | `fix/T-043-place-status-fixes` | [#56](https://github.com/tlstkdgus/ULTSPOT/pull/56) |
+| [T-045](T-045/README.md) | 아티스트 228개 연결·검색 없이 탐색·선택 모달 (구 T-041) | 리뷰 중 | `fix/T-041-explore-all` | [#57](https://github.com/tlstkdgus/ULTSPOT/pull/57) |
