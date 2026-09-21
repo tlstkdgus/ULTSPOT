@@ -26,11 +26,14 @@ for (const loc of ["ko", "en", "ja", "zh"] as const) {
         fams.forEach(f => seen.add(f));
         const real = fams.filter(f => f !== "Unbounded");
         if (real.length > 1) {
-          const txt = (await cdp.send("DOM.getOuterHTML", { nodeId })).outerHTML.replace(/<[^>]*>/g, "").trim().slice(0, 28);
+          const full = (await cdp.send("DOM.getOuterHTML", { nodeId })).outerHTML.replace(/<[^>]*>/g, "").trim();
+          // 한글 판정은 자르기 전 전체 텍스트로 한다. 28자로 자른 뒤 찾으면, 이름이 긴 항목
+          // ("Red Velvet – Irene & Seulgi" 27자)은 한글 줄이 잘려 나가 면제를 못 받았다(T-045).
+          const txt = full.slice(0, 28);
           // 아티스트·장소 이름은 번역하지 않으므로 일본어·중국어 화면에도 한글이 그대로 나온다
           // ("스트레이 키즈 · 团体"). 문자체계가 진짜로 둘이면 글꼴이 갈리는 것이 맞다.
           // 잡아야 하는 것은 같은 문자체계가 두 글꼴로 쪼개지는 경우다.
-          const hasHangul = /[가-힣]/.test(txt);
+          const hasHangul = /[가-힣]/.test(full);
           if (loc === "ko" || loc === "en" || !hasHangul) mixed.push(`${loc}${route} "${txt}" -> ${real.join(" + ")}`);
         }
       }
