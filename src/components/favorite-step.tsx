@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { directoryCopy } from "@/i18n/artist-directory";
 import { Button } from "@/components/ui";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
@@ -24,6 +24,9 @@ export function FavoriteStep({ selected, onChange, onNext }: {
 }) {
   const { locale, t } = useI18n();
   const dialog = useRef<HTMLDialogElement>(null);
+  // 모달 안의 목록은 열려 있을 때만 그린다. 닫혀 있어도 228명을 그리면 본문 목록과 합쳐 버튼
+  // 481개·HTML 562KB가 첫 화면에 실렸다(main은 버튼 15개·21KB). 모바일 첫 로딩이 가장 무겁다.
+  const [dialogOpen, setDialogOpen] = useState(false);
   const copy = directoryCopy[locale];
   const picked = artists.filter(a => selected.includes(a.id));
   const name = (id: string) => {
@@ -40,13 +43,13 @@ export function FavoriteStep({ selected, onChange, onNext }: {
   return (
     <section aria-label={t.steps.labels[0]} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
       <div className="min-w-0 rounded-device border border-line-strong bg-surface p-6 sm:p-8">
-        <Button block size="lg" onClick={() => dialog.current?.showModal()}>{copy.browse} · {artists.length}</Button>
-        <dialog ref={dialog} aria-label={copy.browse} className="fixed inset-0 m-auto max-h-screen w-full max-w-3xl overflow-y-auto rounded-device border border-line-strong bg-surface p-6 text-text backdrop:bg-bg/80 sm:p-8">
+        <Button block size="lg" onClick={() => { setDialogOpen(true); dialog.current?.showModal(); }}>{copy.browse} · {artists.length}</Button>
+        <dialog ref={dialog} onClose={() => setDialogOpen(false)} aria-label={copy.browse} className="fixed inset-0 m-auto max-h-screen w-full max-w-3xl overflow-y-auto rounded-device border border-line-strong bg-surface p-6 text-text backdrop:bg-bg/80 sm:p-8">
           <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface pb-4">
             <h2 className="text-subhead">{copy.browse}</h2>
             <Button onClick={() => dialog.current?.close()}>{copy.done} · {selected.length}/5</Button>
           </div>
-          <ArtistPicker selected={selected} onChange={onChange} />
+          {dialogOpen && <ArtistPicker selected={selected} onChange={onChange} />}
         </dialog>
         <ArtistPicker selected={selected} onChange={onChange} />
       </div>
