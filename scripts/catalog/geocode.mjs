@@ -22,6 +22,13 @@ const inKorea = (lat, lng) => Number.isFinite(lat) && Number.isFinite(lng) &&
   lat >= KOREA.minLat && lat <= KOREA.maxLat && lng >= KOREA.minLng && lng <= KOREA.maxLng;
 const round5 = value => Math.round(value * 1e5) / 1e5;
 
+/**
+ * 확인일은 KST 기준이다. `new Date().toISOString()`은 UTC라 KST 00:00~09:00 사이에 돌리면
+ * 어제 날짜를 데이터에 박는다. 출처의 확인일이 하루 어긋나면 나중에 재확인 주기를 잘못
+ * 계산하게 된다. intake.mjs가 세션 날짜를 검증할 때 쓰는 보정(+9h)과 같은 기준이다.
+ */
+const seoulDate = () => new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+
 async function geocode(address, key) {
   const url = new URL('https://dapi.kakao.com/v2/local/search/address.json');
   url.searchParams.set('query', address);
@@ -32,7 +39,7 @@ async function geocode(address, key) {
 }
 
 const [path, batchArg] = process.argv.slice(2);
-const batchId = batchArg || `geocode-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+const batchId = batchArg || `geocode-${seoulDate().replace(/-/g, '')}`;
 
 try {
   if (!path) throw new Error('usage');
@@ -46,7 +53,7 @@ try {
     if (!Array.isArray(rows) || !rows.length) throw new Error('empty');
     if (rows.length > 200) throw new Error('too many rows');
 
-    const checkedOn = new Date().toISOString().slice(0, 10);
+    const checkedOn = seoulDate();
     const responses = [];
     const review = [];
     for (const row of rows) {
