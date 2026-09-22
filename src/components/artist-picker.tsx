@@ -9,13 +9,27 @@ import { artists, searchArtists } from "@/lib/trip/artists";
 
 const MAX = 5;
 
-export function ArtistPicker({ selected, onChange }: { selected: string[]; onChange: (ids: string[]) => void }) {
+type Filter = 'all' | 'group' | 'member' | 'solo' | 'unit';
+const byFilter = (filter: Filter) => (a: (typeof artists)[number]) =>
+  filter === 'all' || (filter === 'group' ? a.kind === 'group' : filter === 'unit' ? a.kind === 'unit' : filter === 'member' ? a.kind === 'person' && !!a.parentId : a.kind === 'person' && !a.parentId);
+
+/**
+ * 첫 화면은 그룹만 그린다 (defaultFilter). 228명을 처음부터 다 그리면 본문 하나로 DOM 5천 개·
+ * HTML 562KB가 되어 모바일 첫 로딩이 main의 14배가 됐고, 서버가 막 뜬 직후의 E2E가 60초를 넘겼다.
+ * 전체 목록은 "전체" 필터나 둘러보기 모달로 한 번에 간다 — 닿는 길을 줄인 게 아니라 첫 그림을 줄였다.
+ *
+ * 검색어가 있으면 필터를 무시하고 전체에서 찾는다. "필릭스"를 치고 그룹 필터라서 안 나오면
+ * 검색이 고장 난 것처럼 보인다. 검색 중에는 필터 칩도 숨겨 상태가 어긋나 보이지 않게 한다.
+ */
+export function ArtistPicker({ selected, onChange, defaultFilter = 'group' }: {
+  selected: string[]; onChange: (ids: string[]) => void; defaultFilter?: Filter;
+}) {
   const { locale, t } = useI18n();
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<Filter>(defaultFilter);
   const copy = directoryCopy[locale];
-  const pool = query.trim() ? searchArtists(query) : artists;
-  const results = pool.filter(a => filter === 'all' || (filter === 'group' ? a.kind === 'group' : filter === 'unit' ? a.kind === 'unit' : filter === 'member' ? a.kind === 'person' && !!a.parentId : a.kind === 'person' && !a.parentId));
+  const searching = query.trim().length > 0;
+  const results = searching ? searchArtists(query) : artists.filter(byFilter(filter));
   // 이름은 번역하지 않는다. 데이터에 있는 공식 표기(name/korean)만 언어에 따라 앞뒤로 놓는다.
   const label = (id: string) => {
     const artist = artists.find(a => a.id === id);
@@ -60,9 +74,9 @@ export function ArtistPicker({ selected, onChange }: { selected: string[]; onCha
           placeholder={t.artists.placeholder} value={query} onChange={event => setQuery(event.target.value)} />
       </label>
 
-      <nav aria-label={copy.title} className="mt-4 flex flex-wrap gap-2">
+      {!searching && <nav aria-label={copy.title} className="mt-4 flex flex-wrap gap-2">
         {(['all', 'group', 'member', 'solo', 'unit'] as const).map(key => <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={cn("min-h-11 rounded-full border px-4 text-label", filter === key ? "border-text bg-surface-2 text-text" : "border-line-strong text-text-muted")}>{copy[key]}</button>)}
-      </nav>
+      </nav>}
       <p className="mt-3 text-caption text-text-muted" role="status">{copy.title} · {results.length}</p>
       {results.length > 0 && (
         <ul aria-label={t.artists.results} className="mt-3 grid max-h-screen gap-2 overflow-y-auto">

@@ -49,7 +49,8 @@ export function FavoriteStep({ selected, onChange, onNext }: {
             <h2 className="text-subhead">{copy.browse}</h2>
             <Button onClick={() => dialog.current?.close()}>{copy.done} · {selected.length}/5</Button>
           </div>
-          {dialogOpen && <ArtistPicker selected={selected} onChange={onChange} />}
+          {/* 둘러보기 모달은 전체 목록이 목적이므로 여기서만 전체로 연다. */}
+          {dialogOpen && <ArtistPicker selected={selected} onChange={onChange} defaultFilter="all" />}
         </dialog>
         <ArtistPicker selected={selected} onChange={onChange} />
       </div>
