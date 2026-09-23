@@ -2,10 +2,12 @@ import { expect, test } from "@playwright/test";
 import { planTrip, type FanEvent } from "../src/lib/trip/planner";
 import { catalog } from "../src/lib/trip/catalog";
 import { parseSavedTrip, storageKey } from "../src/lib/trip/storage";
-import { browseAllSpots, goToStep } from "./flow";
+import { browseAllSpots, fixSuggestions, goToStep } from "./flow";
 import { englishLocale } from "./locale";
 
 englishLocale();
+// 일정 화면이 빈 시간 추천을 자동으로 부른다(T-049). 실제 카카오·Jev를 태우지 않게 고정한다.
+test.beforeEach(({ page }) => fixSuggestions(page));
 
 // 카탈로그 순서·건수를 인덱스로 쥐지 않는다. PR #48이 운영시간 미확인 생일카페 3건을 앞에
 // 붙이면서 catalog[0]이 opens=null 행사로 바뀌어, 그것을 토대로 만든 편성 사례가 전부 깨졌다.

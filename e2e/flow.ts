@@ -68,3 +68,30 @@ export async function twoNightJourney(page: Page, spots: string[]) {
   await page.getByLabel("Last day").fill("2026-09-24");
   await page.getByRole("button", { name: "Build my itinerary" }).click();
 }
+
+/**
+ * /api/recommend 응답을 고정한다 (T-049).
+ *
+ * 일정 화면이 빈 시간마다 주변 추천을 자동으로 부르게 되면서, 결과 화면까지 가는 스펙이 전부
+ * 카카오 장소 검색·Jev를 부르게 됐다. 그대로 두면 뷰포트마다 무료 쿼터를 태우고, IP당 분당 30회
+ * 상한에 걸려 recommend.spec.ts의 200 기대가 429로 깨진다. 서버 라우트는 recommend.spec.ts가
+ * 직접 검사하므로 화면 스펙에서는 응답 형태만 지킨다. 기본은 "찾은 곳 없음"이다.
+ */
+export type FixtureSuggestion = { id: string; kind: "meal" | "cafe" | "sightseeing"; name: string; lat: number; lng: number; category?: string };
+export async function fixSuggestions(page: Page, suggestions: FixtureSuggestion[] = [], ranked = false) {
+  await page.route("**/api/recommend", async route => {
+    const body = route.request().postDataJSON() as { kinds?: string[]; excluded?: string[] };
+    const kinds = body.kinds ?? [];
+    const excluded = body.excluded ?? [];
+    await route.fulfill({ json: {
+      configured: { places: true, ranking: ranked }, anchorKnown: true, autoScheduled: false,
+      ranking: ranked ? { applied: true, fallbackReason: null, model: "jev-test", latencyMs: 1 } : null,
+      suggestions: suggestions.filter(s => kinds.includes(s.kind) && !excluded.includes(s.id)).map(s => ({
+        id: s.id, kind: s.kind, name: s.name, category: s.category ?? "", address: `${s.name} 주소`,
+        coord: { lat: s.lat, lng: s.lng }, straightMeters: 300, evidence: "nearby", hoursKnown: false,
+        provider: "test-fixture", placeUrl: `https://place.map.kakao.com/${s.id}`, mapUrl: "https://map.kakao.com/",
+        score: null, confidence: null,
+      })),
+    } });
+  });
+}
