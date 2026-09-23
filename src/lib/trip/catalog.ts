@@ -44,4 +44,45 @@ export const catalog: FanEvent[] = [
     get: "A public walking stop with K-pop themed sculptures. No artist meeting or private-building access is included.",
     provenance: { mode: "reviewed", author: "Korea Tourism Organization · destination listing", checkedOn: "2026-09-19", url: "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=72790" },
   },
+  // ── T-046 (2026-09-22) — 공식 K팝 매장 3곳. 출처 2개가 일치한 항목만 시간을 확정했다. ──
+  {
+    id: "ktown4u-coex", title: "Ktown4u COEX", area: "Gangnam-gu", kind: "Album shop",
+    title_ko: "케이타운포유 코엑스", area_ko: "강남구",
+    do_ko: "2층 매장에서 음반과 공식 굿즈를 고르고 네컷 포토부스를 이용하세요. 3층 아카데미 수업과 4층 팝업은 별도 안내를 확인하세요.",
+    get_ko: "구매한 음반·굿즈. 2층 매장은 11–20시, 3층 아카데미는 12–22시로 층마다 시간이 달라요. 입장은 무료이고 아카데미는 유료예요.",
+    coord: { lat: 37.51182, lng: 127.05916, source: "https://developers.kakao.com/docs/latest/ko/kakaomap/rest-api", checked_on: "2026-09-22" },
+    address: "2F–4F, 513 Yeongdong-daero, Gangnam-gu, Seoul", from: null, to: null,
+    // 관광공사·공식 매장 안내 모두 2층 11:00–20:00. 연중무휴는 관광공사 페이지 "Open all year round".
+    opens: 660, closes: 1200, closedDays: [], reservation: false,
+    do: "Pick albums and official merch on 2F and use the photo booth. 3F academy classes and 4F pop-ups follow separate notices.",
+    get: "Albums and merch you buy. Floors keep different hours — 2F store 11:00–20:00, 3F academy 12:00–22:00. Entry is free; the academy is paid.",
+    provenance: { mode: "reviewed", author: "Korea Tourism Organization · Ktown4u official store page", checkedOn: "2026-09-22", url: "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=197348" },
+  },
+  {
+    id: "kpop-square-hongdae", title: "K-POP SQUARE Hongdae", area: "Mapo-gu", kind: "Album shop",
+    title_ko: "케이팝 스퀘어 홍대", area_ko: "마포구",
+    do_ko: "라인프렌즈 홍대 플래그십이 2025년 6월 K팝 전문 매장으로 다시 연 곳이에요. 아티스트 캐릭터 굿즈와 포토존을 둘러보세요.",
+    get_ko: "구매한 굿즈. 팝업 전시는 기간이 정해져 있으니 매장 공지를 확인하세요. 특전이나 아티스트 방문은 보장되지 않아요.",
+    coord: { lat: 37.55575, lng: 126.92167, source: "https://developers.kakao.com/docs/latest/ko/kakaomap/rest-api", checked_on: "2026-09-22" },
+    address: "141 Yanghwa-ro, Mapo-gu, Seoul", from: null, to: null,
+    // 관광공사 11:00~22:00 · 서울관광재단 11:00~22:00, 휴무 "Every day"(연중무휴), 2026-09-03 수정.
+    opens: 660, closes: 1320, closedDays: [], reservation: false,
+    do: "The former LINE FRIENDS Hongdae flagship, reopened in June 2025 as a K-pop specialty store. Browse artist character goods and photo zones.",
+    get: "Merch you buy. Pop-up exhibitions run for set periods — check the store notice. No gift or artist visit is guaranteed.",
+    provenance: { mode: "reviewed", author: "Korea Tourism Organization · Seoul Tourism Organization", checkedOn: "2026-09-22", url: "https://english.visitkorea.or.kr/svc/whereToGo/locIntrdn/rgnContentsView.do?vcontsId=199935" },
+  },
+  {
+    id: "kwangya-seoul", title: "KWANGYA@SEOUL", area: "Seongdong-gu", kind: "K-pop experience",
+    title_ko: "광야@서울", area_ko: "성동구",
+    do_ko: "SM 본사 건물 지하 1층의 공식 플래그십 스토어예요. 음반·공식 굿즈와 아티스트 전시, 포토 프레임을 둘러보세요.",
+    get_ko: "구매한 음반·굿즈. 운영시간은 2022년 개관 공지(10:30–20:00) 이후 현행 공식 안내를 확인하지 못해 미확인으로 두었어요. 방문 전 공식 계정을 확인하세요.",
+    coord: { lat: 37.54415, lng: 127.04336, source: "https://developers.kakao.com/docs/latest/ko/kakaomap/rest-api", checked_on: "2026-09-22" },
+    address: "B1 D Tower Seoul Forest, 83-21 Wangsimni-ro, Seongdong-gu, Seoul", from: null, to: null,
+    // 시간은 2022-11 개관 공지(X, SMTOWN &STORE)와 비공식 집계에만 있고 현행 공식 안내가 없다.
+    // 확인 안 된 시간을 확정하지 않는다 — 자동 편성에서 빠지고 화면이 그 사실을 알린다.
+    opens: null, closes: null, closedDays: [], reservation: false,
+    do: "SM Entertainment's official flagship store on B1 of its headquarters. Browse albums, official merch, artist exhibits and photo frames.",
+    get: "Albums and merch you buy. Hours are unconfirmed: the only official figure is the 2022 opening notice (10:30–20:00). Check the official account before you go.",
+    provenance: { mode: "reviewed", author: "Korea Tourism Organization · SM Entertainment newsroom", checkedOn: "2026-09-22", url: "https://place.tripmate.co.kr/ko/detail.php?contentId=2988778&contentTypeId=38" },
+  },
 ];

@@ -51,3 +51,4 @@
 | [T-043](T-043/README.md) | 운영 적용 후 드러난 현장 기록 결함 두 건 | 완료 — 운영 DB 적용·28건 실측 | `fix/T-043-place-status-fixes` | [#56](https://github.com/tlstkdgus/ULTSPOT/pull/56) |
 | [T-044](T-044/README.md) | 한 장소에 여러 답이 올라오면 화면이 한 건만 보여주던 문제 | 완료 — 배포·프로덕션 확인 | `fix/T-043-place-status-fixes` | [#56](https://github.com/tlstkdgus/ULTSPOT/pull/56) |
 | [T-045](T-045/README.md) | 아티스트 228개 연결·검색 없이 탐색·선택 모달 (구 T-041) | 리뷰 중 | `fix/T-041-explore-all` | [#57](https://github.com/tlstkdgus/ULTSPOT/pull/57) |
+| [T-046](T-046/README.md) | 공식 K팝 매장 3곳을 검증해 카탈로그에 넣는다 | 리뷰 중 | `feat/T-046-kpop-stores` | PR 준비 |

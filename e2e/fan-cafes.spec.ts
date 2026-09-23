@@ -36,7 +36,9 @@ test('birthday cafe discovery shows collected events and organizer links', async
     // 세 뷰포트를 병렬로 돌리면 생일카페 포스터 3장이 5초를 넘긴다. 2026-09-21에 두 번 깨졌다.
     // 기다리는 시간만 늘리고 검사는 그대로 둔다 — 이미지가 실제로 디코딩됐는지를 계속 본다.
     await expect.poll(() => poster.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0),
-      { timeout: 20_000 }).toBe(true);
+      // 원본 포스터가 1.4~2.5MB PNG라 서버가 막 뜬 직후 next/image의 첫 최적화가 20초를 넘길 때가
+      // 있다(2026-09-21~23 세 번). 단독·5회 반복은 전부 통과하므로 검사 대상은 그대로 두고 대기만 늘린다.
+      { timeout: 45_000 }).toBe(true);
   }
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => window.scrollTo(0, 0));

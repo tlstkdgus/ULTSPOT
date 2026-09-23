@@ -42,7 +42,11 @@ test("guest can inspect sources, plan, save, restore, adjust and download", asyn
   await browseAllSpots(page);
   await page.getByText("Source & visit details", { exact: true }).first().click();
   await expect(page.getByRole("link", { name: "Source notice" }).first()).toHaveAttribute("href", catalog[0].provenance.url);
-  for (const event of catalog) await page.getByRole("button", { name: `Add ${event.title}`, exact: true }).click();
+  // 카탈로그 전체를 담지 않는다. 일정 선택은 최대 6곳인데 T-046으로 9곳이 됐다 — 7번째 담기
+  // 버튼은 비활성이라 클릭이 60초를 기다린다. 이 검사의 뜻은 "시간이 있는 두 곳은 편성되고
+  // 미확인인 한 곳은 사유와 함께 빠진다"이므로 원래의 검수 장소 3곳으로 고정한다.
+  for (const id of ["hikr-ground", "music-korea", "k-star-road"])
+    await page.getByRole("button", { name: `Add ${spot(id).title}`, exact: true }).click();
   await goToStep(page, 2);
   await page.getByLabel("Travel date").fill("2026-09-22");
   await page.getByRole("button", { name: "Build my itinerary" }).click();
@@ -98,7 +102,10 @@ test("personal event can be added and restored without publishing", async ({ pag
 
 test("engine enforces dates, hours, closures, reservations and non-greedy ordering", () => {
   const input = { date: "2026-09-22", start: 660, end: 1080, stay: 60, transfer: 45 };
-  const result = planTrip(catalog, input);
+  // planTrip은 6곳을 넘으면 오류를 돌려준다(planner.ts). 카탈로그가 9곳이 되자 stops가 0이 됐다.
+  // 엔진 규칙 검사는 검수 장소 3곳이면 충분하다.
+  const three = ["hikr-ground", "music-korea", "k-star-road"].map(spot);
+  const result = planTrip(three, input);
   expect(result.stops).toHaveLength(2);
   // 순서가 아니라 사유로 확인한다. 제외 목록의 선두는 카탈로그 순서를 따라가므로 데이터가
   // 늘면 바뀐다.
@@ -115,10 +122,10 @@ test("engine enforces dates, hours, closures, reservations and non-greedy orderi
   expect(planTrip([{ ...spot("hikr-ground"), reservation: true }], input).stops).toHaveLength(0);
   expect(planTrip([{ ...spot("hikr-ground"), lastEntry: 650 }], input).stops).toHaveLength(0);
   expect(planTrip([{ ...spot("hikr-ground"), from: "2026-09-23", to: "2026-09-24" }], input).stops).toHaveLength(0);
-  expect(planTrip(catalog, { ...input, date: "2026-02-30" }).error).toBeTruthy();
-  expect(planTrip(catalog, { ...input, stay: NaN }).error).toBeTruthy();
-  expect(planTrip(catalog, { ...input, transfer: -1 }).error).toBeTruthy();
-  expect(planTrip(catalog, { ...input, end: input.start }).error).toBeTruthy();
+  expect(planTrip(three, { ...input, date: "2026-02-30" }).error).toBeTruthy();
+  expect(planTrip(three, { ...input, stay: NaN }).error).toBeTruthy();
+  expect(planTrip(three, { ...input, transfer: -1 }).error).toBeTruthy();
+  expect(planTrip(three, { ...input, end: input.start }).error).toBeTruthy();
   expect(parseSavedTrip({ version: 1, input, selected: ["unknown"], personal: [] })).toBeNull();
   expect(parseSavedTrip({ version: 1, input, selected: [], personal: [{ provenance: { url: "javascript:alert(1)" } }] })).toBeNull();
 });
