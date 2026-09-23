@@ -164,21 +164,29 @@ test("recommend API answers without an anchor and never leaks keys", async ({ re
   });
   expect(withAnchor.status()).toBe(200);
   const result = await withAnchor.json() as {
-    autoScheduled: boolean; suggestions: { hoursKnown: boolean; evidence: string }[];
+    autoScheduled: boolean; suggestions: { id: string; hoursKnown: boolean; hours: unknown; provider: string; evidence: string; tour?: unknown }[];
     ranking: { applied: boolean } | null;
   };
   // 추천은 절대 자동 편성되지 않는다.
   expect(result.autoScheduled).toBe(false);
   for (const suggestion of result.suggestions) {
-    expect(suggestion.hoursKnown).toBe(false);
+    // 영업시간은 TourAPI 원문이 확실히 읽힌 곳만 안다(T-050). 카카오 후보는 언제나 미확인이다.
+    expect(suggestion.hoursKnown).toBe(suggestion.hours !== null);
+    if (suggestion.hoursKnown) expect(suggestion.id).toMatch(/^tour-\d+$/);
+    if (suggestion.id.startsWith("kakao-")) expect(suggestion.hoursKnown).toBe(false);
+    // 내부 조회 키는 응답에 싣지 않는다.
+    expect(suggestion.tour).toBeUndefined();
     expect(suggestion.evidence).toBe("nearby");
   }
   const serialised = JSON.stringify(result);
   expect(serialised).not.toContain("KakaoAK");
   expect(serialised).not.toContain("Bearer");
-  for (const key of [process.env.KAKAO_REST_API_KEY, process.env.TYPESAFE_API_KEY]) {
+  for (const key of [process.env.KAKAO_REST_API_KEY, process.env.TYPESAFE_API_KEY, process.env.TOUR_API_KEY]) {
     if (key) expect(serialised).not.toContain(key);
+    // TourAPI 키는 URL 인코딩된 채로 새기 쉽다.
+    if (key) expect(serialised).not.toContain(encodeURIComponent(key));
   }
+  expect(serialised).not.toContain("serviceKey");
 
   // 본문 상한과 종류 검사.
   expect((await request.post("/api/recommend", { data: { anchor: { lat: 37.57, lng: 126.98 }, kinds: [] } })).status()).toBe(400);

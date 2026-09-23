@@ -7,7 +7,8 @@ import { TravelLeg } from "@/components/travel-leg";
 import { useI18n } from "@/i18n/locale";
 import { fetchSuggestions, type RankedSuggestion } from "@/lib/recommend/client";
 import type { PreferenceProfile } from "@/lib/recommend/preference";
-import { findGaps, fitInGap, MAX_PER_GAP, nextGap, type Gap, type GapFit } from "@/lib/trip/gap-fill";
+import { findGaps, fitInGap, isClosedOn, MAX_PER_GAP, nextGap, type Gap, type GapFit } from "@/lib/trip/gap-fill";
+import { hoursLabel } from "@/lib/recommend/hours-label";
 import type { SuggestionKind } from "@/lib/recommend/nearby";
 import { straightLineMeters, type TravelPoint } from "@/lib/trip/geo";
 import { clock, type TripInput, type TripResult } from "@/lib/trip/planner";
@@ -31,7 +32,7 @@ export type GapFillState =
 /** 확정 정류장 사이 빈 구간 하나와, 거기에 이어 붙인 추천들. */
 export type GapChain = { root: Gap; items: GapFillState[] };
 
-type FillOptions = { preference: string; preferred: SuggestionKind[]; mode: TravelMode; transfer: number; stay: number };
+type FillOptions = { date: string; preference: string; preferred: SuggestionKind[]; mode: TravelMode; transfer: number; stay: number };
 
 /**
  * 빈 구간 하나를 채운다. 주변 후보(카카오 장소 + Jev 취향 순위)를 받아 순위대로 이동시간을 재고,
@@ -42,7 +43,10 @@ type FillOptions = { preference: string; preferred: SuggestionKind[]; mode: Trav
  */
 async function fillGap(gap: Gap, excluded: string[], options: FillOptions, signal: AbortSignal): Promise<GapFillState> {
   const found = await fetchSuggestions({ anchor: gap.anchor, kinds: gap.kinds, preference: options.preference, excluded }, signal);
-  const candidates = found.suggestions.filter(s => !excluded.includes(s.id)).slice(0, CANDIDATES_PER_GAP);
+  // 그날 쉬는 곳은 뺀다. 영업시간을 아는 곳을 먼저 재 본다 — 순위는 Jev 순서 그대로 두고, 확인된 곳이
+  // 들어가면 미확인보다 낫다. 확인된 곳이 하나도 안 맞으면 미확인 후보로 넘어간다.
+  const open = found.suggestions.filter(s => !excluded.includes(s.id) && !isClosedOn(s.hours, options.date));
+  const candidates = [...open.filter(s => s.hours), ...open.filter(s => !s.hours)].slice(0, CANDIDATES_PER_GAP);
   if (!candidates.length) return { status: "none", gap };
   const points: TravelPoint[] = candidates.map(c => ({
     id: `gap-${c.id}`.slice(0, 80), name: c.name.slice(0, 120), address: c.address.slice(0, 300) || undefined, coord: c.coord,
@@ -66,7 +70,7 @@ async function fillGap(gap: Gap, excluded: string[], options: FillOptions, signa
     const fit = fitInGap(gap,
       legIn ? travelMinutes(legIn, options.transfer) : 0,
       legOut ? travelMinutes(legOut, options.transfer) : 0,
-      options.stay);
+      options.stay, suggestion.hours);
     if (fit) return { status: "filled", gap, suggestion, point, fit, legIn, legOut, ranked: Boolean(found.ranking?.applied) };
   }
   return { status: "none", gap };
@@ -108,7 +112,7 @@ export function useGapFill({ result, input, profile, ready }: {
   ready: boolean;
 }) {
   const gaps = ready ? findGaps(result, input, profile.kinds) : [];
-  const options: FillOptions = { preference: profile.sentence, preferred: profile.kinds, mode: input.travelMode ?? "transit", transfer: input.transfer, stay: input.stay };
+  const options: FillOptions = { date: input.date, preference: profile.sentence, preferred: profile.kinds, mode: input.travelMode ?? "transit", transfer: input.transfer, stay: input.stay };
   /** 이 값이 같으면 같은 일정이다. 달라지면 이전 추천을 버리고 새로 채운다. */
   const runKey = JSON.stringify([gaps.map(g => [g.id, g.start, g.end, g.kinds, g.from?.id ?? null, g.to?.id ?? null]), options]);
   const [store, setStore] = useState<{ key: string; chains: Record<string, GapFillState[]> }>({ key: "", chains: {} });
@@ -207,13 +211,17 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
     <article aria-label={t.gap.label(suggestion.name)} className="rounded-xl border border-dashed border-line-strong bg-bg-soft p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="accent">{t.gap.badge}</Badge>
-        <Badge>{t.gap.hoursUnknown}</Badge>
+        {suggestion.hours ? <Badge tone="ongoing">{t.gap.hours(hoursLabel(suggestion.hours))}</Badge> : <Badge>{t.gap.hoursUnknown}</Badge>}
         <span className="ml-auto font-mono text-label">{clock(fit.arrival)}–{clock(fit.departure)}</span>
       </div>
       <h2 className="mt-4 text-heading">{suggestion.name}</h2>
       <p className="mt-2 text-body-sm text-text-muted">
         {t.suggest.kinds[suggestion.kind]}{suggestion.category && <> · {suggestion.category}</>} · {t.suggest.distance(suggestion.straightMeters)}
       </p>
+      {suggestion.hours && <p className="mt-3 text-caption text-text-muted">
+        {t.gap.hoursSource(suggestion.hours.modified)}
+        {suggestion.hours.note && <> · <span lang="ko">{t.gap.closedNote(suggestion.hours.note)}</span></>}
+      </p>}
       <p className="mt-3 text-caption text-text-muted">{state.ranked ? t.gap.whyRanked : t.gap.whyNearby}</p>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <a className="inline-flex min-h-11 items-center gap-1.5 text-body-sm underline underline-offset-4"

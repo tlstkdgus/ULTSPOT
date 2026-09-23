@@ -10,6 +10,7 @@ import { fetchSuggestions, type RankedSuggestion, type SuggestionResult } from "
 import type { SuggestionKind } from "@/lib/recommend/nearby";
 import type { Coord } from "@/lib/trip/geo";
 import { cn } from "@/lib/cn";
+import { hoursLabel } from "@/lib/recommend/hours-label";
 
 const ALL_KINDS: SuggestionKind[] = ["meal", "cafe", "sightseeing"];
 
@@ -122,10 +123,14 @@ export function SuggestionPanel({ anchor, anchorName, onAdd, profile }: {
               <p className="mt-1 flex flex-wrap items-center gap-x-2 text-caption text-text-muted">
                 <span className="inline-flex items-center gap-1"><PinIcon />{t.suggest.distance(suggestion.straightMeters)}</span>
               </p>
-              {/* 영업시간을 모른다는 사실을 숨기지 않는다. */}
-              <p className="mt-1 inline-flex items-center gap-1 text-caption text-warning">
-                <ClockIcon />{t.suggest.hoursUnknown}
-              </p>
+              {/* 영업시간을 모른다는 사실을 숨기지 않는다. 아는 곳(TourAPI)은 출처와 함께 보여준다. */}
+              {suggestion.hours
+                ? <p className="mt-1 inline-flex flex-wrap items-center gap-1 text-caption text-text-muted">
+                  <ClockIcon /><span className="text-text">{t.gap.hours(hoursLabel(suggestion.hours))}</span> · {t.gap.hoursSource(suggestion.hours.modified)}
+                </p>
+                : <p className="mt-1 inline-flex items-center gap-1 text-caption text-warning">
+                  <ClockIcon />{t.suggest.hoursUnknown}
+                </p>}
               {suggestion.address && <p className="mt-1 text-caption text-text-muted" lang="ko">{suggestion.address}</p>}
               <p className="mt-1 text-caption text-text-faint">{t.suggest.provider(suggestion.provider)}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
