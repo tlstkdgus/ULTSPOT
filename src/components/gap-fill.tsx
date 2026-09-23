@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { GOOGLE_MAPS_JS_KEY } from "@/components/google-map";
+import type { PlacePhoto } from "@/lib/recommend/photo";
 import { Badge, Button } from "@/components/ui";
 import { ExternalIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
@@ -206,7 +208,40 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
     </li>;
   }
 
+  return <FilledSlot state={state} transfer={transfer} onAnother={onAnother} onRemove={onRemove} />;
+}
+
+/**
+ * 관광공사 사진이 없는 추천에 Google 사진을 받아 온다 (T-052).
+ * Google 지도가 떠 있을 때만 부른다(Places 약관: 비구글 지도와 함께 쓰기 금지). 받은 사진은 이 카드가
+ * 떠 있는 동안만 들고 있고 저장하지 않는다.
+ */
+function useGooglePhoto(suggestion: RankedSuggestion): PlacePhoto | null {
+  const [photo, setPhoto] = useState<{ id: string; photo: PlacePhoto | null } | null>(null);
+  const wanted = !suggestion.photo && Boolean(GOOGLE_MAPS_JS_KEY);
+  useEffect(() => {
+    if (!wanted) return;
+    const controller = new AbortController();
+    void fetch("/api/place-photo", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+      body: JSON.stringify({ name: suggestion.name, coord: suggestion.coord }),
+    }).then(r => r.ok ? r.json() as Promise<{ photo?: PlacePhoto | null }> : { photo: null })
+      .then(body => setPhoto({ id: suggestion.id, photo: body.photo ?? null }))
+      .catch(() => { /* 사진이 없어도 카드는 그대로다 */ });
+    return () => controller.abort();
+  }, [wanted, suggestion.id, suggestion.name, suggestion.coord]);
+  return suggestion.photo ?? (photo?.id === suggestion.id ? photo.photo : null);
+}
+
+function FilledSlot({ state, transfer, onAnother, onRemove }: {
+  state: Extract<GapFillState, { status: "filled" }>;
+  transfer: number;
+  onAnother: () => void;
+  onRemove: () => void;
+}) {
+  const { t } = useI18n();
   const { suggestion, fit, legIn } = state;
+  const photo = useGooglePhoto(suggestion);
   return <li>
     <TravelLeg estimate={legIn} bufferMinutes={transfer} />
     <article aria-label={t.gap.label(suggestion.name)} className="rounded-xl border border-dashed border-line-strong bg-bg-soft p-5 sm:p-6">
@@ -215,7 +250,7 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
         {suggestion.hours ? <Badge tone="ongoing">{t.gap.hours(hoursLabel(suggestion.hours))}</Badge> : <Badge>{t.gap.hoursUnknown}</Badge>}
         <span className="ml-auto font-mono text-label">{clock(fit.arrival)}–{clock(fit.departure)}</span>
       </div>
-      {suggestion.photo && <PlacePhotoView photo={suggestion.photo} alt={suggestion.name} className="mt-4" />}
+      {photo && <PlacePhotoView photo={photo} alt={suggestion.name} className="mt-4" />}
       <h2 className="mt-4 text-heading">{suggestion.name}</h2>
       <p className="mt-2 text-body-sm text-text-muted">
         {t.suggest.kinds[suggestion.kind]}{suggestion.category && <> · {suggestion.category}</>} · {t.suggest.distance(suggestion.straightMeters)}

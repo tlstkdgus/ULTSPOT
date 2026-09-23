@@ -202,3 +202,14 @@ test("a photo that fails to load leaves no broken image behind", async ({ page }
   await expect(card.getByRole("img")).toHaveCount(0);
   await expect(card).not.toContainText("Korea Tourism Organization · KOGL");
 });
+
+test("with the Kakao map on screen, no Google photo is ever requested", async ({ page }) => {
+  // Places 약관: Google 장소 콘텐츠를 비구글 지도와 함께 쓰지 않는다(T-052). 테스트 빌드에는 Google 지도 키가 없다.
+  let asked = 0;
+  page.on("request", request => { if (request.url().endsWith("/api/place-photo")) asked += 1; });
+  await fixSuggestions(page, [{ id: "t-nophoto", kind: "meal", name: "사진 없는 식당", lat: 37.5609, lng: 126.9866 }]);
+  await planWithFreeAfternoon(page);
+  await expect(page.getByRole("article", { name: "Suggested for your free time: 사진 없는 식당" })).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(asked).toBe(0);
+});
