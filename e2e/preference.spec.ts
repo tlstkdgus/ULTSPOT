@@ -53,12 +53,15 @@ test("unknown chip values are dropped instead of reaching the model", () => {
  * 운영시간·휴무·예약·입장 마감 판정은 코드가 하고, 취향은 추천 순서에만 쓴다.
  */
 test("preference never changes what the engine will schedule", () => {
-  const before = planTrip(catalog, input);
+  // 6곳 초과면 planTrip이 오류만 돌려줘 before/after가 빈 결과로 "같다"가 된다. 검수 3곳으로 편성한다.
+  const three = ["hikr-ground", "music-korea", "k-star-road"].map(spot);
+  const before = planTrip(three, input);
   for (const chips of [[], ["meal"], ["quiet", "cafe"], interestIds as unknown as string[]]) {
     const profile = preferenceProfile({ interests: chips, stay: 60 });
     // 취향 프로필을 planTrip에 넘길 수 있는 경로가 없다. 그래도 결과가 같은지 확인한다.
-    const after = planTrip(catalog, input);
+    const after = planTrip(three, input);
     expect(after.stops.map(s => s.event.id)).toEqual(before.stops.map(s => s.event.id));
+    expect(before.stops.length).toBeGreaterThan(0);
     expect(after.omitted.map(o => o.reason)).toEqual(before.omitted.map(o => o.reason));
     expect(profile.sentence.length >= 0).toBe(true);
   }
@@ -73,12 +76,13 @@ test("categories only classify what the data actually says", () => {
   // 검증된 장소 3곳은 생일카페도 팝업도 촬영지도 아니다. 억지로 넣지 않는다.
   // PR #48이 수집한 팬 생일카페 3건은 실제로 생일카페라 그렇게 분류된다 — 분류는 데이터가 하고,
   // 억지로 landmark에 밀어넣지 않는다. 순서에 기대지 않도록 id로 확인한다.
-  expect(["hikr-ground", "music-korea", "k-star-road"].map(id => spotCategory(spot(id))))
-    .toEqual(["landmark", "landmark", "landmark"]);
+  // T-046이 공식 K팝 매장 3곳을 더했다. 전부 검수된 상설 장소이므로 landmark다.
+  const landmarks = ["hikr-ground", "music-korea", "k-star-road", "ktown4u-coex", "kpop-square-hongdae", "kwangya-seoul"];
+  expect(landmarks.map(id => spotCategory(spot(id)))).toEqual(landmarks.map(() => "landmark"));
   expect(catalog.filter(e => e.id.startsWith("BC-")).map(spotCategory))
     .toEqual(["birthdayCafe", "birthdayCafe", "birthdayCafe"]);
   const counts = categoryCounts(catalog);
-  expect(counts.landmark).toBe(3);
+  expect(counts.landmark).toBe(6);
   expect(counts.birthdayCafe).toBe(3);
   expect(counts.popup).toBe(0);
   expect(counts.filming).toBe(0);
