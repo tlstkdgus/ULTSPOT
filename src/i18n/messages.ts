@@ -308,6 +308,10 @@ const en = {
     hoursSource: (modified: string) => `Hours from Korea Tourism Organization${modified ? ` (updated ${modified})` : ""} — check before you go`,
     closedNote: (note: string) => `Closed: ${note}`,
   },
+  photo: {
+    tour: (noChanges: boolean) => `Photo: Korea Tourism Organization · KOGL Type ${noChanges ? "3 (no alterations)" : "1"}`,
+    google: (authors: string) => `Photo: ${authors ? `${authors} · ` : ""}Google Maps`,
+  },
   journey: {
     rangeLegend: "How long are you in Seoul?",
     from: "First day",
@@ -741,6 +745,10 @@ const ko: Messages = {
     hours: (label: string) => `영업 ${label}`,
     hoursSource: (modified: string) => `한국관광공사 정보${modified ? ` (${modified} 수정)` : ""} — 가기 전에 확인하세요`,
     closedNote: (note: string) => `휴무: ${note}`,
+  },
+  photo: {
+    tour: (noChanges: boolean) => `사진: 한국관광공사 · 공공누리 ${noChanges ? "제3유형(변경금지)" : "제1유형"}`,
+    google: (authors: string) => `사진: ${authors ? `${authors} · ` : ""}Google Maps`,
   },
   journey: {
     rangeLegend: "서울에 며칠 있어요?",

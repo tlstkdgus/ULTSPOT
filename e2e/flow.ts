@@ -81,6 +81,8 @@ export type FixtureSuggestion = {
   id: string; kind: "meal" | "cafe" | "sightseeing"; name: string; lat: number; lng: number; category?: string;
   /** TourAPI처럼 영업시간을 아는 후보(T-050). 없으면 카카오 후보처럼 미확인이다. */
   hours?: { opens: number; closes: number; breaks?: [number, number][]; closedDays?: number[]; note?: string };
+  /** 관광공사 사진처럼 이용 조건을 아는 사진(T-051). */
+  photo?: { url: string; license: "kogl-1" | "kogl-3" };
 };
 export async function fixSuggestions(page: Page, suggestions: FixtureSuggestion[] = [], ranked = false) {
   await page.route("**/api/recommend", async route => {
@@ -93,6 +95,7 @@ export async function fixSuggestions(page: Page, suggestions: FixtureSuggestion[
       suggestions: suggestions.filter(s => kinds.includes(s.kind) && !excluded.includes(s.id)).map(s => ({
         id: s.id, kind: s.kind, name: s.name, category: s.category ?? "", address: `${s.name} 주소`,
         coord: { lat: s.lat, lng: s.lng }, straightMeters: 300, evidence: "nearby", hoursKnown: !!s.hours,
+        photo: s.photo ? { ...s.photo, provider: "tour", authors: [] } : null,
         hours: s.hours ? { breaks: [], closedDays: [], note: "", source: "한국관광공사 TourAPI", modified: "2025-01-03", ...s.hours } : null,
         provider: "test-fixture", placeUrl: `https://place.map.kakao.com/${s.id}`, mapUrl: "https://map.kakao.com/",
         score: null, confidence: null,

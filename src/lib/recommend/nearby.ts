@@ -18,6 +18,7 @@ import { isKoreanCoord, mapLinks, roundCoord, straightLineMeters, type Coord } f
 import { kakaoKey } from "@/lib/trip/kakao";
 import { hoursLabel } from "./hours-label";
 import type { PlaceHours } from "./tour";
+import type { PlacePhoto } from "./photo";
 
 /** 팬 하루에서 행사 사이를 메우는 세 가지 역할. */
 export type SuggestionKind = "meal" | "cafe" | "sightseeing";
@@ -42,6 +43,8 @@ export type Suggestion = {
    */
   hoursKnown: boolean;
   hours: PlaceHours | null;
+  /** 이용 조건을 아는 사진. 카카오 장소 검색에는 사진이 없어 언제나 null이다 (T-051). */
+  photo: PlacePhoto | null;
   provider: string;
   placeUrl: string;
   mapUrl: string;
@@ -83,7 +86,7 @@ export function parseNearby(body: unknown, kind: SuggestionKind, anchor: Coord, 
       category: typeof row.category_name === "string" ? row.category_name.slice(0, 120) : "",
       address: address.slice(0, 300), coord: roundCoord(coord), straightMeters: Math.round(meters),
       // 카카오 장소 검색만으로는 아이돌 관련성을 알 수 없다. 언제나 일반 주변이다.
-      evidence: "nearby", hoursKnown: false, hours: null, provider: NEARBY_PROVIDER,
+      evidence: "nearby", hoursKnown: false, hours: null, photo: null, provider: NEARBY_PROVIDER,
       placeUrl: placeUrl || mapLinks.place({ id, name, coord }),
       mapUrl: mapLinks.place({ id, name, address, coord }),
     });

@@ -55,6 +55,15 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await expect(page.getByRole("status").filter({ hasText: "이동시간을 확인하는 중이에요" })).toHaveCount(0, { timeout: 20_000 });
     // 빈 시간 추천(T-049)도 다 채운 뒤에 찍는다. 이 캡처는 실제 카카오·Jev 응답을 쓴다.
     await expect(page.getByRole("status").filter({ hasText: "주변에서 찾는 중" })).toHaveCount(0, { timeout: 30_000 });
+    // 추천 사진(T-051)이 다 받아진 뒤에 찍는다. lazy 이미지라 먼저 화면으로 끌어온다.
+    // 반쯤 받은 JPEG가 위쪽만 찍힌 캡처가 나온 적이 있다.
+    await page.evaluate(async () => {
+      for (const img of Array.from(document.images)) img.loading = "eager";
+      await Promise.all(Array.from(document.images).map(img => img.complete ? null : new Promise(done => { img.onload = img.onerror = done; })));
+      // complete여도 아직 칠해지지 않은 사진이 빈 칸으로 찍혔다. 디코딩까지 기다린다.
+      await Promise.all(Array.from(document.images).map(img => img.decode().catch(() => null)));
+    });
+    await page.waitForTimeout(300);
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });

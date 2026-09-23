@@ -8,6 +8,7 @@
 import type { Coord } from "@/lib/trip/geo";
 import type { SuggestionKind } from "@/lib/recommend/nearby";
 import type { PlaceHours } from "@/lib/recommend/tour";
+import type { PlacePhoto } from "@/lib/recommend/photo";
 
 export type RankedSuggestion = {
   id: string;
@@ -21,6 +22,8 @@ export type RankedSuggestion = {
   /** TourAPI 원문이 확실히 읽힌 곳만 true. 카카오 후보는 언제나 false (T-050). */
   hoursKnown: boolean;
   hours: PlaceHours | null;
+  /** 이용 조건을 아는 사진(T-051). 없으면 사진 없이 보여준다. */
+  photo: PlacePhoto | null;
   provider: string;
   placeUrl: string;
   mapUrl: string;

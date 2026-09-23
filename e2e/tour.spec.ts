@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { parseClosedDays, parseOpeningHours, parseTourIntro, parseTourRow } from "../src/lib/recommend/tour";
 import { suggestionFacts } from "../src/lib/recommend/nearby";
 import { fitInGap, isClosedOn } from "../src/lib/trip/gap-fill";
+import { tourPhoto } from "../src/lib/recommend/photo";
 
 /**
  * TourAPI 원문 해석 (T-050). 아래 문장은 전부 2026-09-24에 명동·홍대·성수 주변을 실제로 조회해 받은 원문이다.
@@ -94,4 +95,23 @@ test("known hours move the arrival to opening, avoid breaks and leave by closing
   expect(isClosedOn({ closedDays: [2] }, "2026-09-22")).toBe(true); // 화요일
   expect(isClosedOn({ closedDays: [2] }, "2026-09-23")).toBe(false);
   expect(isClosedOn(null, "2026-09-22")).toBe(false);
+});
+
+test("a photo is kept only from the tourism image server and only with a known licence", () => {
+  // 실제 응답 형식: http 주소 + cpyrhtDivCd. 화면이 https라 https로 바꾼다.
+  expect(tourPhoto("http://tong.visitkorea.or.kr/cms/resource/54/684154_image2_1.jpg", "Type3"))
+    .toEqual({ url: "https://tong.visitkorea.or.kr/cms/resource/54/684154_image2_1.jpg", provider: "tour", license: "kogl-3", authors: [] });
+  expect(tourPhoto("https://tong.visitkorea.or.kr/a.jpg", "Type1")?.license).toBe("kogl-1");
+  // 이용 조건을 모르면 싣지 않는다.
+  expect(tourPhoto("http://tong.visitkorea.or.kr/a.jpg", "")).toBeNull();
+  expect(tourPhoto("http://tong.visitkorea.or.kr/a.jpg", "Type2")).toBeNull();
+  // 관광공사 이미지 서버가 아니면 싣지 않는다.
+  expect(tourPhoto("https://example.com/tong.visitkorea.or.kr/a.jpg", "Type1")).toBeNull();
+  expect(tourPhoto("", "Type1")).toBeNull();
+  expect(tourPhoto(undefined, "Type1")).toBeNull();
+
+  const anchor = { lat: 37.56072, lng: 126.98659 };
+  const row = { contentid: "1", contenttypeid: "39", title: "왕비집", mapx: "126.9857", mapy: "37.5612", dist: "101", cat3: "A05020100",
+    firstimage: "http://tong.visitkorea.or.kr/cms/resource/1/1_image2_1.jpg", cpyrhtDivCd: "Type3" };
+  expect(parseTourRow(row, "meal", anchor, 800)?.photo?.url).toBe("https://tong.visitkorea.or.kr/cms/resource/1/1_image2_1.jpg");
 });

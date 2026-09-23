@@ -11,6 +11,7 @@ import type { SuggestionKind } from "@/lib/recommend/nearby";
 import type { Coord } from "@/lib/trip/geo";
 import { cn } from "@/lib/cn";
 import { hoursLabel } from "@/lib/recommend/hours-label";
+import { PlacePhotoView } from "@/components/place-photo";
 
 const ALL_KINDS: SuggestionKind[] = ["meal", "cafe", "sightseeing"];
 
@@ -112,6 +113,7 @@ export function SuggestionPanel({ anchor, anchorName, onAdd, profile }: {
           {suggestions.length > 0 && <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {suggestions.map(suggestion => <li key={suggestion.id}
               className="flex min-w-0 flex-col rounded-lg border border-line-strong bg-surface p-4">
+              {suggestion.photo && <PlacePhotoView photo={suggestion.photo} alt={suggestion.name} className="mb-3" />}
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="closing">{t.suggest.kinds[suggestion.kind]}</Badge>
                 {/* 근처에 있다는 사실이 아이돌과 관련 있다는 뜻이 아니다. 두 근거를 섞지 않는다. */}

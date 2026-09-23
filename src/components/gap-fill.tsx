@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Badge, Button } from "@/components/ui";
 import { ExternalIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
+import { PlacePhotoView } from "@/components/place-photo";
 import { useI18n } from "@/i18n/locale";
 import { fetchSuggestions, type RankedSuggestion } from "@/lib/recommend/client";
 import type { PreferenceProfile } from "@/lib/recommend/preference";
@@ -214,6 +215,7 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
         {suggestion.hours ? <Badge tone="ongoing">{t.gap.hours(hoursLabel(suggestion.hours))}</Badge> : <Badge>{t.gap.hoursUnknown}</Badge>}
         <span className="ml-auto font-mono text-label">{clock(fit.arrival)}–{clock(fit.departure)}</span>
       </div>
+      {suggestion.photo && <PlacePhotoView photo={suggestion.photo} alt={suggestion.name} className="mt-4" />}
       <h2 className="mt-4 text-heading">{suggestion.name}</h2>
       <p className="mt-2 text-body-sm text-text-muted">
         {t.suggest.kinds[suggestion.kind]}{suggestion.category && <> · {suggestion.category}</>} · {t.suggest.distance(suggestion.straightMeters)}

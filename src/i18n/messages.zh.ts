@@ -306,6 +306,10 @@ export const zh: Messages = {
     hoursSource: (modified: string) => `韩国观光公社信息${modified ? `（${modified} 更新）` : ""}，出发前请再确认`,
     closedNote: (note: string) => `休息：${note}`,
   },
+  photo: {
+    tour: (noChanges: boolean) => `照片：韩国观光公社 · 公共努里${noChanges ? "第3类型（禁止修改）" : "第1类型"}`,
+    google: (authors: string) => `照片：${authors ? `${authors} · ` : ""}Google Maps`,
+  },
   journey: {
     rangeLegend: "你在首尔待几天？",
     from: "第一天",

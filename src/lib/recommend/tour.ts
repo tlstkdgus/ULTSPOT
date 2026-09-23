@@ -17,6 +17,7 @@
 
 import { isKoreanCoord, mapLinks, roundCoord, straightLineMeters, type Coord } from "@/lib/trip/geo";
 import type { Suggestion, SuggestionKind } from "./nearby";
+import { tourPhoto } from "./photo";
 
 export const TOUR_PROVIDER = "한국관광공사 TourAPI";
 const BASE = "https://apis.data.go.kr/B551011/KorService2";
@@ -189,6 +190,7 @@ export function parseTourRow(row: Record<string, unknown>, kind: SuggestionKind,
     id: `tour-${contentId}`, kind, name: name.slice(0, 120), category: `${label} (한국관광공사)`,
     address, coord: roundCoord(coord), straightMeters: Math.round(meters),
     evidence: "nearby", hoursKnown: false, hours: null, provider: TOUR_PROVIDER,
+    photo: tourPhoto(row.firstimage, row.cpyrhtDivCd),
     // 화면의 링크 문구가 "카카오맵에서 보기"라 카카오 지도 좌표 링크를 쓴다. 같은 가게가 카카오 후보에도 있으면
     // 합칠 때 카카오 장소 페이지로 바뀐다(route.ts mergeCandidates).
     placeUrl: mapLinks.place({ id: contentId, name, coord }),
