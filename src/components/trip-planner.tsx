@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/brand";
 import { Badge, Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, CheckIcon, CloseIcon, ExternalIcon, FastIcon, SlowIcon } from "@/components/icons";
@@ -17,9 +17,10 @@ import { JourneyPlanner } from "@/components/journey-planner";
 import {
   addVisit, createJourney, journeyStorageKey, loadJourneyLocally, saveJourneyLocally, type Journey,
 } from "@/lib/trip/journey";
-import { hasUnconfirmedTravel, type TravelMode, type TravelTable } from "@/lib/trip/travel";
+import { hasUnconfirmedTravel, travelMinutes, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
+import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
 import { KakaoMap } from "@/components/kakao-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
@@ -299,7 +300,6 @@ export function TripPlanner({ today }: { today: string }) {
   const stopLang = (event: FanEvent, korean?: string) =>
     (event.provenance.mode === "personal" || (locale === "ko" && korean) ? undefined : "en");
   const lastStop = result?.stops.at(-1);
-  const freeMinutes = lastStop ? input.end - lastStop.departure : 0;
   // 첫 구간(travelEstimate === null)은 출발 위치를 넣지 않아 세지 않은 것이므로 미확인에 넣지 않는다.
   const unconfirmedLegs = result
     ? hasUnconfirmedTravel(result.stops.slice(1).map(s => s.travelEstimate))
@@ -316,6 +316,24 @@ export function TripPlanner({ today }: { today: string }) {
     const point = eventPoint(requiredFirst);
     return point.coord ? point : null;
   })();
+  /**
+   * 빈 시간 추천 (T-049). 이동시간 조회가 끝난 뒤에만 채운다. 확정 일정(result)은 바꾸지 않고,
+   * 화면에서 정류장 사이에 끼워 보여준다. 캘린더·txt 내보내기에는 넣지 않는다.
+   */
+  const gapFill = useGapFill({ result, input, profile, ready: step === 3 && !journey && !!result && !result.error && !lookingUp });
+  const chainAfter = (stopId: string) => gapFill.chains.find(c => c.root.id.startsWith(`${stopId}>`));
+  const chainBefore = (stopId: string, index: number) => gapFill.chains.find(c =>
+    c.root.id === (index === 0 ? `before>${stopId}` : `${result?.stops[index - 1]?.event.id}>${stopId}`));
+  /** 구간에서 마지막으로 들른 추천 장소. 다음 정류장(또는 하루의 끝)은 여기서 출발한다. */
+  const lastFilled = (chain?: GapChain) =>
+    [...(chain?.items ?? [])].reverse().find((i): i is Extract<GapFillState, { status: "filled" }> => i.status === "filled") ?? null;
+  const renderChain = (chain?: GapChain) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state} transfer={transfer}
+    onAnother={() => state.status === "filled" && gapFill.another(chain.root, index, state.suggestion.id)}
+    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)} />);
+  const tailFill = lastStop ? lastFilled(gapFill.chains.find(c => c.root.id === `${lastStop.event.id}>after`)) : null;
+  /** 하루가 실제로 끝나는 시각. 마지막 빈 시간에 추천이 들어가면 그곳을 떠나는 시각이다. */
+  const dayEnd = tailFill ? tailFill.fit.departure : lastStop?.departure ?? 0;
+  const freeAfter = lastStop ? input.end - dayEnd - (tailFill?.legOut ? travelMinutes(tailFill.legOut, transfer) : 0) : 0;
 
   return <main className="shell pb-16">
     <header className="flex items-center justify-between gap-4 border-b border-line py-4">
@@ -583,9 +601,17 @@ export function TripPlanner({ today }: { today: string }) {
         </p>}
         {/* 좌표가 있는 정류장만 핀으로. NEXT_PUBLIC_KAKAO_JS_KEY가 없으면 렌더되지 않는다. */}
         <KakaoMap className="mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong"
-          points={result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; })} />
-        <ol className="space-y-4">{result.stops.map((stop, index) => <li key={stop.event.id}>
-          <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />
+          points={[
+            ...result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; }),
+            ...gapFill.chains.flatMap(c => c.items).flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord }] : []),
+          ]} />
+        <ol className="space-y-4">{result.stops.map((stop, index) => { const before = chainBefore(stop.event.id, index); const via = lastFilled(before); return <Fragment key={stop.event.id}>
+          {index === 0 && renderChain(before)}
+          <li>
+          {/* 앞 빈 시간에 추천이 들어갔으면 이 정류장까지의 이동은 추천 장소에서 출발한다. */}
+          {via
+            ? <TravelLeg estimate={via.legOut} bufferMinutes={transfer} />
+            : <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />}
           <article className="rounded-xl border border-line-strong bg-surface p-5 sm:p-6">
             {/* 기준 목업의 정류장 행: 번호 · 분류 태그 · 시간. 분류는 우리가 만든 라벨이라 번역해도 된다. */}
             <div className="flex flex-wrap items-center gap-2">
@@ -610,7 +636,9 @@ export function TripPlanner({ today }: { today: string }) {
             </a>
             {index === 0 && <p className="mt-3 border-t border-line-strong pt-3 text-caption text-text-muted">{t.result.firstStop}</p>}
           </article>
-        </li>)}</ol>
+          </li>
+          {renderChain(chainAfter(stop.event.id))}
+        </Fragment>; })}</ol>
 
         {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
           <h2 className="text-label">{t.result.omitted}</h2>
@@ -626,11 +654,11 @@ export function TripPlanner({ today }: { today: string }) {
           profile={profile}
           onAdd={addSuggestion} />
         {lastStop && <div className="mt-5 rounded-xl border border-line-strong bg-bg-soft p-5">
-          <h2 className="flex items-center gap-2 text-subhead"><CheckIcon />{t.result.encoreTitle(clock(lastStop.departure))}</h2>
+          <h2 className="flex items-center gap-2 text-subhead"><CheckIcon />{t.result.encoreTitle(clock(dayEnd))}</h2>
           <p className="mt-2 text-body-sm text-text-muted">
-            {freeMinutes >= 30 ? t.result.encoreFree(t.result.duration(freeMinutes), end) : t.result.encoreFull}
+            {freeAfter >= 30 ? t.result.encoreFree(t.result.duration(freeAfter), end) : t.result.encoreFull}
           </p>
-          {freeMinutes >= 30 && <div className="mt-4 flex flex-wrap gap-2">
+          {freeAfter >= 30 && <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" variant="ghost" onClick={askForEvent}>{t.result.encoreAdd}</Button>
             <Button size="sm" variant="ghost" onClick={() => setStep(2)}>{t.result.encoreSlow}</Button>
           </div>}

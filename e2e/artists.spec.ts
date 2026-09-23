@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { matchesArtists, relatedArtistIds, searchArtists } from '../src/lib/trip/artists';
 import { parseSavedTrip } from '../src/lib/trip/storage';
-import { goToStep } from './flow';
+import { fixSuggestions, goToStep } from './flow';
 import { englishLocale } from './locale';
 
 englishLocale();
+// 일정 화면이 빈 시간 추천을 자동으로 부른다(T-049). 실제 카카오·Jev를 태우지 않게 고정한다.
+test.beforeEach(({ page }) => fixSuggestions(page));
 
 test('artist search and membership do not expand a person into other solo members', () => {
   expect(searchArtists('스트레이키즈')[0].id).toBe('A-JYP-SKZ');

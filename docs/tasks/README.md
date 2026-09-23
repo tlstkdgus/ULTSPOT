@@ -54,3 +54,4 @@
 | [T-046](T-046/README.md) | 공식 K팝 매장 3곳을 검증해 카탈로그에 넣는다 | 리뷰 중 | `feat/T-046-kpop-stores` | PR 준비 |
 | [T-047](T-047/README.md) | 케이타운포유 인사동점 추가 — 출처 간 주소 충돌을 가려서 | 리뷰 중 | `feat/T-047-ktown4u-insadong` | PR 준비 |
 | [T-048](T-048/README.md) | 체크인·지출 때마다 이동시간을 다시 조회하던 문제 | 리뷰 중 | `fix/T-048-travel-lookup-key` | PR 준비 |
+| [T-049](T-049/README.md) | 확정 일정의 빈 시간에 주변 추천을 끼워 넣는다 | 리뷰 중 | `feat/T-049-gap-fill` | PR 준비 |
