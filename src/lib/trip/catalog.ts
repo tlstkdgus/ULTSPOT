@@ -85,4 +85,18 @@ export const catalog: FanEvent[] = [
     get: "Albums and merch you buy. Hours are unconfirmed: the only official figure is the 2022 opening notice (10:30–20:00). Check the official account before you go.",
     provenance: { mode: "reviewed", author: "Korea Tourism Organization · SM Entertainment newsroom", checkedOn: "2026-09-22", url: "https://place.tripmate.co.kr/ko/detail.php?contentId=2988778&contentTypeId=38" },
   },
+  {
+    id: "ktown4u-insadong", title: "Ktown4u Insadong", area: "Jongno-gu", kind: "Album shop",
+    title_ko: "케이타운포유 인사동", area_ko: "종로구",
+    do_ko: "안녕인사동 3층 매장에서 음반과 공식 굿즈를 고르세요. 안국역 6번 출구에서 인사동길로 들어와요.",
+    get_ko: "구매한 음반·굿즈. 시즌별 럭키드로·팝업은 매장 공지를 확인하세요. 휴무일은 출처에 없어 미확인이에요.",
+    coord: { lat: 37.57447, lng: 126.98355, source: "https://developers.kakao.com/docs/latest/ko/kakaomap/rest-api", checked_on: "2026-09-23" },
+    address: "3F Anyoung Insadong, 49 Insadong-gil, Jongno-gu, Seoul", from: null, to: null,
+    // 공식 매장 안내·관광공사 기사(2026-03) 모두 12:00–20:00. 관광공사 기사는 번지를 29로 적었는데
+    // 공식 안내·카카오 장소검색(케타포 인사점, 안녕인사동) 모두 49다 — 기사 오기로 판단.
+    opens: 720, closes: 1200, closedDays: [], reservation: false,
+    do: "Albums and official merch on 3F of the Anyoung Insadong complex. Enter Insadong-gil from Anguk Station Exit 6.",
+    get: "Albums and merch you buy. Seasonal lucky draws and pop-ups follow the store notice. Closed days are not stated by any source.",
+    provenance: { mode: "reviewed", author: "Ktown4u official store page · Korea Tourism Organization", checkedOn: "2026-09-23", url: "https://www.ktown4u.com/stores" },
+  },
 ];

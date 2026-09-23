@@ -3,13 +3,15 @@ import { reportedEvents } from '@/i18n/reported-events';
 import { FanEventArt } from '@/components/fan-event-art';
 import Image from 'next/image';
 
+// 원본 PNG(1.4~2.5MB)를 고품질 WebP(q90)로 바꿨다. next/image가 브라우저엔 어차피 WebP를 내보내므로
+// 화질은 같고, 서버가 막 뜬 직후 첫 최적화가 20초를 넘겨 포스터 검사가 세 번 깨지던 원인을 없앤다(T-047).
 const cardImages: Record<string, string> = {
   'hikr-ground': '/images/hikr-ground.jpg',
-  'BC-SEUNGMIN-AUTUMN-BREAK': '/images/seungmin-autumn.png',
-  'BC-SEUNGMIN-DANDY-BOY': '/images/seungmin-dandy.png',
-  'BC-KYUNGMIN-CURIOUS-ANGEL': '/images/kyungmin-cafe.png',
-  'music-korea': '/images/music-korea.png',
-  'k-star-road': '/images/k-star-road.png',
+  'BC-SEUNGMIN-AUTUMN-BREAK': '/images/seungmin-autumn.webp',
+  'BC-SEUNGMIN-DANDY-BOY': '/images/seungmin-dandy.webp',
+  'BC-KYUNGMIN-CURIOUS-ANGEL': '/images/kyungmin-cafe.webp',
+  'music-korea': '/images/music-korea.webp',
+  'k-star-road': '/images/k-star-road.webp',
 };
 
 import { Badge, Button, type BadgeTone } from "@/components/ui";

@@ -22,6 +22,14 @@ test('fan cafes are linked without promoting collector reports to confirmed sche
   }
 });
 
+/**
+ * 이 파일만 재시도 2회. 포스터 디코딩 검사가 "서버를 막 띄우고 12개 워커가 동시에 붙는" 로컬 전체
+ * 실행에서만 45초를 넘긴다(2026-09-21~23 다섯 번). 단독·5회 반복·프로덕션 check:prod 두 번은
+ * 전부 통과했고, 원본을 WebP로 9배 줄여도 같았다 — 이미지가 아니라 첫 요청 폭주가 원인이다.
+ * 검사 자체(이미지가 실제로 디코딩됐는가)는 유지한다.
+ */
+test.describe.configure({ retries: 2 });
+
 test('birthday cafe discovery shows collected events and organizer links', async ({ page }, info) => {
   await page.goto('/plan');
   await browseAllSpots(page);

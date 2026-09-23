@@ -77,12 +77,12 @@ test("categories only classify what the data actually says", () => {
   // PR #48이 수집한 팬 생일카페 3건은 실제로 생일카페라 그렇게 분류된다 — 분류는 데이터가 하고,
   // 억지로 landmark에 밀어넣지 않는다. 순서에 기대지 않도록 id로 확인한다.
   // T-046이 공식 K팝 매장 3곳을 더했다. 전부 검수된 상설 장소이므로 landmark다.
-  const landmarks = ["hikr-ground", "music-korea", "k-star-road", "ktown4u-coex", "kpop-square-hongdae", "kwangya-seoul"];
+  const landmarks = ["hikr-ground", "music-korea", "k-star-road", "ktown4u-coex", "kpop-square-hongdae", "kwangya-seoul", "ktown4u-insadong"];
   expect(landmarks.map(id => spotCategory(spot(id)))).toEqual(landmarks.map(() => "landmark"));
   expect(catalog.filter(e => e.id.startsWith("BC-")).map(spotCategory))
     .toEqual(["birthdayCafe", "birthdayCafe", "birthdayCafe"]);
   const counts = categoryCounts(catalog);
-  expect(counts.landmark).toBe(6);
+  expect(counts.landmark).toBe(7);
   expect(counts.birthdayCafe).toBe(3);
   expect(counts.popup).toBe(0);
   expect(counts.filming).toBe(0);
