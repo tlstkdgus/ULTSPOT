@@ -22,7 +22,9 @@ test("moving the last travel leg away clears a pending lookup", async ({ page })
   try {
     const first = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "HiKR Ground · K-pop floors" }) });
     const request = page.waitForRequest("**/api/travel");
-    await first.getByLabel("Time here").selectOption("120");
+    // 순서를 바꿔 구간을 바꾼다. 예전엔 "머무는 시간"을 바꿔 조회를 일으켰는데, 체류 시간은 구간을
+    // 바꾸지 않으므로 T-048부터는 조회가 나가지 않는다 — 그게 맞는 동작이다.
+    await first.getByRole("button", { name: "Move later" }).click();
     await request;
     await expect(page.getByText("Checking travel times…", { exact: true })).toBeVisible();
     const second = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Music Korea · Myeongdong 2" }) });

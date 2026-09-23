@@ -53,3 +53,4 @@
 | [T-045](T-045/README.md) | 아티스트 228개 연결·검색 없이 탐색·선택 모달 (구 T-041) | 리뷰 중 | `fix/T-041-explore-all` | [#57](https://github.com/tlstkdgus/ULTSPOT/pull/57) |
 | [T-046](T-046/README.md) | 공식 K팝 매장 3곳을 검증해 카탈로그에 넣는다 | 리뷰 중 | `feat/T-046-kpop-stores` | PR 준비 |
 | [T-047](T-047/README.md) | 케이타운포유 인사동점 추가 — 출처 간 주소 충돌을 가려서 | 리뷰 중 | `feat/T-047-ktown4u-insadong` | PR 준비 |
+| [T-048](T-048/README.md) | 체크인·지출 때마다 이동시간을 다시 조회하던 문제 | 리뷰 중 | `fix/T-048-travel-lookup-key` | PR 준비 |
