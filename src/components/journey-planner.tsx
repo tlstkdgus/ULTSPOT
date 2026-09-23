@@ -20,7 +20,7 @@ import { FootprintPanel } from "@/components/footprint-panel";
 import { PlaceStatusPanel } from "@/components/place-status-panel";
 import { daySummary, journeyLegs, legEstimate, travelLookup } from "@/lib/trip/journey-travel";
 import { journeyPlaces, type ResolvedPlace } from "@/lib/trip/journey-places";
-import { fetchTravelTable } from "@/lib/trip/travel-client";
+import { fetchTravelTable, type TravelLeg as LegToLookUp } from "@/lib/trip/travel-client";
 import type { TravelMode, TravelTable } from "@/lib/trip/travel";
 
 const STAY_OPTIONS = [30, 45, 60, 90, 120, 180];
@@ -58,11 +58,17 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
   const places = useMemo(() => journeyPlaces(journey), [journey]);
   const byId = useMemo(() => new Map(places.map(place => [place.id, place])), [places]);
 
+  /**
+   * 조회할 구간. 체크인·지출·메모도 여정 객체를 바꾸지만 구간(같은 날 이웃한 두 곳)은 그대로다.
+   * 객체 대신 구간 내용으로 조회를 걸어, 다녀왔어요를 누를 때마다 카카오 경로를 다시 부르지
+   * 않게 한다(T-048 — 발자취 카드 검사가 그 요청을 잡아 프로덕션에서 간헐적으로 깨졌다).
+   */
+  const legsJson = useMemo(() => JSON.stringify(journeyLegs(journey)), [journey]);
+
   /** 이동시간 조회. 실패해도 편집과 저장은 계속 된다. 늦게 온 응답은 번호로 버린다. */
-  const lookup = useCallback(async (target: Journey, mode: TravelMode, signal: AbortSignal) => {
+  const lookup = useCallback(async (legs: LegToLookUp[], mode: TravelMode, signal: AbortSignal) => {
     const id = ++lookupId.current;
     if (signal.aborted) return;
-    const legs = journeyLegs(target);
     if (!legs.length) { setTable({}); setLookingUp(false); return; }
     setLookingUp(true);
     try {
@@ -77,9 +83,9 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
     const controller = new AbortController();
     // 마이크로태스크로 미뤄 effect 본문에서 곧바로 setState하지 않는다 (연쇄 렌더 방지).
     // 조회는 네트워크 작업이라 한 틱 늦어도 사용자에게 차이가 없다.
-    void Promise.resolve().then(() => lookup(journey, travelMode, controller.signal));
+    void Promise.resolve().then(() => lookup(JSON.parse(legsJson) as LegToLookUp[], travelMode, controller.signal));
     return () => controller.abort();
-  }, [journey, travelMode, lookup]);
+  }, [legsJson, travelMode, lookup]);
 
   const scheduled: ScheduledVisit[] = day
     ? scheduleJourneyDay(journey, current, travelLookup(table, travelMode))

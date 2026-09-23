@@ -152,6 +152,23 @@ test("spending reaches the footprint card only when something was recorded", asy
   await expect(panel).toContainText("Spent ₩21,850");
 });
 
+test("checking in and recording spending do not look up travel times again", async ({ page }) => {
+  // 체크인·지출은 여정 객체를 바꾸지만 이동 구간은 그대로다. 예전엔 누를 때마다 /api/travel을
+  // 다시 불러 카카오 경로 쿼터를 썼고, 발자취 카드 검사가 그 요청을 잡아 간헐적으로 깨졌다(T-048).
+  await journey(page);
+  // 첫 조회가 끝난 뒤부터 센다. networkidle은 첫 조회보다 먼저 올 수 있어 mobile에서 한 번 샜다.
+  await expect(page.getByText("1 leg looked up", { exact: false }).first()).toBeVisible();
+  const lookups: string[] = [];
+  page.on("request", request => { if (request.url().includes("/api/travel")) lookups.push(request.url()); });
+  await markDone(page, HIKR);
+  const spend = page.getByRole("region", { name: "Money spent" });
+  await spend.getByLabel("Amount in won").fill("3000");
+  await spend.getByRole("button", { name: "Add spending" }).click();
+  await expect(spend.getByRole("status")).toContainText("₩3,000");
+  await page.waitForTimeout(500);
+  expect(lookups).toEqual([]);
+});
+
 test("the share card is drawn in the browser and downloaded, with no server and no link", async ({ page }) => {
   await journey(page);
   await markDone(page, HIKR);
