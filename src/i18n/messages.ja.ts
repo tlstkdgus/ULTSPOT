@@ -304,6 +304,9 @@ export const ja: Messages = {
     another: "別の場所",
     remove: "空けておく",
     again: "おすすめを見る",
+    hours: (label: string) => `営業 ${label}`,
+    hoursSource: (modified: string) => `韓国観光公社の情報${modified ? `（${modified}更新）` : ""} — 行く前に確認してください`,
+    closedNote: (note: string) => `休業: ${note}`,
   },
   journey: {
     rangeLegend: "ソウルには何日いますか？",

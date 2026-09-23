@@ -7,6 +7,7 @@
 
 import type { Coord } from "@/lib/trip/geo";
 import type { SuggestionKind } from "@/lib/recommend/nearby";
+import type { PlaceHours } from "@/lib/recommend/tour";
 
 export type RankedSuggestion = {
   id: string;
@@ -17,7 +18,9 @@ export type RankedSuggestion = {
   coord: Coord;
   straightMeters: number;
   evidence: "idol" | "nearby";
-  hoursKnown: false;
+  /** TourAPI 원문이 확실히 읽힌 곳만 true. 카카오 후보는 언제나 false (T-050). */
+  hoursKnown: boolean;
+  hours: PlaceHours | null;
   provider: string;
   placeUrl: string;
   mapUrl: string;

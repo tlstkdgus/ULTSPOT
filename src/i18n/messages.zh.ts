@@ -302,6 +302,9 @@ export const zh: Messages = {
     another: "换一个",
     remove: "留空",
     again: "推荐地点",
+    hours: (label: string) => `营业 ${label}`,
+    hoursSource: (modified: string) => `韩国观光公社信息${modified ? `（${modified} 更新）` : ""}，出发前请再确认`,
+    closedNote: (note: string) => `休息：${note}`,
   },
   journey: {
     rangeLegend: "你在首尔待几天？",
