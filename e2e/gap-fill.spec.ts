@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { catalog } from "../src/lib/trip/catalog";
-import { findGaps, fitInGap, kindsForWindow, MIN_GAP_MINUTES } from "../src/lib/trip/gap-fill";
+import { findGaps, fitInGap, kindsForWindow, MIN_GAP_MINUTES, nextGap } from "../src/lib/trip/gap-fill";
 import { planTrip, type FanEvent, type TripInput } from "../src/lib/trip/planner";
 import { browseAllSpots, fixSuggestions, fixTravelLookups, goToStep, type FixtureSuggestion } from "./flow";
 import { englishLocale } from "./locale";
@@ -41,6 +41,19 @@ test("time of day decides meal or break, and interests only narrow it", () => {
   // 오후 세 시에 "식사"만 골랐어도 밥집을 억지로 넣지 않는다.
   expect(kindsForWindow(900, 1000, ["meal"])).toEqual(["cafe", "sightseeing"]);
   expect(kindsForWindow(720, 800, ["cafe"])).toEqual(["cafe"]);
+  // 긴 오후는 앞부분으로 판단한다. 14:40–18:00이 저녁 17:30에 걸친다고 밥집부터 찾지 않는다.
+  expect(kindsForWindow(880, 1080)).toEqual(["cafe", "sightseeing"]);
+});
+
+test("after a placed suggestion the rest of the gap continues from there, with a different kind", () => {
+  const [gap] = findGaps(planTrip([spot("hikr-ground"), spot("music-korea")], day), day);
+  const cafe = { id: "gap-x", name: "카페", coord: { lat: 37.561, lng: 126.986 } };
+  const next = nextGap(gap, { point: cafe, departure: 900, kind: "cafe" })!;
+  expect(next).toMatchObject({ start: 900, end: 1080, anchor: cafe.coord, kinds: ["sightseeing"] });
+  expect(next.from?.id).toBe("gap-x");
+  expect(next.id).not.toBe(gap.id);
+  // 한 시간이 안 남으면 더 잇지 않는다.
+  expect(nextGap(gap, { point: cafe, departure: 1080 - MIN_GAP_MINUTES + 1, kind: "cafe" })).toBeNull();
 });
 
 test("a suggestion fits only if both legs and a real stay fit in the gap", () => {
@@ -72,7 +85,11 @@ async function planWithFreeAfternoon(page: Page, end = "18:00") {
 
 test("free afternoon gets a nearby suggestion, marked as unconfirmed and kept out of exports", async ({ page }) => {
   const asked: { kinds: string[]; excluded: string[] }[] = [];
-  page.on("request", request => { if (request.url().endsWith("/api/recommend")) asked.push(request.postDataJSON()); });
+  const legs: { mode: string; legs: { to: { id: string } }[] }[] = [];
+  page.on("request", request => {
+    if (request.url().endsWith("/api/recommend")) asked.push(request.postDataJSON());
+    if (request.url().endsWith("/api/travel")) legs.push(request.postDataJSON());
+  });
   await fixSuggestions(page, nearby, true);
   await planWithFreeAfternoon(page);
 
@@ -85,8 +102,18 @@ test("free afternoon gets a nearby suggestion, marked as unconfirmed and kept ou
   await expect(card.getByRole("link", { name: "See on Kakao Map" })).toHaveAttribute("href", "https://place.map.kakao.com/t-meal-1");
   // 13:20 이후는 점심 시간대와 겹친다 → 식사·휴식.
   expect(asked[0].kinds).toEqual(["meal", "cafe"]);
+  // 후보는 뮤직코리아에서 100m 안이다. 대중교통 경로가 없는 거리라 걸어서 잰다.
+  const gapLegs = legs.filter(body => body.legs.some(leg => leg.to.id.startsWith("gap-")));
+  expect(gapLegs.length).toBeGreaterThan(0);
+  expect(gapLegs.every(body => body.mode === "walk")).toBe(true);
+
+  // 식사 뒤에도 세 시간 넘게 남는다. 식당에서 출발해 밥집이 아닌 곳(카페)을 잇는다.
+  const cafe = page.getByRole("article", { name: "Suggested for your free time: 명동 테스트 카페" });
+  await expect(cafe).toContainText("15:00–16:00");
+  // 관광 후보는 없으니 남은 두 시간은 비어 있다고 말한다.
+  await expect(page.getByText("2h free · nothing nearby fits this gap", { exact: true })).toBeVisible();
   // 하루가 끝나는 시각도 추천을 반영한다.
-  await expect(page.getByRole("heading", { name: "Done by 14:40" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Done by 16:00" })).toBeVisible();
 
   // 확정 일정이 아니므로 파일에는 들어가지 않는다.
   const download = page.waitForEvent("download");

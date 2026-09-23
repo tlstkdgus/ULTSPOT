@@ -21,6 +21,10 @@ export const MIN_GAP_MINUTES = 60;
 export const MIN_STAY_MINUTES = 30;
 /** 한 번에 채우는 빈 구간 수. 구간마다 장소 검색·이동시간 조회가 나가므로 상한을 둔다. */
 export const MAX_GAPS = 3;
+/** 빈 구간 하나에 이어 붙이는 추천 수. 4시간 넘게 비는 오후도 식사 → 카페 → 관광 정도로 채운다. */
+export const MAX_PER_GAP = 3;
+/** 시간대를 판단할 때 보는 앞부분(분). 긴 오후 끝자락이 저녁에 걸친다고 오후 2시에 밥집을 넣지 않는다. */
+const LOOKAHEAD_MINUTES = 90;
 
 export type Gap = {
   /** 앞뒤 정류장으로 만든 안정적인 키. 같은 일정이면 같은 키다. */
@@ -53,7 +57,8 @@ const MEAL_WINDOWS: [number, number][] = [[690, 840], [1050, 1200]];
  * 억지로 밥집을 넣기보다 카페를 넣는 편이 하루에 맞는다. 관심사를 안 골랐으면 시간대만 본다.
  */
 export function kindsForWindow(start: number, end: number, preferred: readonly SuggestionKind[] = []): SuggestionKind[] {
-  const mealTime = MEAL_WINDOWS.some(([from, to]) => overlaps(start, end, from, to));
+  const until = Math.min(end, start + LOOKAHEAD_MINUTES);
+  const mealTime = MEAL_WINDOWS.some(([from, to]) => overlaps(start, until, from, to));
   const byTime: SuggestionKind[] = mealTime ? ["meal", "cafe"] : ["cafe", "sightseeing"];
   if (!preferred.length) return byTime;
   const both = byTime.filter(kind => preferred.includes(kind));
@@ -119,4 +124,17 @@ export function fitInGap(gap: Pick<Gap, "start" | "end">, legIn: number, legOut:
   if (!Number.isFinite(staying) || staying < MIN_STAY_MINUTES) return null;
   const arrival = gap.start + legIn;
   return { arrival, departure: arrival + staying, stay: staying };
+}
+
+/**
+ * 추천 한 곳을 넣은 뒤 남는 시간. 한 시간 이상 남으면 그 장소에서 출발하는 다음 빈 구간을 만든다.
+ * 방금 넣은 종류는 뺀다(밥 먹고 또 밥집을 권하지 않는다). 빼고 남는 게 없으면 시간대 기본값을 쓴다.
+ */
+export function nextGap(gap: Gap, placed: { point: TravelPoint; departure: number; kind: SuggestionKind },
+  preferred: readonly SuggestionKind[] = []): Gap | null {
+  if (gap.end - placed.departure < MIN_GAP_MINUTES || !placed.point.coord) return null;
+  const kinds = kindsForWindow(placed.departure, gap.end, preferred);
+  const varied = kinds.filter(kind => kind !== placed.kind);
+  return { ...gap, id: `${gap.id}+`, start: placed.departure, from: placed.point, anchor: placed.point.coord,
+    kinds: varied.length ? varied : kinds };
 }

@@ -7,22 +7,31 @@ import { TravelLeg } from "@/components/travel-leg";
 import { useI18n } from "@/i18n/locale";
 import { fetchSuggestions, type RankedSuggestion } from "@/lib/recommend/client";
 import type { PreferenceProfile } from "@/lib/recommend/preference";
-import { findGaps, fitInGap, type Gap, type GapFit } from "@/lib/trip/gap-fill";
-import type { TravelPoint } from "@/lib/trip/geo";
+import { findGaps, fitInGap, MAX_PER_GAP, nextGap, type Gap, type GapFit } from "@/lib/trip/gap-fill";
+import type { SuggestionKind } from "@/lib/recommend/nearby";
+import { straightLineMeters, type TravelPoint } from "@/lib/trip/geo";
 import { clock, type TripInput, type TripResult } from "@/lib/trip/planner";
 import { legKey, travelMinutes, type TravelEstimate, type TravelMode } from "@/lib/trip/travel";
 import { fetchTravelTable, type TravelLeg as LegToLookUp } from "@/lib/trip/travel-client";
 
 /** 빈 구간 하나에 이동시간을 재 보는 후보 수. 3곳이면 구간당 이동시간 조회가 최대 6개다. */
 const CANDIDATES_PER_GAP = 3;
+/**
+ * 이 거리 안의 구간은 걸어서 잰다. 빈 시간 추천은 바로 옆 가게가 많은데(실측 11m), 대중교통 경로
+ * API는 그런 구간에 경로를 주지 않아 계획용 여유 45분으로 떨어졌다 — 11m에 45분을 잡는 셈이다.
+ */
+const WALK_UP_TO_METERS = 800;
 
 export type GapFillState =
   | { status: "finding"; gap: Gap }
-  | { status: "filled"; gap: Gap; suggestion: RankedSuggestion; fit: GapFit; legIn: TravelEstimate | null; legOut: TravelEstimate | null; ranked: boolean }
+  | { status: "filled"; gap: Gap; suggestion: RankedSuggestion; point: TravelPoint; fit: GapFit; legIn: TravelEstimate | null; legOut: TravelEstimate | null; ranked: boolean }
   | { status: "none"; gap: Gap }
   | { status: "removed"; gap: Gap };
 
-type FillOptions = { preference: string; mode: TravelMode; transfer: number; stay: number };
+/** 확정 정류장 사이 빈 구간 하나와, 거기에 이어 붙인 추천들. */
+export type GapChain = { root: Gap; items: GapFillState[] };
+
+type FillOptions = { preference: string; preferred: SuggestionKind[]; mode: TravelMode; transfer: number; stay: number };
 
 /**
  * 빈 구간 하나를 채운다. 주변 후보(카카오 장소 + Jev 취향 순위)를 받아 순위대로 이동시간을 재고,
@@ -42,18 +51,46 @@ async function fillGap(gap: Gap, excluded: string[], options: FillOptions, signa
     ...(gap.from ? [{ from: gap.from, to: point }] : []),
     ...(gap.to ? [{ from: point, to: gap.to }] : []),
   ]);
-  const { table } = await fetchTravelTable(legs, options.mode, options.transfer, signal);
+  const modeOf = (leg: LegToLookUp): TravelMode =>
+    leg.from.coord && leg.to.coord && straightLineMeters(leg.from.coord, leg.to.coord) <= WALK_UP_TO_METERS ? "walk" : options.mode;
+  const byMode = (mode: TravelMode) => legs.filter(leg => modeOf(leg) === mode);
+  const modes = [...new Set<TravelMode>(["walk", options.mode])];
+  const tables = await Promise.all(modes.map(mode => byMode(mode).length
+    ? fetchTravelTable(byMode(mode), mode, options.transfer, signal).then(r => r.table) : Promise.resolve({})));
+  const table = Object.assign({}, ...tables) as Record<string, TravelEstimate | undefined>;
+  const lookUp = (from: TravelPoint, to: TravelPoint) => table[legKey(from.id, to.id, modeOf({ from, to }))] ?? null;
   for (const [index, suggestion] of candidates.entries()) {
     const point = points[index];
-    const legIn = gap.from ? table[legKey(gap.from.id, point.id, options.mode)] ?? null : null;
-    const legOut = gap.to ? table[legKey(point.id, gap.to.id, options.mode)] ?? null : null;
+    const legIn = gap.from ? lookUp(gap.from, point) : null;
+    const legOut = gap.to ? lookUp(point, gap.to) : null;
     const fit = fitInGap(gap,
       legIn ? travelMinutes(legIn, options.transfer) : 0,
       legOut ? travelMinutes(legOut, options.transfer) : 0,
       options.stay);
-    if (fit) return { status: "filled", gap, suggestion, fit, legIn, legOut, ranked: Boolean(found.ranking?.applied) };
+    if (fit) return { status: "filled", gap, suggestion, point, fit, legIn, legOut, ranked: Boolean(found.ranking?.applied) };
   }
   return { status: "none", gap };
+}
+
+/**
+ * 빈 구간을 앞에서부터 이어서 채운다. 한 곳을 넣고도 한 시간 이상 남으면 그 장소에서 다음 곳을 찾는다
+ * (최대 MAX_PER_GAP). 중간 상태를 emit으로 알려 화면이 하나씩 채워지게 한다.
+ */
+async function fillChain(first: Gap, prefix: GapFillState[], excluded: string[], options: FillOptions,
+  signal: AbortSignal, emit: (items: GapFillState[]) => void) {
+  const items = [...prefix];
+  let gap: Gap | null = first;
+  let skip = [...excluded];
+  while (gap && items.filter(i => i.status === "filled").length < MAX_PER_GAP) {
+    emit([...items, { status: "finding", gap }]);
+    const state = await fillGap(gap, skip, options, signal);
+    if (signal.aborted) return;
+    items.push(state);
+    if (state.status !== "filled") break;
+    skip = [...skip, state.suggestion.id];
+    gap = nextGap(gap, { point: state.point, departure: state.fit.departure, kind: state.suggestion.kind }, options.preferred);
+  }
+  emit(items);
 }
 
 /**
@@ -71,20 +108,21 @@ export function useGapFill({ result, input, profile, ready }: {
   ready: boolean;
 }) {
   const gaps = ready ? findGaps(result, input, profile.kinds) : [];
-  const options: FillOptions = { preference: profile.sentence, mode: input.travelMode ?? "transit", transfer: input.transfer, stay: input.stay };
+  const options: FillOptions = { preference: profile.sentence, preferred: profile.kinds, mode: input.travelMode ?? "transit", transfer: input.transfer, stay: input.stay };
   /** 이 값이 같으면 같은 일정이다. 달라지면 이전 추천을 버리고 새로 채운다. */
   const runKey = JSON.stringify([gaps.map(g => [g.id, g.start, g.end, g.kinds, g.from?.id ?? null, g.to?.id ?? null]), options]);
-  const [store, setStore] = useState<{ key: string; fills: Record<string, GapFillState> }>({ key: "", fills: {} });
+  const [store, setStore] = useState<{ key: string; chains: Record<string, GapFillState[]> }>({ key: "", chains: {} });
   /** 사용자가 "다른 곳"으로 넘긴 후보. 일정이 바뀌어도 다시 권하지 않는다. */
   const skipped = useRef<Record<string, string[]>>({});
   const controllers = useRef<Record<string, AbortController>>({});
   const latest = useRef({ runKey, options });
   useEffect(() => { latest.current = { runKey, options }; });
 
-  const put = (key: string, gapId: string, state: GapFillState) =>
+  const put = (key: string, rootId: string, items: GapFillState[]) =>
     setStore(current => current.key === key
-      ? { key, fills: { ...current.fills, [gapId]: state } }
-      : { key, fills: { [gapId]: state } });
+      ? { key, chains: { ...current.chains, [rootId]: items } }
+      : { key, chains: { [rootId]: items } });
+  const pickedIn = (items: GapFillState[]) => items.flatMap(i => i.status === "filled" ? [i.suggestion.id] : []);
 
   useEffect(() => {
     if (!gaps.length) return;
@@ -94,10 +132,10 @@ export function useGapFill({ result, input, profile, ready }: {
       const used: string[] = [];
       for (const gap of gaps) {
         if (controller.signal.aborted) return;
-        const state = await fillGap(gap, [...used, ...(skipped.current[gap.id] ?? [])], options, controller.signal);
-        if (controller.signal.aborted) return;
-        if (state.status === "filled") used.push(state.suggestion.id);
-        put(key, gap.id, state);
+        let last: GapFillState[] = [];
+        await fillChain(gap, [], [...used, ...(skipped.current[gap.id] ?? [])], options, controller.signal,
+          items => { last = items; if (!controller.signal.aborted) put(key, gap.id, items); });
+        used.push(...pickedIn(last));
       }
     })();
     return () => controller.abort();
@@ -105,26 +143,36 @@ export function useGapFill({ result, input, profile, ready }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runKey]);
 
-  const fills = gaps.map(gap => (store.key === runKey ? store.fills[gap.id] : undefined) ?? { status: "finding" as const, gap });
+  const chains: GapChain[] = gaps.map(root => ({
+    root,
+    items: (store.key === runKey ? store.chains[root.id] : undefined) ?? [{ status: "finding", gap: root }],
+  }));
 
-  /** 이 구간만 다시 채운다. 다른 구간에 들어간 곳은 고르지 않는다. */
-  function refill(gap: Gap, skip?: string) {
-    if (skip) skipped.current[gap.id] = [...(skipped.current[gap.id] ?? []), skip];
+  /** index번째부터 다시 채운다. 그 앞은 그대로 두고, 다른 구간에 들어간 곳은 고르지 않는다. */
+  function refill(root: Gap, index: number, skip?: string) {
+    if (skip) skipped.current[root.id] = [...(skipped.current[root.id] ?? []), skip];
+    const chain = chains.find(c => c.root.id === root.id);
+    if (!chain) return;
     const key = latest.current.runKey;
-    controllers.current[gap.id]?.abort();
+    controllers.current[root.id]?.abort();
     const controller = new AbortController();
-    controllers.current[gap.id] = controller;
-    const elsewhere = fills.flatMap(f => f.gap.id !== gap.id && f.status === "filled" ? [f.suggestion.id] : []);
-    put(key, gap.id, { status: "finding", gap });
-    void fillGap(gap, [...elsewhere, ...(skipped.current[gap.id] ?? [])], latest.current.options, controller.signal)
-      .then(state => { if (!controller.signal.aborted) put(key, gap.id, state); });
+    controllers.current[root.id] = controller;
+    const prefix = chain.items.slice(0, index);
+    const elsewhere = chains.flatMap(c => c.root.id === root.id ? [] : pickedIn(c.items));
+    void fillChain(chain.items[index].gap, prefix, [...elsewhere, ...pickedIn(prefix), ...(skipped.current[root.id] ?? [])],
+      latest.current.options, controller.signal, items => { if (!controller.signal.aborted) put(key, root.id, items); });
   }
 
   return {
-    fills,
-    another: (gap: Gap, suggestionId: string) => refill(gap, suggestionId),
-    again: (gap: Gap) => refill(gap),
-    remove: (gap: Gap) => { controllers.current[gap.id]?.abort(); put(runKey, gap.id, { status: "removed", gap }); },
+    chains,
+    another: (root: Gap, index: number, suggestionId: string) => refill(root, index, suggestionId),
+    again: (root: Gap, index: number) => refill(root, index),
+    /** index번째를 비운다. 그 뒤에 이어 붙였던 곳도 그 장소에서 출발했으므로 함께 뺀다. */
+    remove: (root: Gap, index: number) => {
+      controllers.current[root.id]?.abort();
+      const chain = chains.find(c => c.root.id === root.id);
+      if (chain) put(runKey, root.id, [...chain.items.slice(0, index), { status: "removed", gap: chain.items[index].gap }]);
+    },
   };
 }
 

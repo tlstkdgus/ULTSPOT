@@ -20,7 +20,7 @@ import {
 import { hasUnconfirmedTravel, travelMinutes, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
-import { GapSlot, useGapFill, type GapFillState } from "@/components/gap-fill";
+import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
 import { KakaoMap } from "@/components/kakao-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
@@ -321,11 +321,16 @@ export function TripPlanner({ today }: { today: string }) {
    * 화면에서 정류장 사이에 끼워 보여준다. 캘린더·txt 내보내기에는 넣지 않는다.
    */
   const gapFill = useGapFill({ result, input, profile, ready: step === 3 && !journey && !!result && !result.error && !lookingUp });
-  const fillAfter = (stopId: string) => gapFill.fills.find(f => f.gap.id === `${stopId}>after` || f.gap.id.startsWith(`${stopId}>`));
-  const fillBefore = (stopId: string, index: number) => gapFill.fills.find(f =>
-    f.gap.id === (index === 0 ? `before>${stopId}` : `${result?.stops[index - 1]?.event.id}>${stopId}`));
-  const filled = (state: GapFillState | undefined) => (state?.status === "filled" ? state : null);
-  const tailFill = lastStop ? filled(gapFill.fills.find(f => f.gap.id === `${lastStop.event.id}>after`)) : null;
+  const chainAfter = (stopId: string) => gapFill.chains.find(c => c.root.id.startsWith(`${stopId}>`));
+  const chainBefore = (stopId: string, index: number) => gapFill.chains.find(c =>
+    c.root.id === (index === 0 ? `before>${stopId}` : `${result?.stops[index - 1]?.event.id}>${stopId}`));
+  /** 구간에서 마지막으로 들른 추천 장소. 다음 정류장(또는 하루의 끝)은 여기서 출발한다. */
+  const lastFilled = (chain?: GapChain) =>
+    [...(chain?.items ?? [])].reverse().find((i): i is Extract<GapFillState, { status: "filled" }> => i.status === "filled") ?? null;
+  const renderChain = (chain?: GapChain) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state} transfer={transfer}
+    onAnother={() => state.status === "filled" && gapFill.another(chain.root, index, state.suggestion.id)}
+    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)} />);
+  const tailFill = lastStop ? lastFilled(gapFill.chains.find(c => c.root.id === `${lastStop.event.id}>after`)) : null;
   /** 하루가 실제로 끝나는 시각. 마지막 빈 시간에 추천이 들어가면 그곳을 떠나는 시각이다. */
   const dayEnd = tailFill ? tailFill.fit.departure : lastStop?.departure ?? 0;
   const freeAfter = lastStop ? input.end - dayEnd - (tailFill?.legOut ? travelMinutes(tailFill.legOut, transfer) : 0) : 0;
@@ -598,16 +603,14 @@ export function TripPlanner({ today }: { today: string }) {
         <KakaoMap className="mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong"
           points={[
             ...result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; }),
-            ...gapFill.fills.flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord }] : []),
+            ...gapFill.chains.flatMap(c => c.items).flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord }] : []),
           ]} />
-        <ol className="space-y-4">{result.stops.map((stop, index) => { const before = fillBefore(stop.event.id, index); const after = fillAfter(stop.event.id); return <Fragment key={stop.event.id}>
-          {index === 0 && before && <GapSlot state={before} transfer={transfer}
-            onAnother={() => before.status === "filled" && gapFill.another(before.gap, before.suggestion.id)}
-            onRemove={() => gapFill.remove(before.gap)} onAgain={() => gapFill.again(before.gap)} />}
+        <ol className="space-y-4">{result.stops.map((stop, index) => { const before = chainBefore(stop.event.id, index); const via = lastFilled(before); return <Fragment key={stop.event.id}>
+          {index === 0 && renderChain(before)}
           <li>
           {/* 앞 빈 시간에 추천이 들어갔으면 이 정류장까지의 이동은 추천 장소에서 출발한다. */}
-          {filled(before)
-            ? <TravelLeg estimate={filled(before)!.legOut} bufferMinutes={transfer} />
+          {via
+            ? <TravelLeg estimate={via.legOut} bufferMinutes={transfer} />
             : <TravelLeg estimate={stop.travelEstimate} bufferMinutes={transfer} lookingUp={lookingUp} />}
           <article className="rounded-xl border border-line-strong bg-surface p-5 sm:p-6">
             {/* 기준 목업의 정류장 행: 번호 · 분류 태그 · 시간. 분류는 우리가 만든 라벨이라 번역해도 된다. */}
@@ -634,9 +637,7 @@ export function TripPlanner({ today }: { today: string }) {
             {index === 0 && <p className="mt-3 border-t border-line-strong pt-3 text-caption text-text-muted">{t.result.firstStop}</p>}
           </article>
           </li>
-          {after && <GapSlot state={after} transfer={transfer}
-            onAnother={() => after.status === "filled" && gapFill.another(after.gap, after.suggestion.id)}
-            onRemove={() => gapFill.remove(after.gap)} onAgain={() => gapFill.again(after.gap)} />}
+          {renderChain(chainAfter(stop.event.id))}
         </Fragment>; })}</ol>
 
         {result.omitted.length > 0 && <div className="mt-5 rounded-xl border border-dashed border-line-strong p-5">
