@@ -1,4 +1,5 @@
 "use client";
+import { seoulDate } from "@/lib/seoul-date";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui";
 import { useI18n } from "@/i18n/locale";
@@ -50,7 +51,7 @@ export function PersonalEventForm({ date, onAdd, requestOpen = 0 }: { date: stri
       id: `personal-${crypto.randomUUID()}`, title: field("title"), address: field("address"), area: field("area"),
       kind: "Personal event", from: date, to: date, opens, closes,
       closedDays: [], reservation: data.get("reservation") === "on", do: field("do"), get: field("get"),
-      provenance: { mode: "personal", author: "Entered by you · not independently verified", checkedOn: new Date().toISOString().slice(0, 10), url: source },
+      provenance: { mode: "personal", author: "Entered by you · not independently verified", checkedOn: seoulDate(), url: source },
     };
     const count = Object.keys(found).length;
     if (count) {

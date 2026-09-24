@@ -6,6 +6,7 @@
  * 응답을 캐시하지 않는다(Google 콘텐츠 저장 금지). 그래서 Cache-Control: no-store.
  */
 
+import { seoulDate } from "@/lib/seoul-date";
 import { isKoreanCoord } from "@/lib/trip/geo";
 import { findGooglePhoto, isGoogleConfigured } from "@/lib/recommend/google";
 
@@ -33,7 +34,7 @@ function rateLimited(ip: string) {
 }
 
 function takeBudget() {
-  const day = new Date().toISOString().slice(0, 10);
+  const day = seoulDate();
   if (budget.day !== day) budget = { day, used: 0 };
   if (budget.used >= DAILY_BUDGET) return false;
   budget.used += 1;

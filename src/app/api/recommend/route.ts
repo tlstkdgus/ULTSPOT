@@ -14,6 +14,7 @@
  * 공개 배포 전에 공용 저장소나 공급자 측 호출 차단 설정이 필요하다.
  */
 
+import { seoulDate } from "@/lib/seoul-date";
 import { isKoreanCoord, roundCoord, type Coord } from "@/lib/trip/geo";
 import { isKakaoConfigured } from "@/lib/trip/kakao";
 import {
@@ -92,7 +93,8 @@ function mergeCandidates(kakao: Suggestion[], tour: (Suggestion & { tour: TourRe
 const hits = new Map<string, number[]>();
 const budgets = new Map<string, { day: string; used: number }>();
 
-const today = () => new Date().toISOString().slice(0, 10);
+/** 일일 상한은 한국 시간 자정에 초기화한다(T-059). */
+const today = () => seoulDate();
 
 function takeBudget(name: string, limit: number, count: number) {
   const day = today();
