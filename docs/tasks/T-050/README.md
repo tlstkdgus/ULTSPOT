@@ -85,6 +85,13 @@ TourAPI 개발계정은 기능별 하루 1,000건. 서버 상한은 검색 400·
 - 로컬 프로덕션 빌드를 새로 띄워(캐시 없음) 실제 API로 확인: 명동 8곳 중 TourAPI 5곳·영업시간 확인 4곳, 성수 8곳 중
   TourAPI 6곳·확인 5곳. 응답에 TourAPI 키(원문·인코딩)와 `serviceKey` 없음
 
+## 머지 경위 (2026-09-25 추가)
+
+#64는 **main이 아니라 `feat/T-049-gap-fill`로** 머지됐다. #63이 main에 머지된 9초 뒤였다. 쌓은 PR은 아래 PR이 머지돼도
+다음 PR의 base가 main으로 바뀌지 않는다(머지 뒤 head 브랜치를 지우지 않으면). 그래서 T-050이 main·프로덕션에 없었다.
+#65~#67의 base를 main으로 바꿔 #65와 함께 main에 들어갔다. 다음부터 쌓은 PR은 처음부터 base를 main으로 두고,
+본문에 "앞 PR 다음에 머지"라고 적는다.
+
 ## 머지 후 할 일 (사용자)
 
 - Vercel → Settings → Environment Variables에 `TOUR_API_KEY`를 **Production·Preview**로 추가한다. 서버 전용이라
