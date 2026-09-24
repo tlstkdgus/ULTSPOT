@@ -16,6 +16,9 @@
 
 import { isKoreanCoord, mapLinks, roundCoord, straightLineMeters, type Coord } from "@/lib/trip/geo";
 import { kakaoKey } from "@/lib/trip/kakao";
+import { hoursLabel } from "./hours-label";
+import type { PlaceHours } from "./tour";
+import type { PlacePhoto } from "./photo";
 
 /** 팬 하루에서 행사 사이를 메우는 세 가지 역할. */
 export type SuggestionKind = "meal" | "cafe" | "sightseeing";
@@ -34,8 +37,14 @@ export type Suggestion = {
   straightMeters: number;
   /** idol: 아이돌 관련 근거가 검수된 장소. nearby: 근처에 있다는 사실만 확인된 일반 장소. */
   evidence: "idol" | "nearby";
-  /** 영업시간은 이 출처에 없다. 언제나 false이며 화면에서 미확인으로 표시한다. */
-  hoursKnown: false;
+  /**
+   * 영업시간을 아는가. 카카오 장소 검색에는 영업시간이 없어 언제나 false다.
+   * TourAPI 후보는 원문이 확실히 읽힐 때만 true이고 그때 hours가 있다 (T-050).
+   */
+  hoursKnown: boolean;
+  hours: PlaceHours | null;
+  /** 이용 조건을 아는 사진. 카카오 장소 검색에는 사진이 없어 언제나 null이다 (T-051). */
+  photo: PlacePhoto | null;
   provider: string;
   placeUrl: string;
   mapUrl: string;
@@ -77,7 +86,7 @@ export function parseNearby(body: unknown, kind: SuggestionKind, anchor: Coord, 
       category: typeof row.category_name === "string" ? row.category_name.slice(0, 120) : "",
       address: address.slice(0, 300), coord: roundCoord(coord), straightMeters: Math.round(meters),
       // 카카오 장소 검색만으로는 아이돌 관련성을 알 수 없다. 언제나 일반 주변이다.
-      evidence: "nearby", hoursKnown: false, provider: NEARBY_PROVIDER,
+      evidence: "nearby", hoursKnown: false, hours: null, photo: null, provider: NEARBY_PROVIDER,
       placeUrl: placeUrl || mapLinks.place({ id, name, coord }),
       mapUrl: mapLinks.place({ id, name, address, coord }),
     });
@@ -101,6 +110,18 @@ export async function searchNearby(
   kind: SuggestionKind, anchor: Coord,
   options: { radius?: number; signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<Suggestion[]> {
+  return (await searchNearbyOrFail(kind, anchor, options)) ?? [];
+}
+
+/**
+ * searchNearby와 같지만 **실패는 null**이다. "근처에 없다"(빈 배열)와 "조회하지 못했다"를 가른다.
+ * 호출하는 쪽이 빈 결과는 캐시하고 실패는 캐시하지 않게 하려는 것이다 — 서버가 막 떠서 첫 조회가
+ * 시간 초과로 끝났을 때 그 빈 목록을 30분 동안 돌려주던 문제가 있었다(T-050에서 확인).
+ */
+export async function searchNearbyOrFail(
+  kind: SuggestionKind, anchor: Coord,
+  options: { radius?: number; signal?: AbortSignal; timeoutMs?: number } = {},
+): Promise<Suggestion[] | null> {
   const key = kakaoKey();
   if (!key || !isKoreanCoord(anchor)) return [];
   const radius = Math.min(Math.max(options.radius ?? NEARBY_RADIUS_M, 100), 20_000);
@@ -116,10 +137,10 @@ export async function searchNearby(
     const response = await fetch(url, {
       headers: { Authorization: `KakaoAK ${key}` }, signal: deadline.signal, cache: "no-store",
     });
-    if (!response.ok) return [];
+    if (!response.ok) return null;
     return parseNearby(await response.json(), kind, anchor, radius);
   } catch {
-    return [];
+    return null;
   } finally {
     deadline.done();
   }
@@ -131,7 +152,7 @@ export function suggestionFacts(suggestion: Suggestion) {
     suggestion.category || suggestion.kind,
     suggestion.address,
     `약 ${suggestion.straightMeters}m (직선 거리)`,
-    // 모델이 영업시간을 추론하지 않도록 미확인임을 명시한다.
-    "영업시간 미확인",
+    // 모델이 영업시간을 추론하지 않도록, 확인된 값이 없으면 미확인임을 명시한다.
+    suggestion.hours ? `영업 ${hoursLabel(suggestion.hours)} (${suggestion.hours.source})` : "영업시간 미확인",
   ].filter(Boolean).join(" · ").slice(0, 400);
 }

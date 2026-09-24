@@ -257,7 +257,11 @@ export function TripPlanner({ today }: { today: string }) {
     setRequired(ids => ids.filter(x => x !== id));
     invalidate();
   }
-  /** 추천 후보를 개인 장소로 담는다. 영업시간이 미확인이라 자동 편성 대상이 아니다. */
+  /**
+   * 추천 후보를 개인 장소로 담는다. 영업시간이 미확인이면 자동 편성 대상이 아니다.
+   * TourAPI로 영업시간을 아는 곳은 그 시간·요일 휴무로 편성한다(T-050). 준비시간이 있는 곳은 편성기가
+   * 준비시간을 모르므로 시간을 넘기지 않는다 — 그 사이에 도착하는 일정을 만들 수 있기 때문이다.
+   */
   function addSuggestion(suggestion: RankedSuggestion) {
     const id = `personal-${suggestion.id}`;
     discardResult();
@@ -265,8 +269,13 @@ export function TripPlanner({ today }: { today: string }) {
     setPersonal(items => [...items, {
       id, title: suggestion.name, area: suggestion.category || t.suggest.kinds[suggestion.kind],
       kind: "Personal event", address: suggestion.address || suggestion.name,
-      from: date, to: date, opens: null, closes: null, closedDays: [], reservation: false,
-      do: t.suggest.hoursUnknown, get: t.suggest.provider(suggestion.provider),
+      from: date, to: date,
+      ...(suggestion.hours && !suggestion.hours.breaks.length
+        ? { opens: suggestion.hours.opens, closes: suggestion.hours.closes, closedDays: suggestion.hours.closedDays }
+        : { opens: null, closes: null, closedDays: [] }),
+      reservation: false,
+      do: suggestion.hours ? t.gap.hoursSource(suggestion.hours.modified) : t.suggest.hoursUnknown,
+      get: t.suggest.provider(suggestion.provider),
       provenance: { mode: "personal", author: suggestion.provider, checkedOn: date, url: suggestion.placeUrl },
     }]);
     setNotice(t.event.added);

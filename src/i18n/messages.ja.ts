@@ -304,6 +304,13 @@ export const ja: Messages = {
     another: "別の場所",
     remove: "空けておく",
     again: "おすすめを見る",
+    hours: (label: string) => `営業 ${label}`,
+    hoursSource: (modified: string) => `韓国観光公社の情報${modified ? `（${modified}更新）` : ""} — 行く前に確認してください`,
+    closedNote: (note: string) => `休業: ${note}`,
+  },
+  photo: {
+    tour: (noChanges: boolean) => `写真: 韓国観光公社 · 公共ヌリ${noChanges ? "第3類型（改変禁止）" : "第1類型"}`,
+    google: (authors: string) => `写真: ${authors ? `${authors} · ` : ""}Google Maps`,
   },
   journey: {
     rangeLegend: "ソウルには何日いますか？",

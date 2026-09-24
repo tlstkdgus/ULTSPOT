@@ -157,3 +157,48 @@ test("when nothing nearby fits, the gap says so instead of staying silent", asyn
   await planWithFreeAfternoon(page);
   await expect(page.getByText("4h 40m free · nothing nearby fits this gap", { exact: true })).toBeVisible();
 });
+
+test("places with known hours go first, closed ones are skipped and arrival waits for opening", async ({ page }) => {
+  await fixSuggestions(page, [
+    // 가장 가깝지만 영업시간 미확인.
+    { id: "t-unknown", kind: "meal", name: "미확인 식당", lat: 37.5607, lng: 126.9866 },
+    // 영업시간은 알지만 화요일(2026-09-22) 휴무.
+    { id: "t-closed", kind: "meal", name: "화요일 휴무 식당", lat: 37.5608, lng: 126.9866, hours: { opens: 600, closes: 1260, closedDays: [2] } },
+    // 14:00에 연다. 13:40에 닿아도 14:00까지 기다린다.
+    { id: "t-late", kind: "meal", name: "두시 여는 식당", lat: 37.5609, lng: 126.9866, hours: { opens: 840, closes: 1260, note: "설·추석 당일" } },
+  ]);
+  await planWithFreeAfternoon(page);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 두시 여는 식당" });
+  await expect(card).toContainText("14:00–15:00");
+  await expect(card).toContainText("Open 14:00–21:00");
+  await expect(card).toContainText("Hours from Korea Tourism Organization (updated 2025-01-03)");
+  await expect(card).toContainText("Closed: 설·추석 당일");
+  await expect(card).not.toContainText("Hours unconfirmed");
+  await expect(page.getByRole("article", { name: /화요일 휴무 식당/ })).toHaveCount(0);
+});
+
+test("a suggestion with a licensed photo shows it whole, with the source under it", async ({ page }) => {
+  // 외부 사진 서버에 기대지 않도록 앱에 있는 이미지로 대신한다. 검사 대상은 사진 칸과 출처 표기다.
+  await fixSuggestions(page, [
+    { id: "t-photo", kind: "meal", name: "사진 있는 식당", lat: 37.5609, lng: 126.9866, photo: { url: "/images/music-korea.webp", license: "kogl-3" } },
+  ]);
+  await planWithFreeAfternoon(page);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 사진 있는 식당" });
+  const photo = card.getByRole("img", { name: "사진 있는 식당" });
+  await expect(photo).toBeVisible();
+  // 변경 금지(제3유형) — 자르지 않는다.
+  await expect(photo).toHaveCSS("object-fit", "contain");
+  await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  await expect(card).toContainText("Photo: Korea Tourism Organization · KOGL Type 3 (no alterations)");
+});
+
+test("a photo that fails to load leaves no broken image behind", async ({ page }) => {
+  await fixSuggestions(page, [
+    { id: "t-broken", kind: "meal", name: "사진 깨진 식당", lat: 37.5609, lng: 126.9866, photo: { url: "/images/does-not-exist.webp", license: "kogl-1" } },
+  ]);
+  await planWithFreeAfternoon(page);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 사진 깨진 식당" });
+  await expect(card).toBeVisible();
+  await expect(card.getByRole("img")).toHaveCount(0);
+  await expect(card).not.toContainText("Korea Tourism Organization · KOGL");
+});

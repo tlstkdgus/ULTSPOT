@@ -1,4 +1,5 @@
 import type { SuggestionKind } from "@/lib/recommend/nearby";
+import type { PlaceHours } from "@/lib/recommend/tour";
 import type { Coord, TravelPoint } from "./geo";
 import { DESTINATION_ID, ORIGIN_ID, eventPoint, type TripInput, type TripResult } from "./planner";
 
@@ -117,14 +118,28 @@ export function findGaps(result: TripResult | null, input: TripInput, preferred:
  *
  * legIn: from → 후보, legOut: 후보 → to (분). from/to가 없으면 0을 넘긴다.
  * 체류는 사용자가 정한 시간을 우선하고, 모자라면 줄이되 MIN_STAY_MINUTES 밑으로는 넣지 않는다.
+ *
+ * hours가 있으면(TourAPI, T-050) 여는 시각 전에는 기다리고, 준비시간에는 도착하지도 머무르지도 않으며,
+ * 닫는 시각(마지막 주문이 있으면 그 시각)까지 떠난다. 마지막 주문 뒤에도 먹을 수는 있지만, 확인한
+ * 시각 안에서만 잡는 쪽이 헛걸음이 없다. 요일 휴무는 날짜를 아는 쪽(isClosedOn)이 먼저 거른다.
  */
-export function fitInGap(gap: Pick<Gap, "start" | "end">, legIn: number, legOut: number, stay: number): GapFit | null {
-  const room = gap.end - gap.start - legIn - legOut;
-  const staying = Math.min(stay, room);
+export function fitInGap(gap: Pick<Gap, "start" | "end">, legIn: number, legOut: number, stay: number,
+  hours?: Pick<PlaceHours, "opens" | "closes" | "breaks"> | null): GapFit | null {
+  let arrival = gap.start + legIn;
+  let leaveBy = gap.end - legOut;
+  if (hours) {
+    arrival = Math.max(arrival, hours.opens);
+    for (const [from, to] of hours.breaks) if (arrival >= from && arrival < to) arrival = to;
+    leaveBy = Math.min(leaveBy, hours.closes, ...hours.breaks.filter(([from]) => from > arrival).map(([from]) => from));
+  }
+  const staying = Math.min(stay, leaveBy - arrival);
   if (!Number.isFinite(staying) || staying < MIN_STAY_MINUTES) return null;
-  const arrival = gap.start + legIn;
   return { arrival, departure: arrival + staying, stay: staying };
 }
+
+/** 그날이 요일 휴무인가. date는 YYYY-MM-DD, 요일은 planner와 같이 UTC 자정 기준으로 센다. */
+export const isClosedOn = (hours: Pick<PlaceHours, "closedDays"> | null | undefined, date: string) =>
+  !!hours && hours.closedDays.includes(new Date(`${date}T00:00:00Z`).getUTCDay());
 
 /**
  * 추천 한 곳을 넣은 뒤 남는 시간. 한 시간 이상 남으면 그 장소에서 출발하는 다음 빈 구간을 만든다.
