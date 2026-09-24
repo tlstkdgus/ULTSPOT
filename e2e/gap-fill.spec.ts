@@ -218,7 +218,9 @@ test("Google photos are asked for only when the Google map is the one on screen"
   await fixSuggestions(page, [{ id: "t-nophoto", kind: "meal", name: "사진 없는 식당", lat: 37.5609, lng: 126.9866 }]);
   await planWithFreeAfternoon(page);
   await expect(page.getByRole("article", { name: "Suggested for your free time: 사진 없는 식당" })).toBeVisible();
-  await page.waitForLoadState("networkidle");
+  // networkidle을 기다리면 Google 지도 타일이 계속 받아져 mobile에서 60초를 넘겼다(2026-09-25, T-060에서 발견).
+  // 지도 스크립트는 일정이 그려질 때, 사진 요청은 카드가 뜬 직후에 나가므로 짧게만 기다린다.
+  await page.waitForTimeout(1_500);
   if (googleMap === 0) expect(photoRequests).toBe(0);
   else {
     expect(photoRequests).toBeGreaterThan(0);

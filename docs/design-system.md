@@ -25,7 +25,7 @@
 | 배경 | `bg-bg` (= ink-900) | `#100E0C` | 항상 다크. 라이트 모드 없음 |
 | 표면 | `bg-surface` `bg-surface-2` | `#1E1913` `#282119` | 카드·시트 |
 | 선 | `border-line` `border-line-strong` | `#38302640` `#4A4034` | 카드 구분은 그림자 대신 1px 선 |
-| 글자 | `text-text` `text-text-muted` `text-text-faint` | `#FBF4E7` `#B9AFA0` `#7C7266` | 순백 대신 크림 |
+| 글자 | `text-text` `text-text-muted` `text-text-faint` | `#FBF4E7` `#B9AFA0` `#948A7E` | 순백 대신 크림 |
 | 상태 | `bg-success` `bg-warning` `bg-danger` | `#39D98A` `#FFC53D` `#FF5D6C` | 진행중 / 마감임박 / 마감. **상태에 브랜드 색 금지** |
 
 **Tailwind 기본 팔레트는 꺼져 있다** (`--color-*: initial`). `bg-pink-500`, `text-blue-600` 같은 클래스는 아무 스타일도 만들지 않는다.
