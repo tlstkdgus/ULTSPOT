@@ -177,6 +177,7 @@ export const zh: Messages = {
     txt: "下载文本 (.txt)",
     editDay: "修改日期",
     editSpots: "修改地点",
+    mapLabel: "当天行程地图",
     encoreTitle: (time: string) => `${time}行程结束`,
     encoreFree: (duration: string, end: string) => `到${end}还有${duration}的空档。`,
     encoreFull: "这一天已经排满。",

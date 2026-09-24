@@ -618,7 +618,7 @@ export function TripPlanner({ today }: { today: string }) {
           const mapClass = "mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong";
           // Google 지도 키가 있으면 Google, 없으면 카카오(T-052). Google 장소 사진은 Google 지도일 때만 쓴다.
           return GOOGLE_MAPS_JS_KEY
-            ? <GoogleMap className={mapClass} points={points} language={locale === "zh" ? "zh-CN" : locale} />
+            ? <GoogleMap className={mapClass} points={points} language={locale === "zh" ? "zh-CN" : locale} label={t.result.mapLabel} />
             : <KakaoMap className={mapClass} points={points} />;
         })()}
         <ol className="space-y-4">{result.stops.map((stop, index) => { const before = chainBefore(stop.event.id, index); const via = lastFilled(before); return <Fragment key={stop.event.id}>
