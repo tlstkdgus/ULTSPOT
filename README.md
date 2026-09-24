@@ -13,11 +13,23 @@
 | 프레임워크 | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript |
 | 스타일 | Tailwind CSS 4 + 브랜드 토큰 (`src/styles/theme.css`) |
 | 백엔드 | Supabase (`@supabase/ssr`) |
-| AI | OpenAI API (예정) |
+| 추천 | TypeSafe Jev — 주변 후보의 **취향 순위만**. 시간·영업시간·이동 계산은 코드가 한다 |
+| 장소·경로 | 카카오 로컬(주변 검색)·카카오 길찾기(대중교통·도보) · 한국관광공사 TourAPI(영업시간·사진) |
+| 지도 | Google Maps(키가 있으면) · 없으면 카카오 지도 |
+| 분석 | Vercel Analytics · Google Analytics 4 |
 | 테스트·캡처 | Playwright (Chromium) |
 | 패키지 매니저 | pnpm 10 · Node 24 |
 
 ---
+
+## 무엇을 하나
+
+1. **최애 고르기 → SPOT 고르기 → 기간 정하기** — 검수한 K팝 장소·생일카페 중 갈 곳을 담는다.
+2. **일정 받기** — 운영시간이 확인된 곳만 시간표에 넣는다. 이동시간은 카카오 길찾기로 재고, 못 잰 구간은 "미확인 · 계획용 여유"로 따로 보여준다.
+3. **빈 시간 채우기** (T-049~T-051) — 확정 일정 사이·끝에 한 시간 이상 비면 주변 식사·카페·관광을 이어서 넣는다. 한국관광공사 영업시간을 아는 곳은 여는 시각·브레이크 타임·휴무일에 맞추고, 사진과 공공누리 출처를 붙인다. 모르는 곳은 "영업시간 미확인"으로 구분한다. 추천은 캘린더·파일로 내보내지 않는다.
+4. **여러 날 여정·현장 기록** — 날짜별 일정, 체크인·가계부·발자취 카드.
+
+추천 결과를 LLM이 만들지 않는다. 순위만 Jev가 매기고, 들어갈 수 있는지는 코드가 계산한다. 같은 입력이면 같은 결과가 나오고, 없는 영업시간·이동시간을 지어내지 않기 위해서다.
 
 ## 빠른 시작
 
@@ -45,9 +57,10 @@ pnpm exec playwright install chromium
 | `pnpm build` / `pnpm start` | 프로덕션 빌드 / 실행 |
 | `pnpm lint` | ESLint |
 | `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm test:e2e` | 반응형 smoke + 토큰 일치 검사 (mobile·tablet·desktop) |
+| `pnpm test:e2e` | 전체 E2E (mobile 390·tablet 768·desktop 1440). 외부 API는 화면 스펙에서 고정값으로 막는다 |
+| `pnpm test:data` | 수집 데이터 검사 |
 | `pnpm capture T-NNN [화면,...]` | 3개 뷰포트 스크린샷 → `docs/tasks/T-NNN/screenshots/` |
-| `pnpm check:prod <URL>` | 배포 주소를 시크릿 창 조건으로 검사 (로그인·비밀번호 화면 없이 열리는지 + smoke + 토큰) |
+| `pnpm check:prod <URL>` | 배포 주소에 E2E 전체를 돌린다. `main` 머지 뒤 `https://ultspot.vercel.app`로 실행 |
 
 ## 배포
 
@@ -62,12 +75,22 @@ pnpm exec playwright install chromium
 
 `.env.example`을 `.env.local`로 복사해 채웁니다.
 
-| 변수 | 노출 | 설명 |
-|------|------|------|
-| `NEXT_PUBLIC_SUPABASE_URL` | 브라우저 | Supabase 프로젝트 URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 브라우저 | `sb_publishable_…` 키. 실제 보호는 RLS가 합니다 |
-| `OPENAI_API_KEY` | **서버 전용** | 예정. `NEXT_PUBLIC_`을 절대 붙이지 않습니다 |
-| `NEXT_PUBLIC_ENABLE_CLOUD_TRIPS` | 브라우저 | 기본 false. migration·익명 인증·RLS 검증 후 활성화 ([설정](docs/setup-cloud-trips.md)) |
+발급 방법과 키 제한 설정은 `.env.example`의 각 항목에 있습니다. **Vercel 유형**: `NEXT_PUBLIC_` 변수는 빌드에 들어가야 해서 **Config**, 서버 키는 **Secret(Sensitive)** 입니다. Secret으로 넣은 `NEXT_PUBLIC_` 값이 빌드에 들어가지 않은 적이 있습니다. 값을 바꾼 뒤에는 재배포해야 반영됩니다.
+
+| 변수 | 노출 | Vercel | 없으면 |
+|------|------|--------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 브라우저 | Config | 클라우드 저장 없음. 실제 보호는 RLS |
+| `NEXT_PUBLIC_ENABLE_CLOUD_TRIPS` | 브라우저 | Config | 기본 false ([설정](docs/setup-cloud-trips.md)) |
+| `KAKAO_REST_API_KEY` | **서버** | Secret | 이동시간이 전부 "미확인 · 계획용 여유". 주변 추천은 TourAPI 후보만 |
+| `NEXT_PUBLIC_KAKAO_JS_KEY` | 브라우저 | Config | 카카오 지도 대신 링크만 |
+| `TYPESAFE_API_KEY` | **서버** | Secret | 주변 추천이 거리순 |
+| `TOUR_API_KEY` | **서버** | Secret | 영업시간·사진 없이 카카오 후보만 (전부 "영업시간 미확인") |
+| `GOOGLE_MAPS_API_KEY` | **서버** | Secret | Google 장소 사진 없음 |
+| `NEXT_PUBLIC_GOOGLE_MAPS_JS_KEY` | 브라우저(리퍼러 제한) | Config | 일정 지도가 카카오. Google 사진도 쓰지 않음(Places 약관) |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | 브라우저(공개 값) | Config | GA 없음 |
+| `OPENAI_API_KEY` | **서버** | — | 쓰지 않음. 시간 계산을 LLM에 맡기지 않기로 했다(T-049) |
+
+서버 쪽 외부 호출에는 일일 상한이 있습니다: 카카오 경로 800 · 주변 검색 600 · Jev 300 · TourAPI 검색 400·영업시간 600 · Google 사진 30. 인스턴스마다 따로 세는 메모리 상한입니다.
 
 ## 폴더 구조
 
@@ -114,6 +137,7 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 | [docs/specs/prd.md](docs/specs/prd.md) | **PRD** — 목표·범위(P0/P1/P2)·지표. 짝 문서: [기능명세서](docs/specs/functional-spec.md) · [유저플로우](docs/specs/user-flow.md) |
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |
+| [docs/tasks/T-055](docs/tasks/T-055/README.md) | 최근 impeccable UI 감사(17/20)와 남은 과제 |
 
 ### Jev 추천 평가
 

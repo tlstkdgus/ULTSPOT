@@ -54,10 +54,11 @@
 | [T-046](T-046/README.md) | 공식 K팝 매장 3곳을 검증해 카탈로그에 넣는다 | 리뷰 중 | `feat/T-046-kpop-stores` | PR 준비 |
 | [T-047](T-047/README.md) | 케이타운포유 인사동점 추가 — 출처 간 주소 충돌을 가려서 | 리뷰 중 | `feat/T-047-ktown4u-insadong` | PR 준비 |
 | [T-048](T-048/README.md) | 체크인·지출 때마다 이동시간을 다시 조회하던 문제 | 리뷰 중 | `fix/T-048-travel-lookup-key` | PR 준비 |
-| [T-049](T-049/README.md) | 확정 일정의 빈 시간에 주변 추천을 끼워 넣는다 | 리뷰 중 | `feat/T-049-gap-fill` | #63 |
-| [T-050](T-050/README.md) | 주변 추천에 영업시간을 붙인다 (한국관광공사 TourAPI) | 리뷰 중 | `feat/T-050-tourapi-hours` | #64 |
-| [T-051](T-051/README.md) | 추천 장소에 사진을 붙인다 (한국관광공사 · 공공누리) | 리뷰 중 | `feat/T-051-place-photos` | #65 |
-| [T-052](T-052/README.md) | Google 지도와 Google 장소 사진 | 리뷰 중 | `feat/T-052-google-maps` | #66 |
-| [T-053](T-053/README.md) | Google Analytics 4를 붙인다 | 리뷰 중 | `feat/T-053-google-analytics` | PR 준비 |
+| [T-049](T-049/README.md) | 확정 일정의 빈 시간에 주변 추천을 끼워 넣는다 | 완료 | `feat/T-049-gap-fill` | #63 |
+| [T-050](T-050/README.md) | 주변 추천에 영업시간을 붙인다 (한국관광공사 TourAPI) | 완료 | `feat/T-050-tourapi-hours` | #64 → #65 |
+| [T-051](T-051/README.md) | 추천 장소에 사진을 붙인다 (한국관광공사 · 공공누리) | 완료 | `feat/T-051-place-photos` | #65 |
+| [T-052](T-052/README.md) | Google 지도와 Google 장소 사진 | 완료 | `feat/T-052-google-maps` | #66 |
+| [T-053](T-053/README.md) | Google Analytics 4를 붙인다 | 완료 | `feat/T-053-google-analytics` | #67 |
 | [T-054](T-054/README.md) | check:prod가 Google 사진 예산을 태우고 깨지던 문제 | 완료 | `fix/T-054-prod-check-photo-stub` | #68 |
-| [T-055](T-055/README.md) | impeccable 감사와 접근성 수정 (빈 시간 추천·사진·지도) | 완료 | `fix/T-055-audit-a11y` | PR 준비 |
+| [T-055](T-055/README.md) | impeccable 감사와 접근성 수정 (빈 시간 추천·사진·지도) | 완료 | `fix/T-055-audit-a11y` | #69 |
+| [T-056](T-056/README.md) | README를 지금 기능·외부 API·환경 변수에 맞춘다 | 완료 | `docs/T-056-readme` | PR 준비 |
