@@ -58,8 +58,10 @@ export async function fixTravelLookups(page: Page) {
 }
 
 /** 2박 3일 여정 화면까지 간다. 담은 곳은 Day 1에 고른 순서대로 들어간다. */
-export async function twoNightJourney(page: Page, spots: string[]) {
+export async function twoNightJourney(page: Page, spots: string[], suggestions: FixtureSuggestion[] = []) {
   await fixTravelLookups(page);
+  // 여정 화면도 빈 시간 추천을 부른다(T-063). 실제 카카오·Jev를 태우지 않게 고정한다. 기본은 "찾은 곳 없음".
+  await fixSuggestions(page, suggestions);
   await page.goto("/plan");
   await browseAllSpots(page);
   for (const name of spots) await page.getByRole("button", { name: `Add ${name}`, exact: true }).click();
