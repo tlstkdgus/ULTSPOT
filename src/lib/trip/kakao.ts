@@ -8,6 +8,7 @@
  * 응답 파싱은 fetch와 분리해 두었다. 키 없이도 파싱 규칙을 테스트할 수 있다.
  */
 
+import { parseKeywordSearch } from "./place-search";
 import { isKoreanCoord, mapLinks, roundCoord, type Coord, type TravelPoint } from "./geo";
 import { travelReasons, unconfirmed, type TravelEstimate, type TravelMode, type TravelStep } from "./travel";
 
@@ -176,4 +177,18 @@ export async function lookupLeg(
 export async function geocodeAddress(address: string, signal?: AbortSignal) {
   const body = await kakaoGet("/v2/local/search/address.json", { query: address, size: "1" }, signal);
   return parseAddressSearch(body);
+}
+
+/**
+ * 장소 이름 검색 (T-062). 카카오 로컬 키워드 검색 상위 8건. 실패는 null(캐시하지 않게), 결과 없음은 빈 배열.
+ * 서울 시청 좌표를 기준점으로 넘겨 같은 이름이면 서울 쪽이 앞에 오게 한다(반경은 두지 않는다 — 공항 숙소도 찾아야 한다).
+ */
+export async function searchKeyword(query: string, signal?: AbortSignal) {
+  try {
+    const body = await kakaoGet("/v2/local/search/keyword.json",
+      { query, size: "8", x: "126.9780", y: "37.5665", sort: "accuracy" }, signal);
+    return parseKeywordSearch(body);
+  } catch {
+    return null;
+  }
 }

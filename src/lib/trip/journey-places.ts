@@ -44,8 +44,8 @@ const fromCustom = (place: CustomPlace): ResolvedPlace => ({
   id: place.id, source: "custom", title: place.title, address: place.address, kind: place.kind,
   // 사용자가 적은 장소는 분류를 모른다. 맛집으로 추측하지 않는다.
   category: "other",
-  // 좌표를 받지 않는다. 좌표가 없으므로 이동시간도 미확인으로 남는다.
-  coord: undefined,
+  // 장소 검색(T-062)으로 고른 곳만 좌표가 있다. 없으면 이동시간은 미확인으로 남는다.
+  coord: place.coord ? { lat: place.coord.lat, lng: place.coord.lng } : undefined,
   event: null, note: place.note,
 });
 

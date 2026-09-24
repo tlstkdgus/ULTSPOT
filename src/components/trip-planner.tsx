@@ -34,6 +34,7 @@ import { intlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/locale";
 import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
+import { seoulDate } from "@/lib/seoul-date";
 
 const inputClass = "mt-2 block w-full min-w-0 rounded-sm border border-line-strong bg-bg px-3 py-3 text-body";
 
@@ -275,6 +276,11 @@ export function TripPlanner({ today }: { today: string }) {
         ? { opens: suggestion.hours.opens, closes: suggestion.hours.closes, closedDays: suggestion.hours.closedDays }
         : { opens: null, closes: null, closedDays: [] }),
       reservation: false,
+      // 카카오 후보는 좌표를 유지한다(T-062). 예전에는 버려서 담은 곳의 이동시간이 늘 미확인이었다.
+      // 좌표 출처는 카카오 장소 페이지로 적는다 — 저장본은 이 출처의 좌표만 개인 장소에 허용한다.
+      ...(/^kakao-\d+$/.test(suggestion.id)
+        ? { coord: { lat: suggestion.coord.lat, lng: suggestion.coord.lng, source: `https://place.map.kakao.com/${suggestion.id.slice(6)}`, checked_on: seoulDate() } }
+        : {}),
       do: suggestion.hours ? t.gap.hoursSource(suggestion.hours.modified) : t.suggest.hoursUnknown,
       get: t.suggest.provider(suggestion.provider),
       provenance: { mode: "personal", author: suggestion.provider, checkedOn: date, url: suggestion.placeUrl },

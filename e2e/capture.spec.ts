@@ -70,6 +70,20 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });
+  /** 공지 보고 행사 추가 폼의 장소 검색(T-062). 실제 카카오 검색 결과를 찍는다. */
+  test("plan-place-search", async ({ page }, testInfo) => {
+    test.skip(!!only?.length && !only.includes("place-search"), "place search capture not requested");
+    await page.goto("/plan", { waitUntil: "networkidle" });
+    await browseAllSpots(page, "ko");
+    await page.getByText("공지 보고 행사 추가", { exact: true }).first().click();
+    await page.getByLabel("지도에서 장소 찾기 (선택)").fill("스타벅스 명동");
+    await page.getByLabel("지도에서 장소 찾기 (선택)").press("Enter");
+    await expect(page.getByRole("button", { name: /선택$/ }).first()).toBeVisible({ timeout: 15_000 });
+    await page.evaluate(() => document.fonts.ready);
+    // 장소 목록 전체를 찍으면 폼이 페이지 맨 아래에 작게 묻힌다. 폼만 찍는다.
+    const form = page.locator("details").filter({ has: page.getByLabel("지도에서 장소 찾기 (선택)") });
+    await form.screenshot({ path: shot(testInfo, "plan-place-search"), animations: "disabled" });
+  });
   /**
    * 여정 화면의 현장 기록(체크인·가계부·발자취). T-038에서 붙었고 captureRoutes로는 닿지
    * 않는다 — 기간을 이틀 이상으로 잡고 일정을 만들어야 나오는 화면이라 경로만으로는 못 간다.

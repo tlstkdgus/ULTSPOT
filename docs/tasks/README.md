@@ -66,4 +66,5 @@
 | [T-058](T-058/README.md) | 개인정보 처리방침 페이지와 하단 푸터 | 완료 | `feat/T-058-privacy` | #72 |
 | [T-059](T-059/README.md) | 일일 상한과 확인 날짜를 한국 시간으로 | 완료 | `fix/T-059-seoul-day` | #73 |
 | [T-060](T-060/README.md) | 보조 글씨(text-faint) 대비를 AA로 | 완료 | `fix/T-060-faint-contrast` | #74 |
-| [T-061](T-061/README.md) | 빈 시간 구간을 동시에 채운다 | 완료 | `perf/T-061-parallel-gaps` | PR 준비 |
+| [T-061](T-061/README.md) | 빈 시간 구간을 동시에 채운다 | 완료 | `perf/T-061-parallel-gaps` | #75 |
+| [T-062](T-062/README.md) | 직접 추가하는 장소를 지도 검색으로 고른다 | 완료 | `feat/T-062-place-search` | PR 준비 |

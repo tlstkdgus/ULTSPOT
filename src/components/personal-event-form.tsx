@@ -5,6 +5,8 @@ import { Button } from "@/components/ui";
 import { useI18n } from "@/i18n/locale";
 import { minutes, type FanEvent } from "@/lib/trip/planner";
 import { isPersonalEvent } from "@/lib/trip/storage";
+import { PlaceSearch } from "@/components/place-search";
+import type { PlaceSearchResult } from "@/lib/trip/place-search";
 
 const TEXT_FIELDS = ["title", "area", "address", "do", "get"] as const;
 type FieldName = (typeof TEXT_FIELDS)[number] | "source" | "opens" | "closes";
@@ -19,6 +21,23 @@ export function PersonalEventForm({ date, onAdd, requestOpen = 0 }: { date: stri
   const [summary, setSummary] = useState("");
   const details = useRef<HTMLDetailsElement>(null);
   const firstField = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  /** 지도에서 고른 장소(T-062). 있으면 좌표가 붙어 이동시간 조회·지도 핀·주변 추천이 된다. */
+  const [picked, setPicked] = useState<PlaceSearchResult | null>(null);
+
+  /** 고른 장소로 이름(비어 있을 때만)·동네·주소를 채운다. 사용자가 이미 적은 행사 이름은 덮지 않는다. */
+  function pick(result: PlaceSearchResult) {
+    setPicked(result);
+    const form = formRef.current;
+    if (!form) return;
+    const set = (name: string, value: string, onlyIfEmpty = false) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement | null;
+      if (input && value && (!onlyIfEmpty || !input.value.trim())) input.value = value;
+    };
+    set("title", result.name, true);
+    set("area", result.area);
+    set("address", result.address);
+  }
 
   // 빈 상태의 "공지 보고 행사 추가"에서 이 폼을 직접 열어 준다.
   useEffect(() => {
@@ -52,6 +71,8 @@ export function PersonalEventForm({ date, onAdd, requestOpen = 0 }: { date: stri
       kind: "Personal event", from: date, to: date, opens, closes,
       closedDays: [], reservation: data.get("reservation") === "on", do: field("do"), get: field("get"),
       provenance: { mode: "personal", author: "Entered by you · not independently verified", checkedOn: seoulDate(), url: source },
+      // 좌표 출처는 카카오 장소 페이지. 저장본을 읽을 때 이 출처인 좌표만 개인 행사에 허용한다(storage.ts).
+      ...(picked ? { coord: { lat: picked.coord.lat, lng: picked.coord.lng, source: picked.placeUrl, checked_on: seoulDate() } } : {}),
     };
     const count = Object.keys(found).length;
     if (count) {
@@ -63,6 +84,7 @@ export function PersonalEventForm({ date, onAdd, requestOpen = 0 }: { date: stri
     if (!isPersonalEvent(event)) { setErrors({}); setSummary(t.event.errors.invalid); return; }
     onAdd(event);
     form.reset();
+    setPicked(null);
     setErrors({});
     setSummary("");
   }
@@ -76,7 +98,8 @@ export function PersonalEventForm({ date, onAdd, requestOpen = 0 }: { date: stri
   return <details ref={details} className="mt-6 rounded-xl border border-line-strong p-5">
     <summary className="min-h-11 cursor-pointer py-2 text-subhead">{t.spots.addFromNotice}</summary>
     <p className="mt-3 text-body-sm text-text-muted">{t.event.intro(date || "—")}</p>
-    <form onSubmit={submit} noValidate className="mt-5 grid gap-4 sm:grid-cols-2">
+    <PlaceSearch picked={picked} onPick={pick} onClear={() => setPicked(null)} />
+    <form ref={formRef} onSubmit={submit} noValidate className="mt-5 grid gap-4 sm:grid-cols-2">
       {([
         { name: "title", label: t.event.fields.title },
         { name: "area", label: t.event.fields.area },
