@@ -64,4 +64,5 @@
 | [T-056](T-056/README.md) | README를 지금 기능·외부 API·환경 변수에 맞춘다 | 완료 | `docs/T-056-readme` | #70 |
 | [T-057](T-057/README.md) | 현장 현황 한국어 문구 오타 두 개 | 완료 | `fix/T-057-onsite-copy` | #71 |
 | [T-058](T-058/README.md) | 개인정보 처리방침 페이지와 하단 푸터 | 완료 | `feat/T-058-privacy` | #72 |
-| [T-059](T-059/README.md) | 일일 상한과 확인 날짜를 한국 시간으로 | 완료 | `fix/T-059-seoul-day` | PR 준비 |
+| [T-059](T-059/README.md) | 일일 상한과 확인 날짜를 한국 시간으로 | 완료 | `fix/T-059-seoul-day` | #73 |
+| [T-060](T-060/README.md) | 보조 글씨(text-faint) 대비를 AA로 | 완료 | `fix/T-060-faint-contrast` | PR 준비 |

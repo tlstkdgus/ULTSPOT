@@ -42,7 +42,9 @@
   --color-line-strong: var(--color-ink-500);
   --color-text: var(--color-ink-100);
   --color-text-muted: var(--color-ink-300);
-  --color-text-faint: var(--color-ink-400);
+  /* T-060: ink-400(#7c7266)은 배경 대비 3.7~3.9:1로 AA(4.5:1) 미달이었다. 작은 보조 글씨 25곳이 이 토큰을 쓴다.
+     ink-400은 테두리에도 쓰여 그대로 두고 글자 토큰만 올린다. 가장 밝은 배경(surface-2)에서도 4.69:1. */
+  --color-text-faint: #948a7e;
 
   /* Status — 브랜드 색과 분리된 의미 색. 상태 뱃지에는 반드시 이것만 쓴다. */
   --color-success: #39d98a;
