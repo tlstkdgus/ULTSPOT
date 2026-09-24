@@ -14,6 +14,7 @@
  * 무료 초과분을 유료로 켜는 것으로 해결하지 않는다.
  */
 
+import { seoulDate } from "@/lib/seoul-date";
 import { isKoreanCoord, roundCoord, type Coord, type TravelPoint } from "@/lib/trip/geo";
 import { isKakaoConfigured, lookupLeg, UPSTREAM_TIMEOUT_MS } from "@/lib/trip/kakao";
 import { legKey, travelReasons, unconfirmed, type TravelEstimate, type TravelMode, type TravelReason } from "@/lib/trip/travel";
@@ -35,7 +36,8 @@ const cache = new Map<string, CacheEntry>();
 const hits = new Map<string, number[]>();
 let budget = { day: "", used: 0 };
 
-const today = () => new Date().toISOString().slice(0, 10);
+/** 일일 상한은 한국 시간 자정에 초기화한다(T-059). */
+const today = () => seoulDate();
 
 /** 고유 호출 수만큼 예산을 쓴다. 중복 구간은 예산을 소모하지 않는다. */
 function takeBudget(count: number) {

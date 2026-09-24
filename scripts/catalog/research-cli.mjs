@@ -37,10 +37,12 @@ try {
 
   const raw = await readFile(join(folder, 'research-batch.json'), 'utf8');
   const batch = JSON.parse(raw);
-  const batchId = batchArg || batch.batch_id || `research-${new Date().toISOString().slice(0, 10)}`;
+  // 서울 날짜(T-059). UTC면 한국 시간 오전 9시 전 실행이 어제 날짜로 찍힌다.
+  const seoulToday = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+  const batchId = batchArg || batch.batch_id || `research-${seoulToday}`;
 
   const check = validateResearch(batch);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = seoulToday;
   const result = convert(batch, { today });
   const summary = summarise(result);
 
