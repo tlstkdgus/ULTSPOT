@@ -6,4 +6,5 @@ export const captureRoutes = [
   { name: "home", path: "/" },
   { name: "plan", path: "/plan" },
   { name: "design-system", path: "/design-system" },
+  { name: "privacy", path: "/privacy" },
 ] as const;
