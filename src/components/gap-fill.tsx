@@ -8,97 +8,13 @@ import { ExternalIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
 import { PlacePhotoView } from "@/components/place-photo";
 import { useI18n } from "@/i18n/locale";
-import { fetchSuggestions, type RankedSuggestion } from "@/lib/recommend/client";
+import type { RankedSuggestion } from "@/lib/recommend/client";
 import type { PreferenceProfile } from "@/lib/recommend/preference";
-import { findGaps, fitInGap, isClosedOn, MAX_PER_GAP, nextGap, type Gap, type GapFit } from "@/lib/trip/gap-fill";
+import { findGaps, type Gap } from "@/lib/trip/gap-fill";
+import { fillChain, type FillOptions, type GapChain, type GapFillState } from "@/lib/trip/gap-fill-run";
+export type { GapChain, GapFillState } from "@/lib/trip/gap-fill-run";
 import { hoursLabel } from "@/lib/recommend/hours-label";
-import type { SuggestionKind } from "@/lib/recommend/nearby";
-import { straightLineMeters, type TravelPoint } from "@/lib/trip/geo";
 import { clock, type TripInput, type TripResult } from "@/lib/trip/planner";
-import { legKey, travelMinutes, type TravelEstimate, type TravelMode } from "@/lib/trip/travel";
-import { fetchTravelTable, type TravelLeg as LegToLookUp } from "@/lib/trip/travel-client";
-
-/** 빈 구간 하나에 이동시간을 재 보는 후보 수. 3곳이면 구간당 이동시간 조회가 최대 6개다. */
-const CANDIDATES_PER_GAP = 3;
-/**
- * 이 거리 안의 구간은 걸어서 잰다. 빈 시간 추천은 바로 옆 가게가 많은데(실측 11m), 대중교통 경로
- * API는 그런 구간에 경로를 주지 않아 계획용 여유 45분으로 떨어졌다 — 11m에 45분을 잡는 셈이다.
- */
-const WALK_UP_TO_METERS = 800;
-
-export type GapFillState =
-  | { status: "finding"; gap: Gap }
-  | { status: "filled"; gap: Gap; suggestion: RankedSuggestion; point: TravelPoint; fit: GapFit; legIn: TravelEstimate | null; legOut: TravelEstimate | null; ranked: boolean }
-  | { status: "none"; gap: Gap }
-  | { status: "removed"; gap: Gap };
-
-/** 확정 정류장 사이 빈 구간 하나와, 거기에 이어 붙인 추천들. */
-export type GapChain = { root: Gap; items: GapFillState[] };
-
-type FillOptions = { date: string; preference: string; preferred: SuggestionKind[]; mode: TravelMode; transfer: number; stay: number };
-
-/**
- * 빈 구간 하나를 채운다. 주변 후보(카카오 장소 + Jev 취향 순위)를 받아 순위대로 이동시간을 재고,
- * 앞뒤 일정을 밀지 않고 들어가는 첫 후보를 고른다. 들어가는 곳이 없으면 none.
- *
- * 순위를 다시 매기지 않는다. Jev가 정한 순서(취향이 없으면 거리순)를 그대로 따르고, 여기서는
- * "시간 안에 들어가는가"만 거른다.
- */
-async function fillGap(gap: Gap, excluded: string[], options: FillOptions, signal: AbortSignal): Promise<GapFillState> {
-  const found = await fetchSuggestions({ anchor: gap.anchor, kinds: gap.kinds, preference: options.preference, excluded }, signal);
-  // 그날 쉬는 곳은 뺀다. 영업시간을 아는 곳을 먼저 재 본다 — 순위는 Jev 순서 그대로 두고, 확인된 곳이
-  // 들어가면 미확인보다 낫다. 확인된 곳이 하나도 안 맞으면 미확인 후보로 넘어간다.
-  const open = found.suggestions.filter(s => !excluded.includes(s.id) && !isClosedOn(s.hours, options.date));
-  const candidates = [...open.filter(s => s.hours), ...open.filter(s => !s.hours)].slice(0, CANDIDATES_PER_GAP);
-  if (!candidates.length) return { status: "none", gap };
-  const points: TravelPoint[] = candidates.map(c => ({
-    id: `gap-${c.id}`.slice(0, 80), name: c.name.slice(0, 120), address: c.address.slice(0, 300) || undefined, coord: c.coord,
-  }));
-  const legs: LegToLookUp[] = points.flatMap(point => [
-    ...(gap.from ? [{ from: gap.from, to: point }] : []),
-    ...(gap.to ? [{ from: point, to: gap.to }] : []),
-  ]);
-  const modeOf = (leg: LegToLookUp): TravelMode =>
-    leg.from.coord && leg.to.coord && straightLineMeters(leg.from.coord, leg.to.coord) <= WALK_UP_TO_METERS ? "walk" : options.mode;
-  const byMode = (mode: TravelMode) => legs.filter(leg => modeOf(leg) === mode);
-  const modes = [...new Set<TravelMode>(["walk", options.mode])];
-  const tables = await Promise.all(modes.map(mode => byMode(mode).length
-    ? fetchTravelTable(byMode(mode), mode, options.transfer, signal).then(r => r.table) : Promise.resolve({})));
-  const table = Object.assign({}, ...tables) as Record<string, TravelEstimate | undefined>;
-  const lookUp = (from: TravelPoint, to: TravelPoint) => table[legKey(from.id, to.id, modeOf({ from, to }))] ?? null;
-  for (const [index, suggestion] of candidates.entries()) {
-    const point = points[index];
-    const legIn = gap.from ? lookUp(gap.from, point) : null;
-    const legOut = gap.to ? lookUp(point, gap.to) : null;
-    const fit = fitInGap(gap,
-      legIn ? travelMinutes(legIn, options.transfer) : 0,
-      legOut ? travelMinutes(legOut, options.transfer) : 0,
-      options.stay, suggestion.hours);
-    if (fit) return { status: "filled", gap, suggestion, point, fit, legIn, legOut, ranked: Boolean(found.ranking?.applied) };
-  }
-  return { status: "none", gap };
-}
-
-/**
- * 빈 구간을 앞에서부터 이어서 채운다. 한 곳을 넣고도 한 시간 이상 남으면 그 장소에서 다음 곳을 찾는다
- * (최대 MAX_PER_GAP). 중간 상태를 emit으로 알려 화면이 하나씩 채워지게 한다.
- */
-async function fillChain(first: Gap, prefix: GapFillState[], excluded: string[], options: FillOptions,
-  signal: AbortSignal, emit: (items: GapFillState[]) => void) {
-  const items = [...prefix];
-  let gap: Gap | null = first;
-  let skip = [...excluded];
-  while (gap && items.filter(i => i.status === "filled").length < MAX_PER_GAP) {
-    emit([...items, { status: "finding", gap }]);
-    const state = await fillGap(gap, skip, options, signal);
-    if (signal.aborted) return;
-    items.push(state);
-    if (state.status !== "filled") break;
-    skip = [...skip, state.suggestion.id];
-    gap = nextGap(gap, { point: state.point, departure: state.fit.departure, kind: state.suggestion.kind }, options.preferred);
-  }
-  emit(items);
-}
 
 /**
  * 확정 일정의 빈 시간에 주변 추천을 끼운다 (T-049).
@@ -106,7 +22,7 @@ async function fillChain(first: Gap, prefix: GapFillState[], excluded: string[],
  * - 확정 일정(result)은 바꾸지 않는다. 추천은 별도 상태로 두고 화면에서만 사이에 끼워 보여준다.
  * - 이동시간 조회가 끝난 뒤(ready)에만 돈다. 여유 시간 기준 임시 일정으로 한 번, 조회 뒤 한 번 —
  *   두 번 부르지 않기 위해서다.
- * - 구간은 순서대로 채운다. 앞 구간에 넣은 곳을 뒤 구간에서 다시 고르지 않게 하려는 것이다.
+ * - 구간은 동시에 채우고(T-061), 한 가게를 두 구간이 고르지 않게 고르는 순간 선점한다.
  */
 export function useGapFill({ result, input, profile, ready }: {
   result: TripResult | null;
@@ -135,16 +51,12 @@ export function useGapFill({ result, input, profile, ready }: {
     if (!gaps.length) return;
     const key = runKey;
     const controller = new AbortController();
-    void (async () => {
-      const used: string[] = [];
-      for (const gap of gaps) {
-        if (controller.signal.aborted) return;
-        let last: GapFillState[] = [];
-        await fillChain(gap, [], [...used, ...(skipped.current[gap.id] ?? [])], options, controller.signal,
-          items => { last = items; if (!controller.signal.aborted) put(key, gap.id, items); });
-        used.push(...pickedIn(last));
-      }
-    })();
+    // 구간을 동시에 채운다(T-061). 같은 가게를 두 구간이 고르지 않게 고르는 순간 선점한다.
+    const used = new Set<string>();
+    const claim = (id: string) => (used.has(id) ? false : (used.add(id), true));
+    for (const gap of gaps)
+      void fillChain(gap, [], skipped.current[gap.id] ?? [], options, controller.signal,
+        items => { if (!controller.signal.aborted) put(key, gap.id, items); }, claim, () => [...used]);
     return () => controller.abort();
     // runKey가 gaps·options를 모두 담는다. 매 렌더 새로 만든 배열로 다시 돌지 않게 키만 본다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
