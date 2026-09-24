@@ -85,6 +85,13 @@ export type FixtureSuggestion = {
   photo?: { url: string; license: "kogl-1" | "kogl-3" };
 };
 export async function fixSuggestions(page: Page, suggestions: FixtureSuggestion[] = [], ranked = false) {
+  /**
+   * Google 장소 사진도 고정한다(T-054). 프로덕션처럼 Google 지도 키가 있는 배포에 check:prod를 돌리면
+   * 추천 카드마다 실제 /api/place-photo가 불려, IP당 분당 20회 상한에 걸려 google.spec이 429로 깨지고
+   * **하루 30장의 Google 사진 예산을 테스트가 다 써 버렸다**(2026-09-25). 라우트 자체는 google.spec이 검사한다.
+   * 요청은 가로채도 page.on("request")에는 잡히므로 "언제 요청하는가"는 여전히 검사할 수 있다.
+   */
+  await page.route("**/api/place-photo", route => route.fulfill({ json: { configured: true, photo: null } }));
   await page.route("**/api/recommend", async route => {
     const body = route.request().postDataJSON() as { kinds?: string[]; excluded?: string[] };
     const kinds = body.kinds ?? [];

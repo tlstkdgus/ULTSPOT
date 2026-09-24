@@ -203,13 +203,20 @@ test("a photo that fails to load leaves no broken image behind", async ({ page }
   await expect(card).not.toContainText("Korea Tourism Organization · KOGL");
 });
 
-test("with the Kakao map on screen, no Google photo is ever requested", async ({ page }) => {
-  // Places 약관: Google 장소 콘텐츠를 비구글 지도와 함께 쓰지 않는다(T-052). 테스트 빌드에는 Google 지도 키가 없다.
-  let asked = 0;
-  page.on("request", request => { if (request.url().endsWith("/api/place-photo")) asked += 1; });
+test("Google photos are asked for only when the Google map is the one on screen", async ({ page }) => {
+  // Places 약관: Google 장소 콘텐츠를 비구글 지도와 함께 쓰지 않는다(T-052).
+  // 처음엔 "카카오 지도면 요청 0건"으로 썼는데, Google 키가 있는 프로덕션에서는 전제가 틀려 check:prod가 깨졌다
+  // (2026-09-25). 키가 있든 없든 성립하는 규칙으로 고쳤다: Google 사진 요청이 있으면 Google 지도가 떠 있어야 한다.
+  let photoRequests = 0;
+  let googleMap = 0;
+  page.on("request", request => {
+    if (request.url().endsWith("/api/place-photo")) photoRequests += 1;
+    if (request.url().includes("maps.googleapis.com/maps/api/js")) googleMap += 1;
+  });
   await fixSuggestions(page, [{ id: "t-nophoto", kind: "meal", name: "사진 없는 식당", lat: 37.5609, lng: 126.9866 }]);
   await planWithFreeAfternoon(page);
   await expect(page.getByRole("article", { name: "Suggested for your free time: 사진 없는 식당" })).toBeVisible();
-  await page.waitForTimeout(500);
-  expect(asked).toBe(0);
+  await page.waitForLoadState("networkidle");
+  if (googleMap === 0) expect(photoRequests).toBe(0);
+  else expect(photoRequests).toBeGreaterThan(0);
 });
