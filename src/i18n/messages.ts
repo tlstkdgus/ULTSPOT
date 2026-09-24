@@ -313,6 +313,48 @@ const en = {
     tour: (noChanges: boolean) => `Photo: Korea Tourism Organization · KOGL Type ${noChanges ? "3 (no alterations)" : "1"}`,
     google: (authors: string) => `Photo: ${authors ? `${authors} · ` : ""}Google Maps`,
   },
+  privacy: {
+    footer: "Privacy",
+    title: "Privacy notice",
+    effective: "Effective 25 September 2026",
+    intro: "ULTSPOT works without an account. This page lists everything the site keeps, where it keeps it, and what it sends to other services.",
+    sections: [
+      { heading: "What we never ask for", items: [
+        "No sign-up, name, email address, phone number or payment details.",
+      ] },
+      { heading: "Kept only in this browser", items: [
+        "Your plan, the spots you picked, events you added yourself, visits you marked and spending you recorded are stored in this browser's storage.",
+        "They are not sent to our server. Clearing this browser's data deletes them.",
+      ] },
+      { heading: "Optional: private cloud save", items: [
+        "Only when you press Save to cloud, your trip inputs and the notes on events you added are stored on our server (Supabase) under an anonymous guest ID kept in this browser.",
+        "One copy is kept until you delete it with Delete cloud copy. If you clear this browser first, you can no longer reach it.",
+      ] },
+      { heading: "Optional: live place updates", items: [
+        "Only after you agree to create a guest record, we store the place, waiting level, perks left and date you share, visits you choose to record, and your points.",
+        "Others see recent updates per place for the last 2 days, never who sent them.",
+        "These records have no automatic expiry. Points history cannot be deleted item by item, because the balance is the sum of that history.",
+      ] },
+      { heading: "Visit statistics", items: [
+        "Vercel Analytics counts page visits without cookies.",
+        "Google Analytics 4 uses cookies to tell visits apart and collects pages viewed, device and browser type and an approximate location. Google handles this data under its own privacy policy. You can block it in your browser settings or with Google's opt-out add-on.",
+      ] },
+      { heading: "What other services receive", items: [
+        "To look up routes, nearby places, opening hours and photos, our server sends place names and coordinates to Kakao, the Korea Tourism Organization (TourAPI) and Google.",
+        "To rank nearby places, it sends fixed interest phrases from the chips you chose and facts about the places to TypeSafe (Jev).",
+        "When a map is shown, your browser loads it from Google or Kakao.",
+        "None of these requests include an account, name or contact detail, because we do not have one.",
+      ] },
+      { heading: "Cookies", items: [
+        "ultspot-locale remembers your language.",
+        "A guest session is kept in this browser only if you use cloud save or live place updates.",
+        "Google Analytics cookies (such as _ga) are set when analytics is enabled.",
+      ] },
+      { heading: "Changes", items: [
+        "If this notice changes, the effective date above changes with it.",
+      ] },
+    ],
+  },
   journey: {
     rangeLegend: "How long are you in Seoul?",
     from: "First day",
@@ -751,6 +793,48 @@ const ko: Messages = {
   photo: {
     tour: (noChanges: boolean) => `사진: 한국관광공사 · 공공누리 ${noChanges ? "제3유형(변경금지)" : "제1유형"}`,
     google: (authors: string) => `사진: ${authors ? `${authors} · ` : ""}Google Maps`,
+  },
+  privacy: {
+    footer: "개인정보 처리방침",
+    title: "개인정보 처리방침",
+    effective: "시행일 2026년 9월 25일",
+    intro: "ULTSPOT은 계정 없이 쓰는 서비스예요. 이 페이지에 사이트가 무엇을, 어디에 보관하고, 다른 서비스에 무엇을 보내는지 전부 적었어요.",
+    sections: [
+      { heading: "받지 않는 정보", items: [
+        "가입, 이름, 이메일, 전화번호, 결제 정보를 받지 않아요.",
+      ] },
+      { heading: "이 브라우저에만 저장하는 정보", items: [
+        "일정, 담은 장소, 직접 추가한 행사, 다녀왔다고 표시한 곳, 가계부 기록은 이 브라우저 저장소에만 저장해요.",
+        "서버로 보내지 않아요. 브라우저 데이터를 지우면 함께 지워져요.",
+      ] },
+      { heading: "선택: 비공개 클라우드 저장", items: [
+        "클라우드에 저장을 누를 때만 여행 입력값과 직접 추가한 행사 메모를 서버(Supabase)에 저장해요. 이 브라우저에 남는 익명 게스트 ID로만 연결돼요.",
+        "클라우드 저장본 삭제를 누르기 전까지 1개를 보관해요. 브라우저 데이터를 먼저 지우면 다시 접근할 수 없어요.",
+      ] },
+      { heading: "선택: 현장 현황", items: [
+        "게스트 기록 만들기에 동의한 경우에만 공유한 장소·대기·특전 잔여·날짜, 직접 기록한 방문, 포인트를 저장해요.",
+        "다른 사람에게는 장소별 최근 2일 현황만 보이고, 누가 올렸는지는 보이지 않아요.",
+        "이 기록은 자동으로 지워지는 기한이 없어요. 포인트 내역은 잔액의 근거라 한 건씩 지울 수 없어요.",
+      ] },
+      { heading: "방문 통계", items: [
+        "Vercel Analytics는 쿠키 없이 페이지 방문 수를 세요.",
+        "Google Analytics 4는 쿠키로 방문을 구분하고 본 페이지, 기기·브라우저 종류, 대략적인 위치를 수집해요. 이 정보는 Google의 개인정보처리방침에 따라 처리돼요. 브라우저 설정이나 Google 애널리틱스 차단 부가기능으로 막을 수 있어요.",
+      ] },
+      { heading: "다른 서비스로 보내는 정보", items: [
+        "경로, 주변 장소, 영업시간, 사진을 찾으려고 서버가 장소 이름과 좌표를 카카오, 한국관광공사(TourAPI), Google에 보내요.",
+        "주변 장소 순서를 정하려고 고른 관심사의 고정 문구와 장소 정보를 TypeSafe(Jev)에 보내요.",
+        "지도를 보여줄 때는 브라우저가 Google 또는 카카오 지도 서버에서 지도를 받아요.",
+        "어느 요청에도 계정·이름·연락처는 들어가지 않아요. 받은 적이 없기 때문이에요.",
+      ] },
+      { heading: "쿠키", items: [
+        "ultspot-locale은 고른 언어를 기억해요.",
+        "클라우드 저장이나 현장 현황을 쓸 때만 이 브라우저에 게스트 세션이 남아요.",
+        "방문 통계가 켜져 있으면 Google 애널리틱스 쿠키(_ga 등)가 저장돼요.",
+      ] },
+      { heading: "변경", items: [
+        "이 내용이 바뀌면 위의 시행일도 함께 바꿔요.",
+      ] },
+    ],
   },
   journey: {
     rangeLegend: "서울에 며칠 있어요?",

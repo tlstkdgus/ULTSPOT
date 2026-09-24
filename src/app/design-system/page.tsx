@@ -297,12 +297,13 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      <footer className="flex flex-wrap justify-between gap-2.5 py-10 text-xs text-text-faint">
+      {/* 사이트 공통 푸터(T-058)가 생겨 contentinfo 랜드마크가 둘이 되지 않게 footer 대신 div로 둔다. */}
+      <div className="flex flex-wrap justify-between gap-2.5 py-10 text-xs text-text-faint">
         {/* "AI 덕질 여행 플래너"는 없는 기능이라 layout.tsx의 설명에서 이미 뺐는데
             이 줄만 남아 있었다. 일정 계산은 규칙 기반이고 모델 호출이 없다. */}
         <span>ULTSPOT — K팝 하루 일정 플래너</span>
         <span>Brand &amp; Design Guide v1.0 · Neon Lime × Sunset Orange</span>
-      </footer>
+      </div>
     </div>
   );
 }

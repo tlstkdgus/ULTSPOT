@@ -8,6 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { color } from "@/design-system/tokens";
 import { htmlLang } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/locale";
+import { SiteFooter } from "@/components/site-footer";
 import { messages } from "@/i18n/messages";
 import { getLocale } from "@/i18n/server";
 import "./globals.css";
@@ -53,7 +54,7 @@ export default async function RootLayout({
   return (
     <html lang={htmlLang[locale]} className={unbounded.variable}>
       <body>
-        <LocaleProvider initial={locale}>{children}</LocaleProvider>
+        <LocaleProvider initial={locale}>{children}<SiteFooter /></LocaleProvider>
         <Analytics />
       </body>
       {/* @next/third-parties 문서대로 body 밖에 둔다. 스크립트는 하이드레이션 뒤에 받는다. */}

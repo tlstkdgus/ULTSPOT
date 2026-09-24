@@ -62,4 +62,5 @@
 | [T-054](T-054/README.md) | check:prod가 Google 사진 예산을 태우고 깨지던 문제 | 완료 | `fix/T-054-prod-check-photo-stub` | #68 |
 | [T-055](T-055/README.md) | impeccable 감사와 접근성 수정 (빈 시간 추천·사진·지도) | 완료 | `fix/T-055-audit-a11y` | #69 |
 | [T-056](T-056/README.md) | README를 지금 기능·외부 API·환경 변수에 맞춘다 | 완료 | `docs/T-056-readme` | #70 |
-| [T-057](T-057/README.md) | 현장 현황 한국어 문구 오타 두 개 | 완료 | `fix/T-057-onsite-copy` | PR 준비 |
+| [T-057](T-057/README.md) | 현장 현황 한국어 문구 오타 두 개 | 완료 | `fix/T-057-onsite-copy` | #71 |
+| [T-058](T-058/README.md) | 개인정보 처리방침 페이지와 하단 푸터 | 완료 | `feat/T-058-privacy` | PR 준비 |
