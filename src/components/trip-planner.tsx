@@ -22,6 +22,7 @@ import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
 import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
 import { KakaoMap } from "@/components/kakao-map";
+import { GOOGLE_MAPS_JS_KEY, GoogleMap } from "@/components/google-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
 import { PersonalEventForm } from "@/components/personal-event-form";
 import { parseSavedTrip, storageKey, type SavedTrip } from "@/lib/trip/storage";
@@ -609,11 +610,17 @@ export function TripPlanner({ today }: { today: string }) {
             : unconfirmedLegs > 0 ? t.travel.someUnconfirmed(unconfirmedLegs) : t.travel.allChecked}
         </p>}
         {/* 좌표가 있는 정류장만 핀으로. NEXT_PUBLIC_KAKAO_JS_KEY가 없으면 렌더되지 않는다. */}
-        <KakaoMap className="mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong"
-          points={[
+        {(() => {
+          const points = [
             ...result.stops.flatMap(s => { const p = eventPoint(s.event); return p.coord ? [{ name: eventCopy(s.event, dataLocale).title, coord: p.coord }] : []; }),
-            ...gapFill.chains.flatMap(c => c.items).flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord }] : []),
-          ]} />
+            ...gapFill.chains.flatMap(c => c.items).flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord, tentative: true }] : []),
+          ];
+          const mapClass = "mb-5 h-64 w-full overflow-hidden rounded-xl border border-line-strong";
+          // Google 지도 키가 있으면 Google, 없으면 카카오(T-052). Google 장소 사진은 Google 지도일 때만 쓴다.
+          return GOOGLE_MAPS_JS_KEY
+            ? <GoogleMap className={mapClass} points={points} language={locale === "zh" ? "zh-CN" : locale} />
+            : <KakaoMap className={mapClass} points={points} />;
+        })()}
         <ol className="space-y-4">{result.stops.map((stop, index) => { const before = chainBefore(stop.event.id, index); const via = lastFilled(before); return <Fragment key={stop.event.id}>
           {index === 0 && renderChain(before)}
           <li>

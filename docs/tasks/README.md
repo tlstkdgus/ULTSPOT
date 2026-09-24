@@ -56,4 +56,5 @@
 | [T-048](T-048/README.md) | 체크인·지출 때마다 이동시간을 다시 조회하던 문제 | 리뷰 중 | `fix/T-048-travel-lookup-key` | PR 준비 |
 | [T-049](T-049/README.md) | 확정 일정의 빈 시간에 주변 추천을 끼워 넣는다 | 리뷰 중 | `feat/T-049-gap-fill` | #63 |
 | [T-050](T-050/README.md) | 주변 추천에 영업시간을 붙인다 (한국관광공사 TourAPI) | 리뷰 중 | `feat/T-050-tourapi-hours` | #64 |
-| [T-051](T-051/README.md) | 추천 장소에 사진을 붙인다 (한국관광공사 · 공공누리) | 리뷰 중 | `feat/T-051-place-photos` | PR 준비 |
+| [T-051](T-051/README.md) | 추천 장소에 사진을 붙인다 (한국관광공사 · 공공누리) | 리뷰 중 | `feat/T-051-place-photos` | #65 |
+| [T-052](T-052/README.md) | Google 지도와 Google 장소 사진 | 리뷰 중 | `feat/T-052-google-maps` | PR 준비 |

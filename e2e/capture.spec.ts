@@ -63,7 +63,10 @@ test.describe("screenshots", { tag: "@capture" }, () => {
       // complete여도 아직 칠해지지 않은 사진이 빈 칸으로 찍혔다. 디코딩까지 기다린다.
       await Promise.all(Array.from(document.images).map(img => img.decode().catch(() => null)));
     });
-    await page.waitForTimeout(300);
+    // Google 지도(T-052)는 타일을 나중에 받는다. 타일 요청이 끝나고 칠해질 때까지 기다린다.
+    // 기다리지 않으면 핀만 있고 바탕이 회색인 지도가 찍혔다.
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(1_500);
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: shot(testInfo, "plan-itinerary"), fullPage: true, animations: "disabled" });
   });
