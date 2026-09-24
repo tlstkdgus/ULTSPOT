@@ -43,7 +43,7 @@ const token = (name: string) => getComputedStyle(document.documentElement).getPr
 
 export type MapPoint = { name: string; coord: Coord; tentative?: boolean };
 
-export function GoogleMap({ points, className, language = "ko" }: { points: MapPoint[]; className?: string; language?: string }) {
+export function GoogleMap({ points, className, language = "ko", label }: { points: MapPoint[]; className?: string; language?: string; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
   // 배열은 렌더마다 새로 만들어진다. 내용이 같으면 지도를 다시 그리지 않는다.
@@ -81,5 +81,7 @@ export function GoogleMap({ points, className, language = "ko" }: { points: MapP
   }, [pointsKey, language]);
 
   if (!GOOGLE_MAPS_JS_KEY || failed || points.length === 0) return null;
-  return <div ref={ref} aria-hidden="true" className={className} />;
+  // 카카오 지도와 달리 확대·축소 버튼이 키보드로 잡힌다. aria-hidden 안에 초점이 들어가면 화면 낭독기가
+  // 이름 없는 버튼을 읽는다(WCAG 4.1.2). 숨기지 않고 이름 붙은 영역으로 둔다(T-055).
+  return <div ref={ref} role="region" aria-label={label} className={className} />;
 }

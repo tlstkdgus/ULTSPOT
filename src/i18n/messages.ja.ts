@@ -179,6 +179,7 @@ export const ja: Messages = {
     txt: "テキストで受け取る (.txt)",
     editDay: "日程を修正",
     editSpots: "行き先を修正",
+    mapLabel: "この日に立ち寄るスポットの地図",
     encoreTitle: (time: string) => `${time}にプランが終わります`,
     encoreFree: (duration: string, end: string) => `${end}まで${duration}の余裕があります。`,
     encoreFull: "1日がいっぱいです。",

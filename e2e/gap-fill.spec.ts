@@ -190,6 +190,8 @@ test("a suggestion with a licensed photo shows it whole, with the source under i
   await expect(photo).toHaveCSS("object-fit", "contain");
   await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await expect(card).toContainText("Photo: Korea Tourism Organization · KOGL Type 3 (no alterations)");
+  // 출처 표기는 읽혀야 한다: text-muted(#b9afa0, 배경 대비 8:1). text-faint는 AA 미달이었다(T-055).
+  await expect(card.locator("figcaption")).toHaveCSS("color", "rgb(185, 175, 160)");
 });
 
 test("a photo that fails to load leaves no broken image behind", async ({ page }) => {
@@ -218,5 +220,9 @@ test("Google photos are asked for only when the Google map is the one on screen"
   await expect(page.getByRole("article", { name: "Suggested for your free time: 사진 없는 식당" })).toBeVisible();
   await page.waitForLoadState("networkidle");
   if (googleMap === 0) expect(photoRequests).toBe(0);
-  else expect(photoRequests).toBeGreaterThan(0);
+  else {
+    expect(photoRequests).toBeGreaterThan(0);
+    // Google 지도는 확대 버튼이 키보드로 잡히므로 숨기지 않고 이름 붙은 영역이어야 한다(T-055).
+    await expect(page.getByRole("region", { name: "Map of this day's stops" })).toBeVisible();
+  }
 });

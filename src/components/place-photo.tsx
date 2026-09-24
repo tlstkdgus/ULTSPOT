@@ -35,9 +35,10 @@ export function PlacePhotoView({ photo, alt, size = "card", className }: {
         <img src={photo.url} alt={alt} loading="lazy" decoding="async" referrerPolicy="no-referrer"
           onError={() => setBroken(true)} className="h-full w-full object-contain" />
       </div>
-      <figcaption className="mt-1 text-caption text-text-faint">
+      {/* 출처 표기는 이용 조건이라 읽혀야 한다. text-faint(3.7~3.9:1)는 AA(4.5:1) 미달이라 muted(8:1)를 쓴다(T-055). */}
+      <figcaption className="mt-1 text-caption text-text-muted">
         {photo.provider === "google" && photo.authors[0]?.uri
-          ? <a href={photo.authors[0].uri} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{credit}</a>
+          ? <a href={photo.authors[0].uri} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-2">{credit}</a>
           : credit}
       </figcaption>
     </figure>

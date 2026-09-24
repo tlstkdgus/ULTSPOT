@@ -59,4 +59,5 @@
 | [T-051](T-051/README.md) | 추천 장소에 사진을 붙인다 (한국관광공사 · 공공누리) | 리뷰 중 | `feat/T-051-place-photos` | #65 |
 | [T-052](T-052/README.md) | Google 지도와 Google 장소 사진 | 리뷰 중 | `feat/T-052-google-maps` | #66 |
 | [T-053](T-053/README.md) | Google Analytics 4를 붙인다 | 리뷰 중 | `feat/T-053-google-analytics` | PR 준비 |
-| [T-054](T-054/README.md) | check:prod가 Google 사진 예산을 태우고 깨지던 문제 | 완료 | `fix/T-054-prod-check-photo-stub` | PR 준비 |
+| [T-054](T-054/README.md) | check:prod가 Google 사진 예산을 태우고 깨지던 문제 | 완료 | `fix/T-054-prod-check-photo-stub` | #68 |
+| [T-055](T-055/README.md) | impeccable 감사와 접근성 수정 (빈 시간 추천·사진·지도) | 완료 | `fix/T-055-audit-a11y` | PR 준비 |
