@@ -1,7 +1,9 @@
 # 태스크 목록
 
-| 신규 태스크 | 내용 |
-|---|---|
+작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
+
+| ID | 제목 | 상태 | 브랜치 | PR |
+|----|------|------|--------|----|
 | [T-001](T-001/README.md) | 프로젝트 기본 셋팅 — Next.js · 디자인 시스템 · Supabase · 캡처 파이프라인 · 작업 규칙 | 완료 | `chore/T-001-project-setup` | #1 (뼈대) · #2 |
 | [T-002](T-002/README.md) | Vercel 배포와 제출 링크 공개 접근 검사 (`pnpm check:prod`) | 완료 — https://ultspot.vercel.app | `chore/T-002-vercel-deploy` | #3 |
 | [T-003](T-003/README.md) | 기획 보강 — 테마 테스트 초안, 장소 데이터 확보 방안, 기획안 v0.5, PRD·기능명세서·유저플로우 | 진행 중 — 기획 검토·X 토큰 대기 | `docs/T-003-theme-test-and-places` | #4 (Draft) |
@@ -31,14 +33,9 @@
 | [T-027](T-027/README.md) | 일본어·중국어 장소 데이터 계약 | 구현·검증, UI 연결 대기 | `feat/T-027-localized-place-data` | [#34](https://github.com/tlstkdgus/ULTSPOT/pull/34) |
 | [T-028](T-028/README.md) | 여러 날 일정·저장 구조 | 구현·검증, UI/DB 적용 대기 | `feat/T-028-multi-day-storage` | [#35](https://github.com/tlstkdgus/ULTSPOT/pull/35) |
 | [T-029](T-029/README.md) | 전체 UX 통합 — 최애 선택·탐색·N박 N일 일정·커뮤니티·체크인·가계부·공유·발자취 | 진행 중 | `feat/T-029-full-ux` | PR 준비 |
-| [T-030](T-030/README.md) | 지원하지 않는 브라우저 언어와 감지 실패 시 영어 기본값 |
-| [T-031](T-031/README.md) | 가입 배지·중복 안내·홍보 문구 제거 (4개 언어) |
+| [T-030](T-030/README.md) | 지원하지 않는 브라우저 언어와 감지 실패 시 영어 기본값 | — | — | — |
+| [T-031](T-031/README.md) | 가입 배지·중복 안내·홍보 문구 제거 (4개 언어) | — | — | — |
 | [T-032](T-032/README.md) | 기준 목업에 맞춘 홈 비주얼 정렬 | 리뷰 중 | `design/T-032-visual-alignment` | PR 준비 |
-
-작업마다 `T-NNN/README.md`에 기록하고 여기에 한 줄 추가한다. 규칙은 [CONTRIBUTING.md §5](../../CONTRIBUTING.md#5-태스크-기록--docstasks), 양식은 [_template.md](_template.md).
-
-| ID | 제목 | 상태 | 브랜치 | PR |
-|----|------|------|--------|----|
 | [T-033](T-033/README.md) | 첫 화면 구도 정리와 제출용 16:9 이미지 | 리뷰 중 | `design/T-033-visual-polish` | PR 준비 |
 | [T-034](T-034/README.md) | critique 4회차 수정 — 정하지 않은 날짜 단언·한글 누수·언어 선택 여백 | 리뷰 중 | `fix/T-034-round4` | PR 준비 |
 | [T-035](T-035/README.md) | Kiro 여정·현장 기록 통합과 홈 4단계 안내 | 리뷰 중 | `integrate/t029-journey` | PR 준비 |
@@ -68,4 +65,5 @@
 | [T-060](T-060/README.md) | 보조 글씨(text-faint) 대비를 AA로 | 완료 | `fix/T-060-faint-contrast` | #74 |
 | [T-061](T-061/README.md) | 빈 시간 구간을 동시에 채운다 | 완료 | `perf/T-061-parallel-gaps` | #75 |
 | [T-062](T-062/README.md) | 직접 추가하는 장소를 지도 검색으로 고른다 | 완료 | `feat/T-062-place-search` | #76 |
-| [T-063](T-063/README.md) | 여러 날 여정에도 빈 시간 채우기와 지도 | 완료 | `feat/T-063-journey-gaps` | PR 준비 |
+| [T-063](T-063/README.md) | 여러 날 여정에도 빈 시간 채우기와 지도 | 완료 | `feat/T-063-journey-gaps` | #77 |
+| [T-064](T-064/README.md) | 문서 정리 — 태스크 목록 표 하나로, README 첫 화면 캡처 교체 | 완료 | `docs/T-064-cleanup` | PR 준비 |

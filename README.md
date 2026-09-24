@@ -4,7 +4,9 @@
 
 > **FIND YOUR SPOT.** — 여행 날짜에 맞춰 생일카페·팝업 이벤트를 매칭해주는, 글로벌 K팝 팬을 위한 AI 덕질 여행 플래너
 
-<img src="docs/tasks/T-005/screenshots/home-desktop.png" alt="ULTSPOT 비회원 플래너 진입 (desktop)" width="720">
+<img src="docs/tasks/T-058/screenshots/home-desktop.png" alt="ULTSPOT 홈 — FIND YOUR SPOT, 일정 만들기 4단계 (desktop)" width="720">
+
+<img src="docs/tasks/T-061/screenshots/plan-itinerary-mobile.png" alt="일정 받기 — Google 지도와 빈 시간 추천(영업시간·관광공사 사진) (mobile)" width="300">
 
 **데모: https://ultspot.vercel.app** · 모바일 우선 **반응형 웹앱**입니다. 보여지는 것이 핵심인 서비스라, 모든 화면 작업은 3개 뷰포트 캡처와 함께 기록됩니다.
 
