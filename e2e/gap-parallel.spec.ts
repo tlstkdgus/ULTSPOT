@@ -3,7 +3,7 @@ import { fillChain, type FillOptions, type GapFillState } from "../src/lib/trip/
 import type { Gap } from "../src/lib/trip/gap-fill";
 
 /**
- * T-061: 빈 구간들을 동시에 채워도 같은 가게를 두 번 고르지 않고, 순서대로 할 때보다 빨리 끝난다.
+ * T-061: 빈 구간들을 동시에 채워도 같은 가게를 두 번 고르지 않고, 두 구간의 요청이 동시에 나간다.
  * 추천·이동시간 서버는 가짜 fetch로 대신한다(응답마다 80ms 지연).
  */
 const anchor = { lat: 37.5609, lng: 126.9866 };
@@ -16,10 +16,15 @@ const gap = (id: string, start: number): Gap => ({
   id, start, end: start + 90, from: { id: `from-${id}`, name: "A", coord: anchor }, to: null, anchor, kinds: ["meal"], position: "between",
 });
 
+/** 동시에 떠 있던 요청 수의 최대값. 시간 대신 이것으로 "동시에 돌았는가"를 본다(시간은 부하에 따라 흔들렸다). */
+const flight = { now: 0, max: 0 };
 function fakeServer() {
   const original = globalThis.fetch;
+  flight.now = 0; flight.max = 0;
   globalThis.fetch = (async (url: string, init?: RequestInit) => {
+    flight.now += 1; flight.max = Math.max(flight.max, flight.now);
     await new Promise(done => setTimeout(done, 80));
+    flight.now -= 1;
     const body = JSON.parse(String(init?.body ?? "{}"));
     if (String(url).endsWith("/api/recommend")) {
       const excluded: string[] = body.excluded ?? [];
@@ -41,17 +46,15 @@ test("two gaps filled at the same time never pick the same place, and finish tog
     const claim = (id: string) => (used.has(id) ? false : (used.add(id), true));
     const results: Record<string, GapFillState[]> = {};
     const controller = new AbortController();
-    const started = Date.now();
     await Promise.all(["g1", "g2"].map((id, i) => fillChain(gap(id, 700 + i * 200), [], [], options, controller.signal,
       items => { results[id] = items; }, claim, () => [...used])));
-    const elapsed = Date.now() - started;
 
     const picked = Object.values(results).flat().flatMap(s => s.status === "filled" ? [s.suggestion.id] : []);
     expect(picked.length).toBeGreaterThanOrEqual(2);
     expect(new Set(picked).size).toBe(picked.length);
-    // 구간 하나에 추천 1회 + 이동시간 1회(각 80ms). 동시에 돌면 두 구간이 대략 한 구간 시간에 끝난다.
-    // 순서대로라면 최소 320ms. 여유를 두고 300ms 미만을 요구한다.
-    expect(elapsed).toBeLessThan(300);
+    // 두 구간이 동시에 돌았다면 같은 순간에 요청이 두 개 이상 떠 있다. 순서대로면 늘 하나다.
+    // 처음엔 걸린 시간(300ms 미만)으로 봤는데 전체 실행 부하에서 535ms가 나와 흔들렸다.
+    expect(flight.max).toBeGreaterThanOrEqual(2);
   } finally {
     restore();
   }

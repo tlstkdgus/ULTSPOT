@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge, Button } from "@/components/ui";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, CloseIcon, ExternalIcon, PinIcon } from "@/components/icons";
 import { TravelLeg } from "@/components/travel-leg";
@@ -21,7 +21,12 @@ import { PlaceStatusPanel } from "@/components/place-status-panel";
 import { daySummary, journeyLegs, legEstimate, travelLookup } from "@/lib/trip/journey-travel";
 import { journeyPlaces, type ResolvedPlace } from "@/lib/trip/journey-places";
 import { fetchTravelTable, type TravelLeg as LegToLookUp } from "@/lib/trip/travel-client";
-import type { TravelMode, TravelTable } from "@/lib/trip/travel";
+import type { TravelEstimate, TravelMode, TravelTable } from "@/lib/trip/travel";
+import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
+import { GOOGLE_MAPS_JS_KEY, GoogleMap } from "@/components/google-map";
+import { KakaoMap } from "@/components/kakao-map";
+import { preferenceProfile } from "@/lib/recommend/preference";
+import { journeyDayForGaps } from "@/lib/trip/journey-gaps";
 
 const STAY_OPTIONS = [30, 45, 60, 90, 120, 180];
 
@@ -92,6 +97,28 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
     : [];
   const summary = day ? daySummary(journey, current, table, travelMode) : null;
 
+  /**
+   * 빈 시간 채우기(T-063). 당일 일정과 같은 채우기를 이 날에도 쓴다. 앞에서부터 시각이 확정된 방문까지만
+   * 빈 시간을 잴 수 있다(journey-gaps.ts). 여정에는 관심사 칩이 없어 순서는 거리순이다.
+   */
+  const gapProfile = useMemo(() => preferenceProfile({ interests: [], stay: 60 }), []);
+  const gapInput = day ? journeyDayForGaps(scheduled, id => byId.get(id)?.event ?? null, (from, to) => {
+    const estimate = legEstimate(table, travelMode, from, to);
+    return estimate?.status === "known" ? estimate.minutes : null;
+  }, day, travelMode) : null;
+  const gapFill = useGapFill({
+    result: gapInput?.result ?? null,
+    input: gapInput?.input ?? { date: current, start: 600, end: 1200, stay: 60, transfer: 45, travelMode },
+    profile: gapProfile, ready: !!day && !lookingUp,
+  });
+  const lastFilled = (chain?: GapChain) =>
+    [...(chain?.items ?? [])].reverse().find((i): i is Extract<GapFillState, { status: "filled" }> => i.status === "filled") ?? null;
+  const renderChain = (chain?: GapChain) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state}
+    transfer={day?.bufferMinutes ?? 45}
+    onAnother={() => state.status === "filled" && gapFill.another(chain.root, index, state.suggestion.id)}
+    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)} />);
+  const chainById = (id: string) => gapFill.chains.find(chain => chain.root.id === id);
+
   /** 여정 변경은 journey.ts의 원자적 함수만 쓴다. 실패하면 원본이 그대로 남는다. */
   function apply(change: () => Journey) {
     try { onChange(change()); }
@@ -117,10 +144,11 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
     ? day.visits.map(visit => byId.get(visit.placeId)).filter((p): p is ResolvedPlace => !!p?.coord)
     : [];
 
-  function renderVisitRow(item: ScheduledVisit, index: number, list: Visit[]) {
+  function renderVisitRow(item: ScheduledVisit, index: number, list: Visit[], via?: TravelEstimate | null) {
     const place = byId.get(item.visit.placeId);
     const previous = index > 0 ? byId.get(list[index - 1].placeId) : undefined;
-    const estimate = previous && place ? legEstimate(table, travelMode, previous.id, place.id) : null;
+    // 앞 빈 시간에 추천이 들어갔으면 이 방문까지의 이동은 추천 장소에서 출발한다(T-063).
+    const estimate = via !== undefined ? via : previous && place ? legEstimate(table, travelMode, previous.id, place.id) : null;
     return (
       <li key={item.visit.id}>
         {index > 0 && <TravelLeg estimate={estimate} bufferMinutes={day?.bufferMinutes ?? 45} lookingUp={lookingUp} />}
@@ -300,6 +328,17 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
           <section aria-label={t.journey.mapTitle} className="mt-4 rounded-xl border border-line-strong p-4">
             <h2 className="text-label">{t.journey.mapTitle}</h2>
             <p className="mt-1 text-caption text-text-muted">{t.journey.mapNote}</p>
+            {(() => {
+              // 이 날의 지도(T-063). 확정 방문은 번호, 빈 시간 추천은 주황. 키가 있으면 Google, 없으면 카카오.
+              const points = [
+                ...pinned.map(place => ({ name: label(place), coord: place.coord! })),
+                ...gapFill.chains.flatMap(chain => chain.items).flatMap(f => f.status === "filled" ? [{ name: f.suggestion.name, coord: f.suggestion.coord, tentative: true }] : []),
+              ];
+              const mapClass = "mt-3 h-56 w-full overflow-hidden rounded-lg border border-line-strong";
+              return GOOGLE_MAPS_JS_KEY
+                ? <GoogleMap className={mapClass} points={points} language={uiLocale === "zh" ? "zh-CN" : uiLocale} label={t.result.mapLabel} />
+                : <KakaoMap className={mapClass} points={points} />;
+            })()}
             {pinned.length > 0 ? <ol className="mt-3 grid gap-2 sm:grid-cols-2">
               {pinned.map((place, index) => <li key={place.id} className="flex min-w-0 items-center gap-2 text-caption">
                 <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-text text-bg">{index + 1}</span>
@@ -315,7 +354,18 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
             <p className="text-subhead">{t.journey.empty}</p>
             <p className="mt-2 text-body-sm text-text-muted">{t.journey.emptyNext}</p>
           </div> : <ol className="mt-4 space-y-4">
-            {scheduled.map((item, index) => renderVisitRow(item, index, day.visits))}
+            {scheduled.map((item, index) => {
+              const id = item.visit.placeId;
+              const before = index === 0 ? chainById(`before>${id}`) : chainById(`${day.visits[index - 1].placeId}>${id}`);
+              const via = lastFilled(before);
+              const after = gapFill.chains.find(chain => chain.root.id === `${id}>after`);
+              return <Fragment key={item.visit.id}>
+                {index === 0 && renderChain(before)}
+                {renderVisitRow(item, index, day.visits, via ? via.legOut : undefined)}
+                {index === scheduled.length - 1 && renderChain(after)}
+                {index < scheduled.length - 1 && renderChain(chainById(`${id}>${day.visits[index + 1].placeId}`))}
+              </Fragment>;
+            })}
           </ol>}
 
           <SpendingPanel journey={journey} onChange={onChange} activeDate={current}

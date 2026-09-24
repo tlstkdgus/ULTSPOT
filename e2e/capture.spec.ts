@@ -112,6 +112,14 @@ test.describe("screenshots", { tag: "@capture" }, () => {
     // 이동시간 조회 중 화면을 찍지 않는다.
     await expect(page.getByRole("status").filter({ hasText: "이동시간을 확인하는 중이에요" })).toHaveCount(0, { timeout: 20_000 });
     await page.evaluate(() => document.fonts.ready);
+    // 여정 화면에도 지도·추천 사진이 생겼다(T-063). 빈 시간 추천과 지도 타일을 기다린 뒤 찍는다.
+    await expect(page.getByRole("status").filter({ hasText: "주변에서 찾는 중" })).toHaveCount(0, { timeout: 30_000 });
+    await page.evaluate(async () => {
+      for (const img of Array.from(document.images)) img.loading = "eager";
+      await Promise.all(Array.from(document.images).map(img => img.decode().catch(() => null)));
+    });
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(1_500);
     await page.screenshot({ path: shot(testInfo, "journey-records"), fullPage: true, animations: "disabled" });
   });
   test("plan-spots", async ({ page }, testInfo) => {

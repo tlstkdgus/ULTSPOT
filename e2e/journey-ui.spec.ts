@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { journeyStorageKey } from "../src/lib/trip/journey";
-import { browseAllSpots, fixTravelLookups, goToStep } from "./flow";
+import { browseAllSpots, fixSuggestions, fixTravelLookups, goToStep } from "./flow";
 import { englishLocale } from "./locale";
 
 englishLocale();
@@ -9,6 +9,9 @@ englishLocale();
  * 이 파일은 **여정 화면**을 검사한다. 이동시간 조회 자체는 검사하지 않으므로 /api/travel 응답을
  * 고정한다 (이유는 flow.ts의 fixTravelLookups 주석 참조).
  */
+
+// 여정 화면도 빈 시간 추천을 부른다(T-063). 실제 카카오·Jev를 태우면 분당 상한에 걸려 recommend.spec이 429로 깨졌다.
+test.beforeEach(({ page }) => fixSuggestions(page));
 
 test("moving the last travel leg away clears a pending lookup", async ({ page }) => {
   await twoNightTrip(page);
