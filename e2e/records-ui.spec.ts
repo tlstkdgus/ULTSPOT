@@ -172,9 +172,13 @@ test("checking in and recording spending do not look up travel times again", asy
 test("the share card is drawn in the browser and downloaded, with no server and no link", async ({ page }) => {
   await journey(page);
   await markDone(page, HIKR);
-  // 카드를 만드는 동안 서버로 나가는 요청이 없어야 한다.
+  // 카드를 만드는 동안 **우리 서버로** 나가는 요청이 없어야 한다. 카드 내용이 서버로 가지 않는다는 검사다.
+  // Google Analytics(T-053)는 다운로드 클릭을 google-analytics.com으로 POST할 수 있는데(향상된 측정),
+  // 카드 이미지가 아니라 "다운로드가 있었다"는 이벤트라 우리 서버 요청만 센다.
   const calls: string[] = [];
+  const ours = new URL(page.url()).origin;
   page.on("request", request => {
+    if (new URL(request.url()).origin !== ours) return;
     if (request.method() === "POST" || request.url().includes("/api/")) calls.push(request.url());
   });
 
