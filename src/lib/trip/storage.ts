@@ -1,6 +1,7 @@
 import { catalog } from "./catalog";
+import { PLACE_SEARCH_SOURCE } from "./place-search";
 import { artists } from "./artists";
-import { isKoreanCoord, roundCoord, type TripEndpoint } from "./geo";
+import { isKoreanCoord, roundCoord, type CoordRecord, type TripEndpoint } from "./geo";
 import { validateTrip, type FanEvent, type TripInput } from "./planner";
 
 export const storageKey = "ultspot.trip.v1";
@@ -28,10 +29,23 @@ export function safeSource(value: unknown): value is string {
   try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password; } catch { return false; }
 }
 
+/**
+ * 개인 장소 좌표(T-062). 카카오 장소 검색으로 고른 좌표만 받는다 — 출처가 카카오 장소 페이지 주소이고 한국 범위다.
+ * 검수 카탈로그 좌표(출처가 주소 검색 API)나 손으로 만든 좌표는 여전히 거부한다.
+ */
+export function isSearchedCoord(value: unknown): value is CoordRecord {
+  if (!object(value) || !isKoreanCoord(value)) return false;
+  const { source, checked_on: checkedOn } = value as Record<string, unknown>;
+  return typeof source === "string" && PLACE_SEARCH_SOURCE.test(source)
+    && typeof checkedOn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(checkedOn)
+    && Object.keys(value).every(key => ["lat", "lng", "source", "checked_on"].includes(key));
+}
+
 export function isPersonalEvent(value: unknown): value is FanEvent {
   if (!object(value) || !object(value.provenance)) return false;
-  // Reviewed catalog metadata is never accepted from a private draft.
-  if (reviewedOnlyKeys.some(key => value[key] !== undefined)) return false;
+  // Reviewed catalog metadata is never accepted from a private draft. 좌표만 예외로, 장소 검색 출처일 때 받는다.
+  if (reviewedOnlyKeys.some(key => key !== "coord" && value[key] !== undefined)) return false;
+  if (value.coord !== undefined && !isSearchedCoord(value.coord)) return false;
   const p = value.provenance;
   /**
    * 운영시간은 둘 다 숫자이거나 둘 다 null이다.

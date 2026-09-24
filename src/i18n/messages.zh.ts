@@ -340,6 +340,7 @@ export const zh: Messages = {
       { heading: "发送给其他服务的信息", items: [
         "为了查询路线、周边地点、营业时间和照片，服务器会把地点名称和坐标发送给Kakao、韩国观光公社（TourAPI）和Google。",
         "为了给周边地点排序，会把所选兴趣的固定语句和地点信息发送给TypeSafe（Jev）。",
+        "搜索要添加的地点时，输入的搜索词会经由我们的服务器发送给Kakao地点搜索。",
         "显示地图时，浏览器会从Google或Kakao的地图服务器加载地图。",
         "这些请求都不包含账号、姓名或联系方式，因为我们从未收集过。",
       ] },
@@ -352,6 +353,20 @@ export const zh: Messages = {
         "内容变更时，上方的施行日期也会一并更新。",
       ] },
     ],
+  },
+  placeSearch: {
+    label: "在地图上查找地点（可选）",
+    placeholder: "例：星巴克 明洞",
+    search: "查找",
+    searching: "查找中…",
+    none: "没有找到匹配的地点。请用街区名加店名再试。",
+    notConfigured: "此环境未设置地点搜索。请直接填写地址。",
+    failed: "暂时无法搜索。请直接填写地址或稍后再试。",
+    pick: (name: string) => `选择${name}`,
+    picked: (name: string) => `已选地点：${name}`,
+    hint: "选择地点后会自动填入名称和地址，并可查询移动时间、在地图上显示。",
+    open: "在 Kakao 地图查看",
+    clear: "取消选择",
   },
   journey: {
     rangeLegend: "你在首尔待几天？",

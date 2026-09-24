@@ -1,12 +1,14 @@
 import { catalog } from './catalog';
+import type { CoordRecord } from './geo';
 import { artists } from './artists';
-import { isPersonalEvent, parseSavedTrip } from './storage';
+import { isPersonalEvent, isSearchedCoord, parseSavedTrip } from './storage';
 import { unavailableReason, type FanEvent } from './planner';
 
 export const journeyStorageKey = 'ultspot.journey.v2';
 export type Visit = { id: string; placeId: string; stay: number; lockedAt?: number };
 export type JourneyDay = { date: string; start: number; end: number; bufferMinutes: number; visits: Visit[] };
-export type CustomPlace = { id: string; title: string; address: string; kind: string; note: string };
+/** coord는 장소 검색(T-062)으로 고른 경우에만 있다. 출처가 카카오 장소 페이지인 좌표만 받는다. */
+export type CustomPlace = { id: string; title: string; address: string; kind: string; note: string; coord?: CoordRecord };
 /**
  * A visit you actually made. `on` is the day you were there, recorded when you say so, so
  * reorganising the plan afterwards never rewrites where you have been. The time of day is
@@ -50,7 +52,7 @@ export function parseJourney(value: unknown): Journey | null {
   if (value.version !== 2 || value.timezone !== 'Asia/Seoul' || !text(value.startDate,10) || !text(value.endDate,10)) return null;
   const dates = journeyDates(value.startDate,value.endDate);
   if (!dates || !Array.isArray(value.days) || value.days.length !== dates.length || !Array.isArray(value.personal) || value.personal.length>12 || !value.personal.every(isPersonalEvent)) return null;
-  if (!Array.isArray(value.custom) || value.custom.length>100 || !value.custom.every(p=>obj(p)&&only(p,['id','title','address','kind','note'])&&text(p.id,80)&&p.id.startsWith('custom-')&&text(p.title)&&text(p.address)&&text(p.kind,80)&&typeof p.note==='string'&&p.note.length<=1500)) return null;
+  if (!Array.isArray(value.custom) || value.custom.length>100 || !value.custom.every(p=>obj(p)&&only(p,['id','title','address','kind','note','coord'])&&(p.coord===undefined||isSearchedCoord(p.coord))&&text(p.id,80)&&p.id.startsWith('custom-')&&text(p.title)&&text(p.address)&&text(p.kind,80)&&typeof p.note==='string'&&p.note.length<=1500)) return null;
   if (!Array.isArray(value.artistIds) || value.artistIds.length>5 || new Set(value.artistIds).size!==value.artistIds.length || !value.artistIds.every(id=>artists.some(a=>a.id===id))) return null;
   const places = [...catalog,...value.personal,...value.custom].map(p=>p.id);
   if (new Set(places).size!==places.length) return null;
