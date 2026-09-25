@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "test-results/**",
     "playwright-report/**",
+    // 외부 스킬(impeccable)이 번들로 가져온 브라우저 스크립트. 우리 코드가 아니라 고치지 않는다 —
+    // 경고 94건 전부가 여기서 나왔다(T-072, 2026-09-25). 스킬을 갱신하면 다시 덮어쓴다.
+    ".github/skills/**",
   ]),
 ]);
 
