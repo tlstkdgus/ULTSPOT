@@ -23,12 +23,17 @@ export const REVIEW_BELOW = 0.7;
 
 const CATEGORIES = ['birthdayCafe', 'support', 'popup', 'filming'];
 const PERKS = Object.keys(PERK_TERMS);
-const FIELDS = ['title', 'venue', 'address', 'from', 'to', 'opens', 'closes', 'category', 'perks', 'conditions', 'artists'];
+const FIELDS = ['title', 'venue', 'address', 'from', 'to', 'opens', 'closes', 'birthday', 'category', 'perks', 'conditions', 'artists'];
+
+const keyed = (value, description) => ({
+  type: 'object', additionalProperties: false, required: FIELDS, description,
+  properties: Object.fromEntries(FIELDS.map(key => [key, value])),
+});
 
 /** 모델에게 주는 출력 형식. json_schema(strict)로 보내고, 받은 뒤에도 parseExtraction이 다시 검사한다. */
 export const EXTRACTION_SCHEMA = {
   type: 'object', additionalProperties: false,
-  required: ['title', 'venue', 'address', 'from', 'to', 'opens', 'closes', 'category', 'perks', 'conditions', 'artists', 'evidence', 'confidence'],
+  required: [...FIELDS, 'evidence', 'confidence'],
   properties: {
     title: { type: ['string', 'null'] },
     venue: { type: ['string', 'null'], description: '카페·장소 이름' },
@@ -37,12 +42,16 @@ export const EXTRACTION_SCHEMA = {
     to: { type: ['string', 'null'], description: 'YYYY-MM-DD' },
     opens: { type: ['string', 'null'], description: 'HH:MM, 24시간' },
     closes: { type: ['string', 'null'], description: 'HH:MM, 24시간' },
+    // 생일 날짜를 따로 받는다(T-073). 받을 칸이 없으니 모델이 "SEPTEMBER 22"·"OCT 2ND"를 행사 시작일(from)에 넣었다.
+    birthday: { type: ['string', 'null'], description: '포스터의 생일 날짜 MM-DD (예: SEPTEMBER 22 → 09-22). 행사 기간이 아니다' },
     category: { type: ['string', 'null'], enum: [...CATEGORIES, null] },
     perks: { type: 'array', items: { type: 'string', enum: PERKS } },
     conditions: { type: 'array', items: { type: 'string' }, description: '참여 조건(1인 1음료, 선착순 인원 등) 원문' },
     artists: { type: 'array', items: { type: 'string' }, description: '포스터에 적힌 아티스트 이름 그대로' },
-    evidence: { type: 'object', additionalProperties: { type: 'string' }, description: '필드 이름 → 포스터·본문에 실제로 적힌 문구' },
-    confidence: { type: 'object', additionalProperties: { type: 'number' }, description: '필드 이름 → 0~1' },
+    // 근거·신뢰도의 키를 필드 이름으로 고정한다(T-073). 자유 키로 두었더니 첫 실행(2026-09-25)에서 모델이
+    // title 대신 event_name, from 대신 date라고 적어, 맞게 읽은 제목이 "근거 없음"으로 검수에 넘어갔다.
+    evidence: keyed({ type: ['string', 'null'] }, '필드 이름 → 포스터·본문에 실제로 적힌 문구. 값이 없으면 null'),
+    confidence: keyed({ type: ['number', 'null'] }, '필드 이름 → 0~1. 값이 없으면 null'),
   },
 };
 
@@ -50,7 +59,11 @@ const PROMPT = [
   'You read Korean K-pop fan event posters (birthday cafes, cup-sleeve events, fan-funded birthday ads, pop-ups).',
   'Return ONLY what is written on the poster or in the post text. Never guess. If a field is not written, use null (or an empty list).',
   'Dates: write YYYY-MM-DD. If the year is missing, use the year given below. Times: 24-hour HH:MM.',
+  `A lone date on a birthday poster ("SEPTEMBER 22", "OCT 2ND", "0922", "SM'S DAY") is the artist's BIRTHDAY: put it in birthday as MM-DD, never in from/to.`,
+  'Fill from/to only when the poster or post states the event period (a range like 9/20~9/22, or words like 기간/운영/OPEN).',
+  'Titles use decorative fonts: copy every syllable exactly, including particles like 이/의 and symbols like ♡. If unsure of any syllable, confidence below 0.7.',
   'address: copy the Korean address exactly as written. Do not complete or correct it.',
+  `evidence and confidence use exactly these keys: ${FIELDS.join(', ')}.`,
   'evidence: for every non-null field, the exact words you read it from.',
   'confidence: for every non-null field, 0 to 1. Use below 0.7 when text is small, cut off, stylised or ambiguous.',
   `perks must be from: ${PERKS.join(', ')}. category must be from: ${CATEGORIES.join(', ')} or null.`,
@@ -72,9 +85,12 @@ export function buildRequest({ image, postText = '', year, model = MODEL, strict
   return {
     model,
     temperature: 0,
-    max_tokens: 1200,
-    // 포스터 읽기는 추론이 거의 필요 없다. 지원하지 않는 제공자는 무시한다.
+    // 1200이었을 때 경민 포스터에서 추론(생각) 토큰이 1200을 다 써서 답이 비었다(T-073, 2026-09-25).
+    max_tokens: 4000,
+    // 포스터 읽기는 추론이 거의 필요 없다. Qwen3.8은 생각 모드가 기본이라 끈다(모델 카드: enable_thinking false).
+    // reasoning_effort 'low'만으로는 꺼지지 않았다(추론 301~1200토큰). 지원하지 않는 제공자는 무시한다.
     reasoning_effort: 'low',
+    chat_template_kwargs: { enable_thinking: false },
     // 제공자마다 json_schema 지원이 다르다. 400이면 json_object로 한 번 더 보낸다(형식 검사는 parseExtraction이 한다).
     response_format: strict
       ? { type: 'json_schema', json_schema: { name: 'fan_event_poster', strict: true, schema: EXTRACTION_SCHEMA } }
@@ -113,6 +129,7 @@ export function parseExtraction(content, { postText = '' } = {}) {
     title: text(raw.title, 120), venue: text(raw.venue, 120), address: text(raw.address),
     from: isDate(raw.from) ? raw.from : null, to: isDate(raw.to) ? raw.to : null,
     opens: toMinutes(raw.opens), closes: toMinutes(raw.closes),
+    birthday: typeof raw.birthday === 'string' && /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(raw.birthday) ? raw.birthday : null,
     category: CATEGORIES.includes(raw.category) ? raw.category : null,
     perks: Array.isArray(raw.perks) ? [...new Set(raw.perks.filter(p => PERKS.includes(p)))] : [],
     conditions: Array.isArray(raw.conditions) ? raw.conditions.map(c => text(c, 200)).filter(Boolean).slice(0, 10) : [],
@@ -121,6 +138,13 @@ export function parseExtraction(content, { postText = '' } = {}) {
   if (raw.from != null && !fields.from) issues.push(`from is not a real YYYY-MM-DD date: ${raw.from}`);
   if (raw.to != null && !fields.to) issues.push(`to is not a real YYYY-MM-DD date: ${raw.to}`);
   if (fields.from && fields.to && fields.from > fields.to) { issues.push('from is after to.'); fields.to = null; }
+  if (raw.birthday != null && !fields.birthday) issues.push(`birthday is not MM-DD: ${raw.birthday}`);
+  // 기간 없이 날짜 하나만 있으면 생일일 가능성이 크다(첫 실행 3장 중 2장이 그랬다). 값은 두되 반드시 검수한다.
+  const loneDate = fields.from !== null && fields.to === null;
+  if (loneDate) issues.push('Only one date and no end date — it may be the birthday, not the event period.');
+  if (fields.from && fields.birthday && fields.from.slice(5) === fields.birthday && !fields.to) {
+    issues.push('from equals the birthday — treated as the birthday.'); fields.from = null;
+  }
   if (raw.opens != null && fields.opens === null) issues.push(`opens is not HH:MM: ${raw.opens}`);
   if (raw.closes != null && fields.closes === null) issues.push(`closes is not HH:MM: ${raw.closes}`);
   // 자정을 넘기는 영업(예: 18:00–02:00)은 앱의 하루 모델로 표현하지 못한다. 시간을 버리고 검수로 넘긴다.
@@ -130,6 +154,7 @@ export function parseExtraction(content, { postText = '' } = {}) {
 
   const hasValue = key => { const v = fields[key]; return Array.isArray(v) ? v.length > 0 : v !== null; };
   const needsReview = FIELDS.filter(key => {
+    if (key === 'from' && loneDate && fields.from) return true;
     if (!hasValue(key)) return raw[key] != null && !(Array.isArray(raw[key]) && raw[key].length === 0);
     const c = Number(confidence[key]);
     return !text(evidence[key]) || !Number.isFinite(c) || c < REVIEW_BELOW;
@@ -159,13 +184,19 @@ export async function extractPoster({ image, postText = '', year }, { token, fet
     }
     if (response.ok) {
       const json = await response.json();
-      const content = json?.choices?.[0]?.message?.content;
-      return { model, usage: json?.usage ?? null, ...parseExtraction(content, { postText }) };
+      const choice = json?.choices?.[0];
+      const parsed = parseExtraction(choice?.message?.content, { postText });
+      // 한도에 걸려 잘린 답은 "JSON이 아님"과 원인이 다르다. 따로 알린다.
+      if (choice?.finish_reason === 'length') parsed.issues.unshift('Output hit the token limit and was cut off.');
+      return { model, usage: json?.usage ?? null, ...parsed };
     }
     lastError = `${model}: HTTP ${response.status}`;
     if (response.status !== 404 && response.status < 500) break;
   }
-  throw new Error(`Extraction failed (${lastError}).`);
+  const hint = / 40[13]$/.test(lastError ?? '') ? ' Check that HF_TOKEN has the "Make calls to Inference Providers" permission.'
+    : / 402$/.test(lastError ?? '') ? ' Inference credits are used up — add billing or wait for the monthly credits at https://huggingface.co/settings/billing.'
+    : / 429$/.test(lastError ?? '') ? ' Rate limited — wait a minute and try again.' : '';
+  throw new Error(`Extraction failed (${lastError}).${hint}`);
 }
 
 // CLI: node --env-file=.env.local scripts/catalog/poster-extract.mjs <이미지 파일> [본문 텍스트 파일] [연도]

@@ -75,3 +75,4 @@
 | [T-070](T-070/README.md) | 생일 광고·서포트 분류 | 완료 | `feat/T-070-support-category` | #84 |
 | [T-071](T-071/README.md) | 포스터 추출 모델 (Hugging Face Qwen3.8-27B) | 완료 | `feat/T-071-poster-extract` | #85 |
 | [T-072](T-072/README.md) | 공유 카드 검사 오탐, lint 경고 정리 | 완료 | `chore/T-072-flakes-lint` | #86 |
+| [T-073](T-073/README.md) | 포스터 추출 첫 실제 실행과 보정 | 완료 | `fix/T-073-extract-keys` | #87 |
