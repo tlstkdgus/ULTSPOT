@@ -16,6 +16,7 @@
     "test:data": "node --test scripts/catalog/*.test.mjs",
     "data:audit": "node scripts/catalog/audit-cli.mjs",
     "data:geocode": "node scripts/catalog/geocode.mjs",
+    "data:extract": "node --env-file-if-exists=.env.local scripts/catalog/poster-extract.mjs",
     "data:research": "node scripts/catalog/research-cli.mjs"
   },
   "dependencies": {
