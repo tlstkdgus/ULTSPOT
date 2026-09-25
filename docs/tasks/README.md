@@ -67,4 +67,5 @@
 | [T-062](T-062/README.md) | 직접 추가하는 장소를 지도 검색으로 고른다 | 완료 | `feat/T-062-place-search` | #76 |
 | [T-063](T-063/README.md) | 여러 날 여정에도 빈 시간 채우기와 지도 | 완료 | `feat/T-063-journey-gaps` | #77 |
 | [T-064](T-064/README.md) | 문서 정리 — 태스크 목록 표 하나로, README 첫 화면 캡처 교체 | 완료 | `docs/T-064-cleanup` | #78 |
-| [T-065](T-065/README.md) | 솔로 아티스트 15명 추가와 X 수집·분류 설계 | 완료 | `feat/T-065-solo-artists` | PR 준비 |
+| [T-065](T-065/README.md) | 솔로 아티스트 15명 추가와 X 수집·분류 설계 | 완료 | `feat/T-065-solo-artists` | #79 |
+| [T-066](T-066/README.md) | 빈 시간 추천을 "일정에 넣기"로 확정 | 완료 | `feat/T-066-keep-suggestion` | #80 |
