@@ -244,6 +244,7 @@ export const zh: Messages = {
     legend: "地点类型",
     all: "全部",
     birthdayCafe: "生日咖啡",
+    support: "生日应援广告",
     popup: "快闪店",
     filming: "取景地",
     landmark: "地标·门店",
