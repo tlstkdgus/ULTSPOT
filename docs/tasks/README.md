@@ -74,3 +74,4 @@
 | [T-069](T-069/README.md) | 개인정보 안내 문의처 | 완료 | `docs/T-069-privacy-contact` | #83 |
 | [T-070](T-070/README.md) | 생일 광고·서포트 분류 | 완료 | `feat/T-070-support-category` | #84 |
 | [T-071](T-071/README.md) | 포스터 추출 모델 (Hugging Face Qwen3.8-27B) | 완료 | `feat/T-071-poster-extract` | #85 |
+| [T-072](T-072/README.md) | 공유 카드 검사 오탐, lint 경고 정리 | 완료 | `chore/T-072-flakes-lint` | #86 |
