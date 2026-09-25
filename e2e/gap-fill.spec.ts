@@ -165,6 +165,31 @@ test("add to plan turns a suggestion into a confirmed stop at the same time, and
   expect(text).toContain("명동 테스트 식당");
 });
 
+test("a Korea Tourism place with known hours keeps its coordinates, stays at the card's time and survives a saved draft", async ({ page }) => {
+  // T-068: 관광공사 후보도 좌표를 들고 간다(출처 = TourAPI 콘텐츠). 휴무 요일이 있는 곳도 저장본이 거부되지 않는다.
+  await fixSuggestions(page, nearby.map(s => s.id === "t-meal-1"
+    ? { ...s, id: "tour-2001", hours: { opens: 660, closes: 1260, closedDays: [1] } } : s));
+  await planWithFreeAfternoon(page);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 명동 테스트 식당" });
+  await expect(card).toContainText("13:40–14:40");
+  await card.getByRole("button", { name: "Add to plan" }).click();
+  // 영업시간(11:00–21:00)이 넓어도 편성기가 다른 자리로 옮기지 않게 카드의 시각에 고정한다.
+  await expect(page.getByText("13:40–14:40", { exact: true })).toBeVisible();
+  await expect(page.getByText(/^Open 11:00–21:00 — placed at the visit time you picked/)).toBeVisible();
+  // 좌표가 있으니 그 뒤 빈 시간도 이어서 채운다.
+  await expect(page.getByRole("article", { name: "Suggested for your free time: 명동 테스트 카페" })).toBeVisible();
+
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Save on device", exact: true }).click();
+  await page.reload();
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Restore device draft" }).click();
+  // 휴무 요일이 있는 개인 장소 때문에 저장본 전체가 거부되던 자리(T-066까지).
+  await expect(page.getByText("Restored your device draft", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "명동 테스트 식당" })).toBeVisible();
+  await expect(page.getByText("13:40–14:40", { exact: true })).toBeVisible();
+});
+
 test("nothing is looked up when the day has no hour to spare", async ({ page }) => {
   let asked = 0;
   page.on("request", request => { if (request.url().endsWith("/api/recommend")) asked += 1; });

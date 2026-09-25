@@ -20,7 +20,8 @@ import {
 import { hasUnconfirmedTravel, travelMinutes, type TravelMode, type TravelTable } from "@/lib/trip/travel";
 import { TravelLeg } from "@/components/travel-leg";
 import { SuggestionPanel } from "@/components/suggestion-panel";
-import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
+import { GapSlot, useGapFill, useSuggestionCopy, type GapChain, type GapFillState } from "@/components/gap-fill";
+import { suggestionEvent } from "@/lib/trip/suggestion-event";
 import { KakaoMap } from "@/components/kakao-map";
 import { GOOGLE_MAPS_JS_KEY, GoogleMap } from "@/components/google-map";
 import type { RankedSuggestion } from "@/lib/recommend/client";
@@ -273,8 +274,8 @@ export function TripPlanner({ today }: { today: string }) {
   }
   /**
    * 빈 시간 추천을 확정 일정으로 넣는다 (T-066). 담기만 하는 addSuggestion과 달리 선택에도 넣고 다시 편성한다.
-   * 영업시간을 모르는 곳은 카드에 보이던 방문 시간을 그곳의 시간으로 삼는다 — 그래야 편성기가 같은 자리에 둔다.
-   * 이 시간은 가게 영업시간이 아니라 사용자가 고른 방문 시간이라고 do 문구에 적는다.
+   * 카드에 보이던 방문 시간으로 고정한다(영업시간을 알면 그 안에서) — 편성기가 순서를 다시 정해도 같은 자리에 둔다.
+   * 영업시간을 모르면 그 시간이 가게 영업시간이 아니라 사용자가 고른 방문 시간이라고 do 문구에 적는다.
    */
   function keepSuggestion(state: Extract<GapFillState, { status: "filled" }>) {
     const event = personalFrom(state.suggestion, { opens: state.fit.arrival, closes: Math.max(state.fit.departure, state.fit.arrival + input.stay) });
@@ -286,26 +287,9 @@ export function TripPlanner({ today }: { today: string }) {
     setNotice(t.gap.kept(state.suggestion.name));
     void plan([...catalog, ...nextPersonal].filter(e => nextSelected.includes(e.id)), input);
   }
-  function personalFrom(suggestion: RankedSuggestion, visit?: { opens: number; closes: number }): FanEvent {
-    const known = suggestion.hours && !suggestion.hours.breaks.length;
-    return {
-      id: `personal-${suggestion.id}`, title: suggestion.name, area: suggestion.category || t.suggest.kinds[suggestion.kind],
-      kind: "Personal event", address: suggestion.address || suggestion.name,
-      from: date, to: date,
-      ...(known && suggestion.hours
-        ? { opens: suggestion.hours.opens, closes: suggestion.hours.closes, closedDays: suggestion.hours.closedDays }
-        : visit ? { opens: visit.opens, closes: visit.closes, closedDays: [] } : { opens: null, closes: null, closedDays: [] }),
-      reservation: false,
-      // 카카오 후보는 좌표를 유지한다(T-062). 예전에는 버려서 담은 곳의 이동시간이 늘 미확인이었다.
-      // 좌표 출처는 카카오 장소 페이지로 적는다 — 저장본은 이 출처의 좌표만 개인 장소에 허용한다.
-      ...(/^kakao-\d+$/.test(suggestion.id)
-        ? { coord: { lat: suggestion.coord.lat, lng: suggestion.coord.lng, source: `https://place.map.kakao.com/${suggestion.id.slice(6)}`, checked_on: seoulDate() } }
-        : {}),
-      do: known && suggestion.hours ? t.gap.hoursSource(suggestion.hours.modified) : visit ? t.gap.keptHours : t.suggest.hoursUnknown,
-      get: t.suggest.provider(suggestion.provider),
-      provenance: { mode: "personal", author: suggestion.provider, checkedOn: date, url: suggestion.placeUrl },
-    };
-  }
+  const suggestionCopy = useSuggestionCopy();
+  const personalFrom = (suggestion: RankedSuggestion, visit?: { opens: number; closes: number }) =>
+    suggestionEvent(suggestion, { date, today: seoulDate(), copy: suggestionCopy, visit, pin: true });
   function askForEvent() { setStep(1); setOpenForm(value => value + 1); }
   function download() {
     if (!result?.stops.length) return;

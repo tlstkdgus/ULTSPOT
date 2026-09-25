@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GOOGLE_MAPS_JS_KEY } from "@/components/google-map";
 import type { PlacePhoto } from "@/lib/recommend/photo";
 import { Badge, Button } from "@/components/ui";
@@ -14,6 +14,7 @@ import { findGaps, type Gap } from "@/lib/trip/gap-fill";
 import { fillChain, type FillOptions, type GapChain, type GapFillState } from "@/lib/trip/gap-fill-run";
 export type { GapChain, GapFillState } from "@/lib/trip/gap-fill-run";
 import { hoursLabel } from "@/lib/recommend/hours-label";
+import { suggestionIdOf, type SuggestionCopy } from "@/lib/trip/suggestion-event";
 import { clock, type TripInput, type TripResult } from "@/lib/trip/planner";
 
 /**
@@ -52,8 +53,8 @@ export function useGapFill({ result, input, profile, ready }: {
     const key = runKey;
     const controller = new AbortController();
     // 구간을 동시에 채운다(T-061). 같은 가게를 두 구간이 고르지 않게 고르는 순간 선점한다.
-    // 일정에 넣은 추천(personal-<추천 id>)은 이미 일정에 있으니 다시 권하지 않는다 (T-066).
-    const used = new Set<string>((result?.stops ?? []).flatMap(s => s.event.id.startsWith("personal-") ? [s.event.id.slice(9)] : []));
+    // 일정에 넣은 추천(personal-<추천 id>[@날짜])은 이미 일정에 있으니 다시 권하지 않는다 (T-066).
+    const used = new Set<string>((result?.stops ?? []).flatMap(s => { const id = suggestionIdOf(s.event.id); return id ? [id] : []; }));
     const claim = (id: string) => (used.has(id) ? false : (used.add(id), true));
     for (const gap of gaps)
       void fillChain(gap, [], skipped.current[gap.id] ?? [], options, controller.signal,
@@ -106,7 +107,7 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain, onKeep 
   onAnother: () => void;
   onRemove: () => void;
   onAgain: () => void;
-  /** 확정 일정으로 넣기 (T-066). 여러 날 여정은 아직 넘기지 않는다 — 버튼이 없다. */
+  /** 확정 일정으로 넣기 (T-066, 여정은 T-068). 없으면 버튼을 그리지 않는다. */
   onKeep?: () => void;
 }) {
   const { t } = useI18n();
@@ -189,4 +190,14 @@ function FilledSlot({ state, transfer, onAnother, onRemove, onKeep }: {
       </div>
     </article>
   </li>;
+}
+
+/** 추천 → 개인 장소 변환 문구(suggestion-event.ts). 당일 일정과 여정이 같은 문구를 쓴다. */
+export function useSuggestionCopy(): SuggestionCopy {
+  const { t } = useI18n();
+  return useMemo(() => ({
+    kind: (kind: string) => t.suggest.kinds[kind as keyof typeof t.suggest.kinds] ?? kind,
+    hoursSource: t.gap.hoursSource, hoursUnknown: t.suggest.hoursUnknown, keptHours: t.gap.keptHours, keptKnown: t.gap.keptKnown,
+    provider: t.suggest.provider,
+  }), [t]);
 }

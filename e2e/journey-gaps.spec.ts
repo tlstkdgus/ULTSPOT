@@ -46,3 +46,28 @@ test("a multi-day trip fills the free time of a day with a marked suggestion and
   await expect(card).toBeVisible({ timeout: 15_000 });
   await expect(card).toContainText("Hours unconfirmed");
 });
+
+test("a suggestion kept in a multi-day trip becomes a visit where the card was, and is saved with the trip", async ({ page }) => {
+  // T-068: 여정에도 "일정에 넣기". 카카오 후보라 좌표를 들고 가 이동시간도 조회된다.
+  await twoNightJourney(page, ["HiKR Ground · K-pop floors", "Music Korea · Myeongdong 2"],
+    [{ id: "kakao-3001", kind: "cafe", name: "여정 테스트 카페", lat: 37.5609, lng: 126.9866 }]);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 여정 테스트 카페" });
+  await expect(card).toBeVisible({ timeout: 15_000 });
+  const time = (await card.locator(".font-mono").first().textContent())!.trim();
+  await card.getByRole("button", { name: "Add to plan" }).click();
+
+  await expect(page.getByText("여정 테스트 카페 is now part of your plan.")).toBeVisible();
+  await expect(card).toHaveCount(0);
+  const kept = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "여정 테스트 카페" }) });
+  await expect(kept).toBeVisible();
+  // 카드에서 본 시각 그대로 계산된다.
+  await expect(kept).toContainText(time);
+
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Save on device", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Trip saved on this device." })).toBeVisible();
+  await page.reload();
+  await page.getByText("Saved plans & storage", { exact: true }).click();
+  await page.getByRole("button", { name: "Restore device draft" }).click();
+  await expect(page.getByRole("heading", { name: "여정 테스트 카페" })).toBeVisible();
+});

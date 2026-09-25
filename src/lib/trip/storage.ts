@@ -1,5 +1,5 @@
 import { catalog } from "./catalog";
-import { PLACE_SEARCH_SOURCE } from "./place-search";
+import { PLACE_SEARCH_SOURCE, TOUR_PLACE_SOURCE } from "./place-search";
 import { artists } from "./artists";
 import { isKoreanCoord, roundCoord, type CoordRecord, type TripEndpoint } from "./geo";
 import { validateTrip, type FanEvent, type TripInput } from "./planner";
@@ -30,13 +30,13 @@ export function safeSource(value: unknown): value is string {
 }
 
 /**
- * 개인 장소 좌표(T-062). 카카오 장소 검색으로 고른 좌표만 받는다 — 출처가 카카오 장소 페이지 주소이고 한국 범위다.
- * 검수 카탈로그 좌표(출처가 주소 검색 API)나 손으로 만든 좌표는 여전히 거부한다.
+ * 개인 장소 좌표(T-062). 출처를 댈 수 있는 좌표만 받는다 — 카카오 장소 페이지, 또는 관광공사 추천 후보의
+ * TourAPI 콘텐츠 주소(T-068). 한국 범위여야 한다. 검수 카탈로그 좌표(출처가 주소 검색 API)나 손으로 만든 좌표는 거부한다.
  */
 export function isSearchedCoord(value: unknown): value is CoordRecord {
   if (!object(value) || !isKoreanCoord(value)) return false;
   const { source, checked_on: checkedOn } = value as Record<string, unknown>;
-  return typeof source === "string" && PLACE_SEARCH_SOURCE.test(source)
+  return typeof source === "string" && (PLACE_SEARCH_SOURCE.test(source) || TOUR_PLACE_SOURCE.test(source))
     && typeof checkedOn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(checkedOn)
     && Object.keys(value).every(key => ["lat", "lng", "source", "checked_on"].includes(key));
 }
@@ -59,7 +59,10 @@ export function isPersonalEvent(value: unknown): value is FanEvent {
   if (!text(value.id, 80) || !value.id.startsWith("personal-") ||
       ![value.title, value.area, value.kind, value.address, value.do, value.get].every(v => text(v)) ||
       typeof value.from !== "string" || value.from !== value.to || !hoursValid ||
-      !Array.isArray(value.closedDays) || value.closedDays.length !== 0 ||
+      // 요일 휴무는 관광공사 영업정보로 담은 곳만 가진다(T-050). 0–6 중복 없이, 매일 쉬는 곳은 없다.
+      // T-066까지는 빈 배열만 받아, 휴무일이 있는 곳을 담으면 새로고침 때 저장본 전체가 거부됐다(T-068).
+      !Array.isArray(value.closedDays) || value.closedDays.length > 6 || new Set(value.closedDays).size !== value.closedDays.length ||
+      !value.closedDays.every(d => Number.isInteger(d) && d >= 0 && d <= 6) ||
       typeof value.reservation !== "boolean" || value.lastEntry !== undefined || value.artistIds !== undefined || p.mode !== "personal" ||
       !text(p.author) || !safeSource(p.url) || typeof p.checkedOn !== "string") return false;
   const dayWindow = hoursUnconfirmed
