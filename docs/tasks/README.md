@@ -77,3 +77,4 @@
 | [T-072](T-072/README.md) | 공유 카드 검사 오탐, lint 경고 정리 | 완료 | `chore/T-072-flakes-lint` | #86 |
 | [T-073](T-073/README.md) | 포스터 추출 첫 실제 실행과 보정 | 완료 | `fix/T-073-extract-keys` | #87 |
 | [T-074](T-074/README.md) | 추적되지 않은 파일 정리 | 완료 | `chore/T-074-untracked-cleanup` | #88 |
+| [T-075](T-075/README.md) | 아티스트 검색 예시 언어 통일 | 완료 | `fix/T-075-artist-placeholder` | #89 |
