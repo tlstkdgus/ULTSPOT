@@ -320,6 +320,7 @@ export const zh: Messages = {
     footer: "隐私政策",
     title: "隐私政策",
     effective: "2026年9月25日起施行",
+    contact: { heading: "联系", body: "对本说明的疑问，或删除服务器上数据（云端副本、现场动态）的请求：", note: "我们会通过邮件回复。请写明使用日期和页面，不必提供个人信息。" },
     intro: "ULTSPOT无需账号即可使用。本页列出网站保存了什么、保存在哪里，以及向其他服务发送了什么。",
     sections: [
       { heading: "不收集的信息", items: [

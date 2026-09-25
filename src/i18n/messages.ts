@@ -322,6 +322,7 @@ const en = {
     footer: "Privacy",
     title: "Privacy notice",
     effective: "Effective 25 September 2026",
+    contact: { heading: "Contact", body: "Questions about this notice, or a request to delete data we hold on our server (cloud copy, live place updates):", note: "We answer by email. Please include the date and the page you used, not personal details." },
     intro: "ULTSPOT works without an account. This page lists everything the site keeps, where it keeps it, and what it sends to other services.",
     sections: [
       { heading: "What we never ask for", items: [
@@ -823,6 +824,7 @@ const ko: Messages = {
     footer: "개인정보 처리방침",
     title: "개인정보 처리방침",
     effective: "시행일 2026년 9월 25일",
+    contact: { heading: "문의", body: "이 안내에 대한 문의나 서버에 남은 데이터(클라우드 사본·현장 소식) 삭제 요청:", note: "메일로 답해요. 개인정보 대신 사용한 날짜와 화면을 적어 주세요." },
     intro: "ULTSPOT은 계정 없이 쓰는 서비스예요. 이 페이지에 사이트가 무엇을, 어디에 보관하고, 다른 서비스에 무엇을 보내는지 전부 적었어요.",
     sections: [
       { heading: "받지 않는 정보", items: [

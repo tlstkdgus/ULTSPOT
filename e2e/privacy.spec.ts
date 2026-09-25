@@ -28,3 +28,10 @@ test("the notice lists every section and follows a language switch", async ({ pa
   await expect(page.getByRole("heading", { level: 1, name: messages.ja.privacy.title })).toBeVisible();
   await expect(page.getByRole("contentinfo").getByRole("link", { name: messages.ja.privacy.footer })).toBeVisible();
 });
+
+test("the notice gives a contact address for questions and deletion requests", async ({ page }) => {
+  // T-069: T-058에서 비워 둔 문의처. 사용자가 공개를 정한 주소다.
+  await page.goto("/privacy");
+  await expect(page.getByRole("heading", { level: 2, name: messages.ko.privacy.contact.heading })).toBeVisible();
+  await expect(page.getByRole("link", { name: "a91945840@gmail.com" })).toHaveAttribute("href", "mailto:a91945840@gmail.com");
+});
