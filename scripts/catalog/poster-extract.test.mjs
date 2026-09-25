@@ -5,16 +5,17 @@ import { buildRequest, extractPoster, FALLBACK_MODEL, MODEL, parseExtraction, RO
 const image = 'data:image/png;base64,iVBORw0KGgo=';
 const good = {
   title: '승민이의 가을방학', venue: '톤앤매너', address: '서울시 마포구 와우산로29가길 13 2층',
-  from: '2026-09-20', to: '2026-09-22', opens: '11:00', closes: '19:00', category: 'birthdayCafe',
+  from: '2026-09-20', to: '2026-09-22', opens: '11:00', closes: '19:00', birthday: '09-22', category: 'birthdayCafe',
   perks: ['cupsleeve', 'photocard', 'notAPerk'], conditions: ['1인 1음료'], artists: ['승민'],
-  evidence: { title: '승민이의 가을방학', venue: '톤앤매너', address: '와우산로29가길 13 2층', from: '9/20', to: '9/22', opens: '11:00', closes: '19:00', category: '생일카페', perks: '컵홀더 포카', conditions: '1인 1음료', artists: '승민' },
-  confidence: { title: 0.95, venue: 0.9, address: 0.92, from: 0.9, to: 0.9, opens: 0.6, closes: 0.9, category: 0.99, perks: 0.9, conditions: 0.8, artists: 0.97 },
+  evidence: { birthday: 'SEPTEMBER 22', title: '승민이의 가을방학', venue: '톤앤매너', address: '와우산로29가길 13 2층', from: '9/20', to: '9/22', opens: '11:00', closes: '19:00', category: '생일카페', perks: '컵홀더 포카', conditions: '1인 1음료', artists: '승민' },
+  confidence: { birthday: 0.95, title: 0.95, venue: 0.9, address: 0.92, from: 0.9, to: 0.9, opens: 0.6, closes: 0.9, category: 0.99, perks: 0.9, conditions: 0.8, artists: 0.97 },
 };
 
 test('the request asks for strict JSON from the chosen model, with the image and the fallback year', () => {
   const body = buildRequest({ image, postText: '승민 생일카페', year: 2026 });
   assert.equal(body.model, MODEL);
   assert.equal(body.temperature, 0);
+  assert.deepEqual(body.chat_template_kwargs, { enable_thinking: false });
   assert.equal(body.response_format.type, 'json_schema');
   assert.equal(body.response_format.json_schema.strict, true);
   assert.equal(body.messages[1].content[1].image_url.url, image);
@@ -91,4 +92,29 @@ test('the router is called with the token; schema rejection retries as json_obje
   const limited = fakeRouter([429]);
   await assert.rejects(extractPoster({ image, year: 2026 }, { token: 'hf_test', fetchImpl: limited.fetchImpl }), /HTTP 429/);
   assert.equal(limited.calls.length, 1);
+  // 무료 크레딧 소진(402)은 첫 실제 실행 중에 만났다(T-073). 결제 설정으로 안내한다.
+  await assert.rejects(extractPoster({ image, year: 2026 }, { token: 'hf_test', fetchImpl: fakeRouter([402]).fetchImpl }), /credits are used up/);
+});
+
+test('evidence and confidence are keyed by our field names, so a renamed key never counts as evidence', () => {
+  // T-073: 첫 실제 실행에서 모델이 title 근거를 event_name으로 적어 맞게 읽은 제목이 검수로 넘어갔다.
+  const { evidence, confidence } = buildRequest({ image, year: 2026 }).response_format.json_schema.schema.properties;
+  assert.equal(evidence.additionalProperties, false);
+  assert.deepEqual(evidence.required, Object.keys(evidence.properties));
+  assert.ok(evidence.required.includes('title') && confidence.required.includes('from'));
+  const renamed = parseExtraction(JSON.stringify({ ...good, evidence: { event_name: good.title }, confidence: { event_name: 0.9 } }));
+  assert.ok(renamed.needsReview.includes('title'));
+});
+
+test('a lone date that is the birthday is not taken as the event start', () => {
+  // T-073: 실제 포스터 3장 중 2장에서 모델이 생일(SEPTEMBER 22, OCT 2ND)을 행사 시작일로 넣었다.
+  const same = parseExtraction(JSON.stringify({ ...good, from: '2026-09-22', to: null, birthday: '09-22' }));
+  assert.equal(same.fields.from, null);
+  assert.equal(same.fields.birthday, '09-22');
+  assert.ok(same.issues.some(i => i.includes('treated as the birthday')));
+  // 생일과 다르더라도 끝 날짜 없이 하나뿐이면 반드시 검수로 넘긴다.
+  const lone = parseExtraction(JSON.stringify({ ...good, from: '2026-10-02', to: null, birthday: null }));
+  assert.equal(lone.fields.from, '2026-10-02');
+  assert.ok(lone.needsReview.includes('from'));
+  assert.equal(parseExtraction(JSON.stringify({ ...good, birthday: '9/22' })).fields.birthday, null);
 });
