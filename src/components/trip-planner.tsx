@@ -268,24 +268,43 @@ export function TripPlanner({ today }: { today: string }) {
     const id = `personal-${suggestion.id}`;
     discardResult();
     if (personal.some(p => p.id === id)) { setNotice(t.event.added); return; }
-    setPersonal(items => [...items, {
-      id, title: suggestion.name, area: suggestion.category || t.suggest.kinds[suggestion.kind],
+    setPersonal(items => [...items, personalFrom(suggestion)]);
+    setNotice(t.event.added);
+  }
+  /**
+   * 빈 시간 추천을 확정 일정으로 넣는다 (T-066). 담기만 하는 addSuggestion과 달리 선택에도 넣고 다시 편성한다.
+   * 영업시간을 모르는 곳은 카드에 보이던 방문 시간을 그곳의 시간으로 삼는다 — 그래야 편성기가 같은 자리에 둔다.
+   * 이 시간은 가게 영업시간이 아니라 사용자가 고른 방문 시간이라고 do 문구에 적는다.
+   */
+  function keepSuggestion(state: Extract<GapFillState, { status: "filled" }>) {
+    const event = personalFrom(state.suggestion, { opens: state.fit.arrival, closes: Math.max(state.fit.departure, state.fit.arrival + input.stay) });
+    if (selected.includes(event.id)) return;
+    if (selected.length >= 6 || (personal.length >= 12 && !personal.some(p => p.id === event.id))) { setNotice(t.gap.keepFull); return; }
+    const nextPersonal = [...personal.filter(p => p.id !== event.id), event];
+    const nextSelected = [...selected, event.id];
+    setPersonal(nextPersonal); setSelected(nextSelected);
+    setNotice(t.gap.kept(state.suggestion.name));
+    void plan([...catalog, ...nextPersonal].filter(e => nextSelected.includes(e.id)), input);
+  }
+  function personalFrom(suggestion: RankedSuggestion, visit?: { opens: number; closes: number }): FanEvent {
+    const known = suggestion.hours && !suggestion.hours.breaks.length;
+    return {
+      id: `personal-${suggestion.id}`, title: suggestion.name, area: suggestion.category || t.suggest.kinds[suggestion.kind],
       kind: "Personal event", address: suggestion.address || suggestion.name,
       from: date, to: date,
-      ...(suggestion.hours && !suggestion.hours.breaks.length
+      ...(known && suggestion.hours
         ? { opens: suggestion.hours.opens, closes: suggestion.hours.closes, closedDays: suggestion.hours.closedDays }
-        : { opens: null, closes: null, closedDays: [] }),
+        : visit ? { opens: visit.opens, closes: visit.closes, closedDays: [] } : { opens: null, closes: null, closedDays: [] }),
       reservation: false,
       // 카카오 후보는 좌표를 유지한다(T-062). 예전에는 버려서 담은 곳의 이동시간이 늘 미확인이었다.
       // 좌표 출처는 카카오 장소 페이지로 적는다 — 저장본은 이 출처의 좌표만 개인 장소에 허용한다.
       ...(/^kakao-\d+$/.test(suggestion.id)
         ? { coord: { lat: suggestion.coord.lat, lng: suggestion.coord.lng, source: `https://place.map.kakao.com/${suggestion.id.slice(6)}`, checked_on: seoulDate() } }
         : {}),
-      do: suggestion.hours ? t.gap.hoursSource(suggestion.hours.modified) : t.suggest.hoursUnknown,
+      do: known && suggestion.hours ? t.gap.hoursSource(suggestion.hours.modified) : visit ? t.gap.keptHours : t.suggest.hoursUnknown,
       get: t.suggest.provider(suggestion.provider),
       provenance: { mode: "personal", author: suggestion.provider, checkedOn: date, url: suggestion.placeUrl },
-    }]);
-    setNotice(t.event.added);
+    };
   }
   function askForEvent() { setStep(1); setOpenForm(value => value + 1); }
   function download() {
@@ -345,7 +364,8 @@ export function TripPlanner({ today }: { today: string }) {
     [...(chain?.items ?? [])].reverse().find((i): i is Extract<GapFillState, { status: "filled" }> => i.status === "filled") ?? null;
   const renderChain = (chain?: GapChain) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state} transfer={transfer}
     onAnother={() => state.status === "filled" && gapFill.another(chain.root, index, state.suggestion.id)}
-    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)} />);
+    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)}
+    onKeep={state.status === "filled" ? () => keepSuggestion(state) : undefined} />);
   const tailFill = lastStop ? lastFilled(gapFill.chains.find(c => c.root.id === `${lastStop.event.id}>after`)) : null;
   /** 하루가 실제로 끝나는 시각. 마지막 빈 시간에 추천이 들어가면 그곳을 떠나는 시각이다. */
   const dayEnd = tailFill ? tailFill.fit.departure : lastStop?.departure ?? 0;
