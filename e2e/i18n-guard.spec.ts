@@ -42,6 +42,14 @@ test("일본어·중국어 UI 문구에 한글이 섞이지 않는다 @static", 
   expect(leaks(zh, HANGUL)).toEqual([]);
 });
 
+test("아티스트 검색 예시는 그 화면 언어 하나로만 쓴다 @static", () => {
+  // T-075: 한국어 화면에 "스트레이 키즈, Felix…", 영어 화면에 "Stray Kids, 필릭스…"로 두 언어가 섞여 있었다
+  // (두 표기 모두 검색된다는 뜻이었지만 사용자에게는 번역 누락으로 보였다, 2026-09-26 지적).
+  expect(ko.artists.placeholder).toBe("스트레이 키즈, 필릭스…");
+  expect(en.artists.placeholder).toBe("Stray Kids, Felix…");
+  expect(en.artists.placeholder).not.toMatch(HANGUL);
+});
+
 test("한국어·영어 UI 문구에 가나가 섞이지 않는다 @static", () => {
   expect(leaks(ko, KANA)).toEqual([]);
   expect(leaks(en, KANA)).toEqual([]);
