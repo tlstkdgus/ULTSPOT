@@ -49,3 +49,14 @@ test('artist favorites search, save and restore with an honest general-place fal
   await expect(page.getByRole('status').filter({ hasText: 'verified selection' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+// T-065: 솔로 아티스트. 한국어·영어·별칭으로 찾히고, 소속 그룹이 없으며, 생일(월-일)이 있다.
+test('solo artists are searchable by Korean, English and alias names', () => {
+  for (const [query, id] of [['최예나', 'P-SOLO-YENA'], ['YENA', 'P-SOLO-YENA'], ['박지훈', 'P-SOLO-PARKJIHOON'], ['아이유', 'P-SOLO-IU'], ['이지은', 'P-SOLO-IU'], ['kang daniel', 'P-SOLO-KANGDANIEL']]) {
+    const found = searchArtists(query);
+    expect(found.map(a => a.id), query).toContain(id);
+  }
+  const yena = searchArtists('최예나').find(a => a.id === 'P-SOLO-YENA')!;
+  expect(yena.parentId).toBeUndefined();
+  expect(yena.birthday_mm_dd).toBe('09-29');
+});
