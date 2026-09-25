@@ -43,7 +43,7 @@ has:images -is:retweet -is:reply -(양도 OR 판매 OR 대리 OR 구해요 OR �
 ```
 1) 검색   아티스트별 검색어 × 생일 기간 → 게시물 ID·작성자·본문·이미지 URL (본문은 검수 뒤 지운다)
 2) 1차 분류  classifyPost(): 거래·사생활 → 버림 / 이벤트 용어로 분류 / 특전 표시 / 아티스트 후보
-3) 추출   포스터 이미지 → 멀티모달 AI → {카페명, 주소, 기간, 운영시간, 특전, 참여 조건} + 필드별 신뢰도
+3) 추출   포스터 이미지 → Qwen3.8-27B(HF) → {카페명, 주소, 기간, 운영시간, 특전, 참여 조건} + 필드별 근거·신뢰도  (pnpm data:extract)
 4) 좌표   주소 → 카카오 주소 검색(pnpm data:geocode) → 좌표. 주소가 없거나 안 맞으면 검수로
 5) 검수   사람이 원문·포스터와 대조. 승인/보류/제외. 사생활 장소·출처 불명은 제외
 6) 게시   승인분만 카탈로그에 (provenance: 게시물 URL, 수집일)
@@ -58,6 +58,23 @@ has:images -is:retweet -is:reply -(양도 OR 판매 OR 대리 OR 구해요 OR �
 - **같은 이벤트 합치기:** 같은 아티스트 + 같은 카페(주소 좌표 100m 안) + 기간이 겹치면 하나로 합친다. 가장 이른 주최 게시물을 원출처로 둔다.
 - **여러 아티스트:** 합동 생일카페는 아티스트를 모두 연결한다.
 - **분류 없음:** 이벤트 용어가 없는 사진 원글은 "분류 없음" 대기열로. 버리지 않는다(포스터에만 글자가 있는 경우가 많다).
+
+### 추출 모델 (T-071, 2026-09-25 결정)
+
+사용자 요청 "AI 모델은 huggingface 등에서"에 따라 Hugging Face Inference Providers(`router.huggingface.co`, OpenAI 호환)로 부른다.
+구현: [`scripts/catalog/poster-extract.mjs`](../../scripts/catalog/poster-extract.mjs), 실행 `pnpm data:extract <포스터> [본문.txt] [연도]`.
+
+| 역할 | 모델 | 고른 이유 (2026-09-25 HF에서 확인) |
+|---|---|---|
+| 기본 | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) | 이미지 입력 기본 지원, OmniDocBench 1.5 91.1, Apache-2.0, 추론 제공자 5곳 live |
+| 대체 | [google/gemma-4-31B-it](https://huggingface.co/google/gemma-4-31B-it) | Apache-2.0, 제공자 3곳 live. 기본 모델 404·5xx일 때 한 번 |
+| 제외 | GLM-OCR·Nemotron OCR 등 OCR 전용 | 글자는 잘 읽지만 기간·주소·특전으로 나누지 않고, GLM-OCR은 HF 제공자에서 live가 아니었다 |
+
+- 출력은 JSON 스키마(strict)로 받고, 받은 뒤 다시 검사한다. 날짜가 실제 날짜가 아니거나, 시각이 HH:MM이 아니거나, 자정을 넘기면 그 필드를 비우고 이유를 남긴다.
+- 필드마다 **근거 문구와 신뢰도**를 받는다. 근거가 없거나 신뢰도가 0.7 미만인 필드는 `needsReview`로 사람 검수에 넘긴다.
+- 결과는 `.local-data/extract/`(git 제외) 사이드카에만 쓴다. 카탈로그에 자동으로 넣지 않는다.
+- 키: `HF_TOKEN`(fine-grained, "Make calls to Inference Providers" 권한). 스크립트를 돌리는 사람의 `.env.local`에만 둔다. Vercel·앱 서버에는 넣지 않는다.
+- **아직 실제 포스터로 돌리지 않았다**(토큰 없음). 가짜 응답으로 요청 형식·검사·대체 경로만 확인했다. 연결 후 첫 5명 포스터로 정확도와 토큰 비용을 잰다.
 
 ## 4. 비용 (추정)
 
@@ -87,8 +104,8 @@ X API는 2026년부터 쓴 만큼 내는 방식이다. 게시물 읽기 1건 $0.
 
 ## 6. 정하지 않은 것 (사용자 결정)
 
+- HF 사용 한도(월 크레딧 상한). 제공자 요금은 호출마다 `usage` 토큰으로 남으니 첫 수집 뒤 정한다.
 - 수집 대상 아티스트 우선순위와 월 예산 상한.
-- 추출에 쓸 멀티모달 모델(비용·정확도).
 
 ## 출처
 
