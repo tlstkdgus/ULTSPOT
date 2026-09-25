@@ -29,6 +29,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+# 브라우저(Playwright/Chrome)가 저장소 루트에 남기는 로그 (T-074)
+debug.log
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -52,3 +54,8 @@ next-env.d.ts
 
 # 커밋 메시지 임시 파일 (PowerShell에 heredoc이 없어 git commit -F로 넘긴다)
 /.git-commit-msg.txt
+
+# impeccable 스킬 설치가 함께 만드는 GitHub Copilot 전용 에이전트·훅 (T-074).
+# 팀이 Copilot을 쓰지 않아 커밋하지 않는다(2026-09-26 사용자 결정). 스킬 본체 .github/skills/는 커밋돼 있다.
+.github/agents/
+.github/hooks/
