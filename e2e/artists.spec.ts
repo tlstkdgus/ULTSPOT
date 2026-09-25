@@ -26,8 +26,9 @@ test('artist favorites search, save and restore with an honest general-place fal
   const results = page.getByRole('list', { name: 'Search results' });
   // 최애 고르기가 첫 단계다 (T-029). 펼치는 동작 없이 바로 보인다.
   await results.getByRole('button', { name: /^BLACKPINK / }).click();
-  await page.getByRole('textbox', { name: 'Search artists', exact: true }).fill('필릭스');
-  await results.getByRole('button', { name: 'Felix' }).click();
+  await page.getByRole('textbox', { name: 'Search artists', exact: true }).fill('창빈');
+  // 연결된 장소가 없는 아티스트. 필릭스는 T-070에서 합정역 생일 광고가 생겨 창빈으로 바꿨다.
+  await results.getByRole('button', { name: 'Changbin' }).click();
   await page.getByRole('button', { name: 'Find their spots' }).click();
   await expect(page.getByText('No verified spots for', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Add HiKR Ground · K-pop floors', exact: true }).click();
@@ -42,9 +43,9 @@ test('artist favorites search, save and restore with an honest general-place fal
   // 복원 뒤에도 최애 선택이 남아 있다. 첫 단계로 돌아가 확인한다.
   await goToStep(page, 0);
   await expect(page.getByRole('button', { name: 'Remove BLACKPINK', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Remove Felix', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Remove Changbin', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Clear selection' }).click();
-  await expect(page.getByRole('button', { name: 'Remove Felix', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Remove Changbin', exact: true })).toHaveCount(0);
   await page.getByRole('textbox', { name: 'Search artists', exact: true }).fill('unlisted-name');
   await expect(page.getByRole('status').filter({ hasText: 'verified selection' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

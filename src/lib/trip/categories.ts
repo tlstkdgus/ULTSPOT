@@ -8,11 +8,15 @@
 
 import type { FanEvent } from "./planner";
 
-export const spotCategories = ["birthdayCafe", "popup", "filming", "landmark", "food", "other"] as const;
+export const spotCategories = ["birthdayCafe", "support", "popup", "filming", "landmark", "food", "other"] as const;
 export type SpotCategory = (typeof spotCategories)[number];
 
 /** 화면 필터에 노출하는 순서. `other`는 필터로 내놓지 않고 전체에만 포함한다. */
-export const filterCategories = ["birthdayCafe", "popup", "filming", "landmark", "food"] as const;
+/**
+ * `support`(생일 광고·서포트, T-070): 팬이 모금해 지하철·전광판에 거는 생일 광고. 생일카페처럼 특정 아티스트의
+ * 기념일에만 열리고 공지가 X·기사로 나온다. 사용자 결정(2026-09-25)으로 분류에 넣었다.
+ */
+export const filterCategories = ["birthdayCafe", "support", "popup", "filming", "landmark", "food"] as const;
 export type FilterCategory = (typeof filterCategories)[number];
 
 /**
@@ -22,6 +26,8 @@ export type FilterCategory = (typeof filterCategories)[number];
 const byKind: Record<string, SpotCategory> = {
   "Birthday cafe": "birthdayCafe",
   "Birthday café": "birthdayCafe",
+  "Birthday ad": "support",
+  "Fan support ad": "support",
   "Pop-up store": "popup",
   "Pop-up": "popup",
   "Filming location": "filming",
@@ -37,6 +43,13 @@ export function spotCategory(event: FanEvent): SpotCategory {
   if (event.category && spotCategories.includes(event.category)) return event.category;
   return byKind[event.kind] ?? "other";
 }
+
+/**
+ * 특정 아티스트를 위한 장소. 아티스트를 골랐는데 연결된 아티스트가 없으면 보여 주지 않는다(matchesArtists의 artistSpecific).
+ * 생일카페와 생일 광고가 그렇다 — 누구의 생일인지 모르는 광고는 그 팬에게 의미가 없다.
+ */
+export const isArtistSpecific = (event: Pick<FanEvent, "category">) =>
+  event.category === "birthdayCafe" || event.category === "support";
 
 /** 필터 하나에 걸리는 장소만 남긴다. `null`은 전체. */
 export const matchesCategory = (event: FanEvent, category: FilterCategory | null) =>

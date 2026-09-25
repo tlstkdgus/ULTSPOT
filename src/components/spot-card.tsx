@@ -21,6 +21,7 @@ import { translateLib } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
 import { clock, unavailableReason, type FanEvent } from "@/lib/trip/planner";
 import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
+import { isArtistSpecific } from "@/lib/trip/categories";
 
 export type SpotStatus = "open" | "closed" | "unconfirmed" | "reservation";
 
@@ -75,7 +76,7 @@ export function SpotCard({ event, date, selected, disabled, onToggle, required =
       selected ? "border-text" : "border-line-strong")}>
       {cardImages[event.id] ? <a href={cardImages[event.id]} target="_blank" rel="noopener noreferrer" className={`relative block overflow-hidden border-b border-line-strong bg-surface-2 ${event.category === 'birthdayCafe' ? 'aspect-[5/7]' : 'aspect-[4/3]'}`}>
         <Image src={cardImages[event.id]} alt={copy.title} fill sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw" className={event.category === 'birthdayCafe' || event.id === 'hikr-ground' ? 'object-contain' : 'object-cover'} />
-      </a> : event.category === 'birthdayCafe' ? <FanEventArt title={copy.title} date={`${event.from ?? ''} — ${event.to ?? ''}`} variant={event.id.includes('DANDY') ? 1 : 0} locale={locale} /> : <div className="flex h-24 flex-col items-center justify-center gap-1 border-b border-line-strong bg-surface-2 text-text-muted">
+      </a> : isArtistSpecific(event) ? <FanEventArt title={copy.title} date={`${event.from ?? ''} — ${event.to ?? ''}`} variant={event.id.includes('DANDY') ? 1 : 0} locale={locale} motif={event.category === 'support' ? 'screen' : 'cup'} /> : <div className="flex h-24 flex-col items-center justify-center gap-1 border-b border-line-strong bg-surface-2 text-text-muted">
         <CameraIcon className="text-subhead" />
         <span className="text-caption">{t.spots.photoPending}</span>
       </div>}

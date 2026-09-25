@@ -246,6 +246,7 @@ export const ja: Messages = {
     legend: "スポットの種類",
     all: "すべて",
     birthdayCafe: "誕生日カフェ",
+    support: "誕生日広告",
     popup: "ポップアップ",
     filming: "撮影地",
     landmark: "名所・ショップ",
