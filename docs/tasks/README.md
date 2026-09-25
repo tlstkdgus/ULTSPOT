@@ -71,3 +71,4 @@
 | [T-066](T-066/README.md) | 빈 시간 추천을 "일정에 넣기"로 확정 | 완료 | `feat/T-066-keep-suggestion` | #80 |
 | [T-067](T-067/README.md) | 생일 있는 아티스트 수 테스트를 23으로 | 완료 | `fix/T-067-birthday-count` | #81 |
 | [T-068](T-068/README.md) | 여정에도 "일정에 넣기", 관광공사 후보 좌표 유지, 저장본 거부 수정 | 완료 | `feat/T-068-keep-everywhere` | #82 |
+| [T-069](T-069/README.md) | 개인정보 안내 문의처 | 완료 | `docs/T-069-privacy-contact` | #83 |
