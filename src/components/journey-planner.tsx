@@ -12,7 +12,7 @@ import { mapLinks } from "@/lib/trip/geo";
 import { eventCopy, type DataLocale } from "@/lib/trip/event-copy";
 import { clock } from "@/lib/trip/planner";
 import {
-  markVisited, moveVisit, removeVisit, resizeJourney, scheduleJourneyDay, unmarkVisited, updateVisit,
+  addKeptVisit, markVisited, moveVisit, removeVisit, resizeJourney, scheduleJourneyDay, unmarkVisited, updateVisit,
   type Journey, type ScheduledVisit, type Visit,
 } from "@/lib/trip/journey";
 import { SpendingPanel } from "@/components/spending-panel";
@@ -22,7 +22,9 @@ import { daySummary, journeyLegs, legEstimate, travelLookup } from "@/lib/trip/j
 import { journeyPlaces, type ResolvedPlace } from "@/lib/trip/journey-places";
 import { fetchTravelTable, type TravelLeg as LegToLookUp } from "@/lib/trip/travel-client";
 import type { TravelEstimate, TravelMode, TravelTable } from "@/lib/trip/travel";
-import { GapSlot, useGapFill, type GapChain, type GapFillState } from "@/components/gap-fill";
+import { GapSlot, useGapFill, useSuggestionCopy, type GapChain, type GapFillState } from "@/components/gap-fill";
+import { keptEventId, suggestionEvent } from "@/lib/trip/suggestion-event";
+import { seoulDate } from "@/lib/seoul-date";
 import { GOOGLE_MAPS_JS_KEY, GoogleMap } from "@/components/google-map";
 import { KakaoMap } from "@/components/kakao-map";
 import { preferenceProfile } from "@/lib/recommend/preference";
@@ -113,10 +115,33 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
   });
   const lastFilled = (chain?: GapChain) =>
     [...(chain?.items ?? [])].reverse().find((i): i is Extract<GapFillState, { status: "filled" }> => i.status === "filled") ?? null;
-  const renderChain = (chain?: GapChain) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state}
+  /** at: 이 구간의 추천을 넣을 때 그날 방문 목록에서 들어갈 자리. 카드가 보이던 자리 그대로다. */
+  const renderChain = (chain: GapChain | undefined, at: number) => chain?.items.map((state, index) => <GapSlot key={`${state.gap.id}:${index}`} state={state}
     transfer={day?.bufferMinutes ?? 45}
     onAnother={() => state.status === "filled" && gapFill.another(chain.root, index, state.suggestion.id)}
-    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)} />);
+    onRemove={() => gapFill.remove(chain.root, index)} onAgain={() => gapFill.again(chain.root, index)}
+    onKeep={state.status === "filled" ? () => keepSuggestion(state, at) : undefined} />);
+  const suggestionCopy = useSuggestionCopy();
+  /**
+   * 빈 시간 추천을 그날 일정에 넣는다 (T-068). 여정은 사용자가 정한 순서를 지키므로 카드가 있던 자리에 방문을 끼운다.
+   * 영업시간을 모르는 곳은 카드의 방문 시간을 그곳의 시간으로 삼아, 넣은 뒤에도 같은 시각에 계산된다(당일 일정과 같은 규칙).
+   * 고정 시각(lockedAt)은 걸지 않는다 — 앞 일정이 바뀌면 같이 밀리는 게 여정 화면의 기본 동작이다.
+   */
+  function keepSuggestion(state: Extract<GapFillState, { status: "filled" }>, at: number) {
+    if (!day) return;
+    const id = keptEventId(state.suggestion.id, day.date);
+    if (!journey.personal.some(p => p.id === id) && journey.personal.length >= 12) { notice(t.gap.keepFull); return; }
+    const event = suggestionEvent(state.suggestion, {
+      date: day.date, today: seoulDate(), copy: suggestionCopy, id,
+      visit: { opens: state.fit.arrival, closes: state.fit.departure },
+    });
+    try {
+      onChange(addKeptVisit(journey, event, { id: `v-${crypto.randomUUID()}`, placeId: id, stay: state.fit.stay }, day.date, at));
+      notice(t.gap.kept(state.suggestion.name));
+    } catch (error) {
+      notice(error instanceof Error ? translateLib(t, error.message) : String(error));
+    }
+  }
   const chainById = (id: string) => gapFill.chains.find(chain => chain.root.id === id);
 
   /** 여정 변경은 journey.ts의 원자적 함수만 쓴다. 실패하면 원본이 그대로 남는다. */
@@ -360,10 +385,10 @@ export function JourneyPlanner({ journey, onChange, locale, notice }: {
               const via = lastFilled(before);
               const after = gapFill.chains.find(chain => chain.root.id === `${id}>after`);
               return <Fragment key={item.visit.id}>
-                {index === 0 && renderChain(before)}
+                {index === 0 && renderChain(before, 0)}
                 {renderVisitRow(item, index, day.visits, via ? via.legOut : undefined)}
-                {index === scheduled.length - 1 && renderChain(after)}
-                {index < scheduled.length - 1 && renderChain(chainById(`${id}>${day.visits[index + 1].placeId}`))}
+                {index === scheduled.length - 1 && renderChain(after, index + 1)}
+                {index < scheduled.length - 1 && renderChain(chainById(`${id}>${day.visits[index + 1].placeId}`), index + 1)}
               </Fragment>;
             })}
           </ol>}

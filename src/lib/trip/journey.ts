@@ -136,6 +136,21 @@ export function addVisit(journey: Journey, visit: Visit, date: string | null): J
   if (!target) throw new Error('Unknown day.'); target.push(visit);
   const checked=parseJourney(next); if (!checked) throw new Error('Invalid or duplicate visit.'); return checked;
 }
+/**
+ * 빈 시간 추천을 그날 일정에 넣는다 (T-068). 개인 장소와 방문을 한 번에 넣고, 둘 중 하나라도 틀리면 원본이 그대로 남는다.
+ * 같은 장소(같은 ID)가 이미 개인 장소에 있으면 그걸 쓴다. index는 그날 방문 목록에서 들어갈 자리다(추천 카드가 있던 자리).
+ */
+export function addKeptVisit(journey: Journey, event: FanEvent, visit: Visit, date: string, index: number): Journey {
+  const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
+  const day=next.days.find(d=>d.date===date); if (!day) throw new Error('Unknown day.');
+  if (!int(index,0,day.visits.length)) throw new Error('Invalid visit position.');
+  if (!next.personal.some(p=>p.id===event.id)) {
+    if (next.personal.length>=12) throw new Error('Too many personal places.');
+    next.personal.push(event);
+  }
+  day.visits.splice(index,0,visit);
+  const checked=parseJourney(next); if (!checked) throw new Error('Invalid or duplicate visit.'); return checked;
+}
 export function addCustomPlace(journey: Journey, place: CustomPlace): Journey {
   const next=parseJourney(journey); if (!next) throw new Error('Invalid journey.');
   next.custom.push(place); const checked=parseJourney(next);

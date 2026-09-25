@@ -11,6 +11,11 @@
 import { isKoreanCoord, roundCoord, type Coord } from "./geo";
 
 export const PLACE_SEARCH_SOURCE = /^https:\/\/place\.map\.kakao\.com\/\d+$/;
+/**
+ * 관광공사 추천 후보의 좌표 출처 (T-068). 후보를 준 TourAPI 공통정보 조회 주소(콘텐츠 ID)로 남긴다 — 키 없이는 열리지 않지만
+ * 어떤 데이터에서 온 좌표인지는 이 주소가 가리킨다. 관광공사 웹 상세 페이지는 콘텐츠 ID와 다른 번호를 써서 만들 수 없다.
+ */
+export const TOUR_PLACE_SOURCE = /^https:\/\/apis\.data\.go\.kr\/B551011\/KorService2\/detailCommon2\?contentId=\d+$/;
 
 export type PlaceSearchResult = {
   id: string;
