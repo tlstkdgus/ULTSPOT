@@ -27,6 +27,7 @@ test('visitor facts keep missing conditions distinct from free or unavailable', 
   expect(spot('hikr-ground').participation?.cash_required).toBeNull();
   expect(spot('music-korea').transit).toBeUndefined();
   expect(catalog.every(e => e.image_asset_id === undefined)).toBe(true);
-  expect(artists.filter(a => a.birthday_mm_dd)).toHaveLength(8);
+  // 스트레이 키즈 8명 + T-065 솔로 15명. 생일은 공식 페이지로 확인한 사람에게만 있다.
+  expect(artists.filter(a => a.birthday_mm_dd)).toHaveLength(23);
   expect(artists.filter(a => a.kind === 'group').every(a => !a.birthday_mm_dd)).toBe(true);
 });
