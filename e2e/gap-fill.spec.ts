@@ -142,6 +142,29 @@ test("another place swaps the suggestion, leave empty clears it and it can come 
   await expect(second).toBeVisible();
 });
 
+test("add to plan turns a suggestion into a confirmed stop at the same time, and it is not suggested again", async ({ page }) => {
+  // 카카오 후보만 좌표를 가진 채 일정에 들어간다(T-062). 좌표가 있어야 넣은 뒤에도 이동시간과 빈 시간을 잰다.
+  await fixSuggestions(page, nearby.map(s => s.id === "t-meal-1" ? { ...s, id: "kakao-1001" } : s));
+  await planWithFreeAfternoon(page);
+  const card = page.getByRole("article", { name: "Suggested for your free time: 명동 테스트 식당" });
+  await expect(card).toContainText("13:40–14:40");
+  await card.getByRole("button", { name: "Add to plan" }).click();
+
+  await expect(page.getByText("명동 테스트 식당 is now part of your plan.")).toBeVisible();
+  await expect(card).toHaveCount(0);
+  // 영업시간을 모르는 곳이라 카드의 방문 시간이 그대로 일정 시간이 된다.
+  await expect(page.getByText("13:40–14:40", { exact: true })).toBeVisible();
+  await expect(page.getByText("Hours unconfirmed — this is the visit time you picked").first()).toBeVisible();
+  // 다시 편성한 뒤 빈 시간 추천이 새로 돌아도 넣은 식당은 다시 권하지 않는다.
+  await expect(page.getByRole("article", { name: "Suggested for your free time: 명동 테스트 카페" })).toBeVisible();
+  await expect(card).toHaveCount(0);
+  // 이제 확정 일정이라 파일에도 들어간다.
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download itinerary (.txt)" }).click();
+  const text = Buffer.concat(await (await (await download).createReadStream()).toArray()).toString("utf8");
+  expect(text).toContain("명동 테스트 식당");
+});
+
 test("nothing is looked up when the day has no hour to spare", async ({ page }) => {
   let asked = 0;
   page.on("request", request => { if (request.url().endsWith("/api/recommend")) asked += 1; });

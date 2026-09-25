@@ -52,7 +52,8 @@ export function useGapFill({ result, input, profile, ready }: {
     const key = runKey;
     const controller = new AbortController();
     // 구간을 동시에 채운다(T-061). 같은 가게를 두 구간이 고르지 않게 고르는 순간 선점한다.
-    const used = new Set<string>();
+    // 일정에 넣은 추천(personal-<추천 id>)은 이미 일정에 있으니 다시 권하지 않는다 (T-066).
+    const used = new Set<string>((result?.stops ?? []).flatMap(s => s.event.id.startsWith("personal-") ? [s.event.id.slice(9)] : []));
     const claim = (id: string) => (used.has(id) ? false : (used.add(id), true));
     for (const gap of gaps)
       void fillChain(gap, [], skipped.current[gap.id] ?? [], options, controller.signal,
@@ -99,12 +100,14 @@ export function useGapFill({ result, input, profile, ready }: {
  * 빈 시간 한 칸. 확정 정류장과 **같은 모양으로 보이지 않게** 점선 테두리와 "추천 · 영업시간 미확인"을
  * 붙인다. 가게가 문을 열었는지 우리는 모른다. 확정처럼 보이면 팬이 헛걸음한다.
  */
-export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
+export function GapSlot({ state, transfer, onAnother, onRemove, onAgain, onKeep }: {
   state: GapFillState;
   transfer: number;
   onAnother: () => void;
   onRemove: () => void;
   onAgain: () => void;
+  /** 확정 일정으로 넣기 (T-066). 여러 날 여정은 아직 넘기지 않는다 — 버튼이 없다. */
+  onKeep?: () => void;
 }) {
   const { t } = useI18n();
   const idle = t.result.duration(state.gap.end - state.gap.start);
@@ -120,7 +123,7 @@ export function GapSlot({ state, transfer, onAnother, onRemove, onAgain }: {
     </li>;
   }
 
-  return <FilledSlot state={state} transfer={transfer} onAnother={onAnother} onRemove={onRemove} />;
+  return <FilledSlot state={state} transfer={transfer} onAnother={onAnother} onRemove={onRemove} onKeep={onKeep} />;
 }
 
 /**
@@ -145,11 +148,12 @@ function useGooglePhoto(suggestion: RankedSuggestion): PlacePhoto | null {
   return suggestion.photo ?? (photo?.id === suggestion.id ? photo.photo : null);
 }
 
-function FilledSlot({ state, transfer, onAnother, onRemove }: {
+function FilledSlot({ state, transfer, onAnother, onRemove, onKeep }: {
   state: Extract<GapFillState, { status: "filled" }>;
   transfer: number;
   onAnother: () => void;
   onRemove: () => void;
+  onKeep?: () => void;
 }) {
   const { t } = useI18n();
   const { suggestion, fit, legIn } = state;
@@ -178,6 +182,7 @@ function FilledSlot({ state, transfer, onAnother, onRemove }: {
           {t.gap.open} <ExternalIcon />
         </a>
         <span className="ml-auto flex flex-wrap gap-2">
+          {onKeep && <Button size="sm" onClick={onKeep}>{t.gap.keep}</Button>}
           <Button size="sm" variant="ghost" onClick={onAnother}>{t.gap.another}</Button>
           <Button size="sm" variant="ghost" onClick={onRemove}>{t.gap.remove}</Button>
         </span>
