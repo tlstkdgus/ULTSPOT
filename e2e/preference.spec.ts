@@ -84,7 +84,9 @@ test("categories only classify what the data actually says", () => {
   const counts = categoryCounts(catalog);
   expect(counts.landmark).toBe(7);
   expect(counts.birthdayCafe).toBe(3);
-  expect(counts.popup).toBe(0);
+  // T-070 생일 광고 1건, T-078 보도로 확인한 공식 팝업 1건. 둘 다 명시 category로 분류된다.
+  expect(counts.support).toBe(1);
+  expect(counts.popup).toBe(1);
   expect(counts.filming).toBe(0);
   expect(counts.food).toBe(0);
 
