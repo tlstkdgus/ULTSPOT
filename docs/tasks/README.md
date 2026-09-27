@@ -79,3 +79,4 @@
 | [T-074](T-074/README.md) | 추적되지 않은 파일 정리 | 완료 | `chore/T-074-untracked-cleanup` | #88 |
 | [T-075](T-075/README.md) | 아티스트 검색 예시 언어 통일 | 완료 | `fix/T-075-artist-placeholder` | #89 |
 | [T-076](T-076/README.md) | README와 문서 최신화 | 완료 | `docs/T-076-readme-refresh` | #90 |
+| [T-077](T-077/README.md) | 휴무일 안내 검사의 날짜 시한폭탄 | 완료 | `fix/T-077-date-timebomb` | #91 |
