@@ -26,10 +26,13 @@
 
 ## 무엇을 하나
 
-1. **최애 고르기 → SPOT 고르기 → 기간 정하기** — 검수한 K팝 장소·생일카페 중 갈 곳을 담는다.
+1. **최애 고르기 → SPOT 고르기 → 기간 정하기** — 아티스트 243팀·명(그룹 멤버 + 솔로 15명)에서 최애를 고르고, 검수한 장소 11곳(상설 7 · 생일카페 3 · 생일 광고 1) 중 갈 곳을 담는다. 공지를 보고 행사를 직접 추가할 때는 카카오 장소 검색으로 좌표까지 채운다(T-062).
 2. **일정 받기** — 운영시간이 확인된 곳만 시간표에 넣는다. 이동시간은 카카오 길찾기로 재고, 못 잰 구간은 "미확인 · 계획용 여유"로 따로 보여준다.
-3. **빈 시간 채우기** (T-049~T-051) — 확정 일정 사이·끝에 한 시간 이상 비면 주변 식사·카페·관광을 이어서 넣는다. 한국관광공사 영업시간을 아는 곳은 여는 시각·브레이크 타임·휴무일에 맞추고, 사진과 공공누리 출처를 붙인다. 모르는 곳은 "영업시간 미확인"으로 구분한다. 추천은 캘린더·파일로 내보내지 않는다.
-4. **여러 날 여정·현장 기록** — 날짜별 일정, 체크인·가계부·발자취 카드.
+3. **빈 시간 채우기** (T-049~T-051, T-061) — 확정 일정 사이·끝에 한 시간 이상 비면 주변 식사·카페·관광을 이어서 넣는다. 한국관광공사 영업시간을 아는 곳은 여는 시각·브레이크 타임·휴무일에 맞추고, 사진과 공공누리 출처를 붙인다. 모르는 곳은 "영업시간 미확인"으로 구분한다. 추천은 캘린더·파일로 내보내지 않는다.
+4. **추천을 일정에 넣기** (T-066·T-068) — 마음에 드는 추천 카드에서 "일정에 넣기"를 누르면 카드에 보이던 시각 그대로 확정 일정이 된다. 그때부터 내보내기·저장에 들어간다.
+5. **여러 날 여정·현장 기록** — Day별 일정·지도·빈 시간 추천(T-063), 체크인·가계부·발자취 카드.
+
+모든 화면 하단 푸터에서 [개인정보 처리방침](https://ultspot.vercel.app/privacy)을 연다(T-058, 문의처 T-069).
 
 추천 결과를 LLM이 만들지 않는다. 순위만 Jev가 매기고, 들어갈 수 있는지는 코드가 계산한다. 같은 입력이면 같은 결과가 나오고, 없는 영업시간·이동시간을 지어내지 않기 위해서다.
 
@@ -63,6 +66,9 @@ pnpm exec playwright install chromium
 | `pnpm test:data` | 수집 데이터 검사 |
 | `pnpm capture T-NNN [화면,...]` | 3개 뷰포트 스크린샷 → `docs/tasks/T-NNN/screenshots/` |
 | `pnpm check:prod <URL>` | 배포 주소에 E2E 전체를 돌린다. `main` 머지 뒤 `https://ultspot.vercel.app`로 실행 |
+| `pnpm data:check` / `data:prepare` / `data:audit` | 수집 CSV 검증 · 비공개 적재 SQL 생성 · 접수 검토 ([적재 안내](docs/data/intake.md)) |
+| `pnpm data:geocode <JSON> [배치]` | 주소 → 좌표 검수용 사이드카 (카카오, 카탈로그에 자동 반영 안 함) |
+| `pnpm data:extract <포스터> [본문.txt] [연도]` | 포스터 → 필드 후보 (Hugging Face Qwen3.8-27B, T-071·T-073). 데모용 — [결과와 한계](docs/data/x-collection-plan.md) |
 
 ## 배포
 
@@ -90,6 +96,7 @@ pnpm exec playwright install chromium
 | `GOOGLE_MAPS_API_KEY` | **서버** | Secret | Google 장소 사진 없음 |
 | `NEXT_PUBLIC_GOOGLE_MAPS_JS_KEY` | 브라우저(리퍼러 제한) | Config | 일정 지도가 카카오. Google 사진도 쓰지 않음(Places 약관) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | 브라우저(공개 값) | Config | GA 없음 |
+| `HF_TOKEN` | **로컬 스크립트만** | 넣지 않음 | `pnpm data:extract`만 멈춘다. 앱은 쓰지 않는다(T-071) |
 | `OPENAI_API_KEY` | **서버** | — | 쓰지 않음. 시간 계산을 LLM에 맡기지 않기로 했다(T-049) |
 
 서버 쪽 외부 호출에는 일일 상한이 있습니다: 카카오 경로 800 · 주변 검색 600 · Jev 300 · TourAPI 검색 400·영업시간 600 · Google 사진 30. 인스턴스마다 따로 세는 메모리 상한입니다.
@@ -136,7 +143,8 @@ T-011: `/plan`의 Your spots에서 아티스트 검색·다중 선택·저장이
 |------|------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | **브랜치 · 커밋 · PR · 캡처 · 태스크 기록 규칙** — 작업 전에 먼저 읽어주세요 |
 | [docs/specs/submission-requirements.md](docs/specs/submission-requirements.md) | **원티드 AI 챔피언십 제출 요건** (마감 9/20) — 설치·키 발급 없이 체험, 서버 전용 키, 접속 가능 상태 |
-| [docs/specs/prd.md](docs/specs/prd.md) | **PRD** — 목표·범위(P0/P1/P2)·지표. 짝 문서: [기능명세서](docs/specs/functional-spec.md) · [유저플로우](docs/specs/user-flow.md) |
+| [docs/specs/prd.md](docs/specs/prd.md) | **PRD** — 목표·범위(P0/P1/P2)·지표. 짝 문서: [기능명세서](docs/specs/functional-spec.md) · [유저플로우](docs/specs/user-flow.md). **9/20 제출 시점 기획서로 고정** — 이후 구현은 Manyfast와 태스크 기록이 기준 |
+| [docs/data/x-collection-plan.md](docs/data/x-collection-plan.md) | X 팬 이벤트 수집·분류 설계, 생일 광고, 포스터 추출 모델과 첫 실행 결과 |
 | [docs/design-system.md](docs/design-system.md) | 토큰·컴포넌트 사용법과 브랜드 가이드 규칙 |
 | [docs/tasks/](docs/tasks/README.md) | 태스크 목록과 작업 기록 |
 | [docs/tasks/T-055](docs/tasks/T-055/README.md) | 최근 impeccable UI 감사(17/20)와 남은 과제 |
