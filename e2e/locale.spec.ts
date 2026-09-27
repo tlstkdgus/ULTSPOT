@@ -84,25 +84,35 @@ test("고르기 전에 운영 상태를 알리고, 일정은 캘린더 파일로
   expect(ics).toContain("END:VCALENDAR");
 });
 
+/** 오늘(서울 날짜) 다음 날부터 찾은 첫 월요일과 그다음 날. 오늘과 절대 겹치지 않는다. */
+function nextMondayAfterToday() {
+  const today = new Date(Date.now() + 9 * 3600_000);
+  const day = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
+  while (day.getUTCDay() !== 1) day.setUTCDate(day.getUTCDate() + 1);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  return { monday: iso(day), tuesday: iso(new Date(day.getTime() + 86_400_000)) };
+}
+
 test("날짜를 바꾸면 그날 열지 않는 곳을 알려주되 담아둔 것을 지우지 않는다", async ({ page }) => {
   await page.goto("/plan");
   await browseAllSpots(page, "ko");
-  // 하이커 그라운드는 월요일 휴관이다. 2026-09-28이 월요일.
-  // 오늘 날짜를 쓰지 않는다: 여행 날짜 입력의 기본값이 오늘이라 같은 값을 fill하면 change가
-  // 일어나지 않고 changeDate()가 돌지 않는다. 2026-09-21을 쓰던 이 검사는 그날이 오자 깨졌다.
+  // 하이커 그라운드는 월요일 휴관이다. 오늘(서울) 이후의 첫 월요일과 그다음 날을 쓴다.
+  // 고정 날짜를 쓰지 않는다: 여행 날짜 입력의 기본값이 오늘이라, 고정 날짜가 오늘이 되는 날 같은 값을 fill하면
+  // change가 일어나지 않아 changeDate()가 돌지 않는다. 2026-09-21도, 그걸 고친 2026-09-28도 그날이 오자 깨졌다(T-077).
+  const { monday, tuesday } = nextMondayAfterToday();
   await page.getByRole("button", { name: "담기 하이커 그라운드 · K팝 체험 공간", exact: true }).click();
   await goToStep(page, 2, "ko");
-  await page.getByLabel("여행 날짜").fill("2026-09-28");
+  await page.getByLabel("여행 날짜").fill(monday);
   await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toBeVisible();
   // 담은 것은 그대로 남아 있다 (T-029: 날짜가 장소 뒤로 내려가서 조용히 지우면 안 된다).
   await goToStep(page, 1, "ko");
   await expect(page.getByRole("button", { name: "빼기 하이커 그라운드 · K팝 체험 공간", exact: true })).toBeVisible();
   // 여는 날짜로 바꾸면 안내가 사라진다.
   await goToStep(page, 2, "ko");
-  await page.getByLabel("여행 날짜").fill("2026-09-29");
+  await page.getByLabel("여행 날짜").fill(tuesday);
   await expect(page.getByRole("status").filter({ hasText: "이 날짜에 열지 않아요" })).toHaveCount(0);
   // 일정에서는 제외 사유로 설명한다.
-  await page.getByLabel("여행 날짜").fill("2026-09-28");
+  await page.getByLabel("여행 날짜").fill(monday);
   await page.getByRole("button", { name: "일정 만들기" }).click();
   await expect(page.getByText("이 요일은 휴무예요", { exact: false })).toBeVisible();
 });
